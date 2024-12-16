@@ -5,10 +5,11 @@
     height: 10%;
     left: 0;
     top: 0;
-    background: linear-gradient(89.62deg, #3EC5E9 43.54%, #04238B 100%);
+    background: linear-gradient(89.62deg, #3EC5E9 43.54%, #04238B 90%);
     display: flex;
-    justify-content: center;
+    justify-content: right;
     align-items: center;
+    padding-right: 50px;
   }
   
 
