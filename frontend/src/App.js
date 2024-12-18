@@ -7,7 +7,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 import Home from './Home.js';
-
+import ManageRoom from './ManageRoom.js';
 function App() {
   return (
     // <div className="App">
@@ -45,8 +45,8 @@ function App() {
 
     <Routes>
 
-    <Route path="/" element={<Home />} exact />
-
+    <Route path="/Home" element={<Home />} exact />
+    <Route path="/ManageRoom" element={<ManageRoom />} exact />
     </Routes>
 
 

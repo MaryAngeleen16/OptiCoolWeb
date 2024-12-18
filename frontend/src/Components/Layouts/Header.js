@@ -1,13 +1,13 @@
 import React from 'react';
 import './Header.css';  // Your custom CSS file
-
+import ManageRoom from '../../ManageRoom';
+import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 function Header() {
   return (
     <div className="headercustom">  {/* Custom header section */}
       <div className="navbar">
-        <a href="/">Home</a>
-        <a href="/">Environment Status</a>
-        <a href="/">Appliance Status</a>
+        <a href="/home">Home</a>
+        <a href="/manageRoom">Manage Room</a>
         <a href="/">Dashboard</a>
 
 
