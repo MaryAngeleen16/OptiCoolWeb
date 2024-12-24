@@ -1,30 +1,28 @@
 import React, { useState } from 'react';
 import './Thermostat.css';
 
-function Thermostat() {
-  const [temperature, setTemperature] = useState(19); // Example temperature (in °C)
+function Thermostat({ isAuto }) {
+  const [temperature, setTemperature] = useState(19); // Initial temperature in °C
+  const radius = 70; // Circle radius
+  const width = 250; // SVG width
+  const height = 150; // SVG height
+  const circumference = Math.PI * radius; // Half-circle circumference
+  const maxProgressAngle = 90; // Max angle for the half-circle progress
 
-  const radius = 70; // Radius of the circle (half the size)
-  const width = 250; // Width of the SVG to make it bigger
-  const height = 150; // Height of the SVG to maintain proportion
-  const circumference = Math.PI * radius; // Half circumference of the circle (only the top part)
-  const maxProgressAngle = 90; // Max angle of the half circle (from 180° to 90°)
-  
-  // Calculate progress based on the temperature, ensuring 10% of the top half circle at 19°C
-  const progressAngle = ((temperature - 19) / (28 - 19)) * maxProgressAngle; // This will calculate the angle from 0 to 90°
+  // Calculate progress angle based on temperature range
+  const progressAngle = ((temperature - 19) / (28 - 19)) * maxProgressAngle;
 
-  // Function to increase the temperature
-  const increaseTemperature = () => {
-    setTemperature((prevTemp) => Math.min(prevTemp + 1, 28)); // Limit to 28°C
-  };
+  // Calculate stroke-dashoffset for the progress bar
+  const strokeDashoffset =
+    circumference - (circumference * progressAngle) / maxProgressAngle;
 
-  // Function to decrease the temperature
-  const decreaseTemperature = () => {
-    setTemperature((prevTemp) => Math.max(prevTemp - 1, 19)); // Limit to 19°C
-  };
+  // Increase temperature, limit to 28°C
+  const increaseTemperature = () =>
+    setTemperature((prevTemp) => Math.min(prevTemp + 1, 28));
 
-  // Convert progress angle to a stroke-dashoffset value
-  const strokeDashoffset = circumference - (circumference * (progressAngle / maxProgressAngle));
+  // Decrease temperature, limit to 19°C
+  const decreaseTemperature = () =>
+    setTemperature((prevTemp) => Math.max(prevTemp - 1, 19));
 
   return (
     <div className="thermostat-container">
@@ -34,7 +32,6 @@ function Thermostat() {
           cx="125"
           cy="125"
           r={radius}
-          stroke="#ffffff" // White outline
           strokeWidth="10"
           fill="none"
         />
@@ -43,26 +40,29 @@ function Thermostat() {
           cx="125"
           cy="125"
           r={radius}
-          stroke="#007bff" // Blue progress color
           strokeWidth="10"
           fill="none"
-          strokeDasharray={circumference} // Half circumference for half circle
-          strokeDashoffset={strokeDashoffset} // Adjust the progress based on calculated value
-          transform="rotate(180, 125, 125)" // Rotate the circle to start from the bottom (180°)
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          transform="rotate(180, 125, 125)" // Rotate circle to start at bottom
         />
       </svg>
 
-      {/* Temperature Display */}
-      <div className="temperature-display">
-        <span>{temperature}°C</span>
-      </div>
+      <div className="temperature-display">{temperature}°C</div>
 
-      {/* Temperature Adjust Buttons */}
       <div className="temperature-adjust">
-        <button className="adjust-button minus" onClick={decreaseTemperature}>
+        <button
+          className="adjust-button minus"
+          onClick={decreaseTemperature}
+          disabled={isAuto} // Disable in Auto mode
+        >
           -
         </button>
-        <button className="adjust-button add" onClick={increaseTemperature}>
+        <button
+          className="adjust-button add"
+          onClick={increaseTemperature}
+          disabled={isAuto} // Disable in Auto mode
+        >
           +
         </button>
       </div>

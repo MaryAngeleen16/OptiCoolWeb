@@ -164,3 +164,22 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(24px);
 }
+
+
+.control-button {
+  margin-right: 5px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.on-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+.off-button {
+  background-color: #f44336;
+  color: white;
+}

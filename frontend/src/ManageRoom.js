@@ -3,9 +3,6 @@ import Header from './Components/Layouts/Header';
 import './ManageRoom.css';
 import Thermostat from './Thermostat';
 
-
-
-
 function ManageRoom() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [isAuto, setIsAuto] = useState(false); // State to toggle between Manual and Auto
@@ -23,14 +20,13 @@ function ManageRoom() {
     { name: 'TEMP N HUMID SENSOR (INSIDE)', status: 'Offline' },
   ];
 
-  // Filtering logic
   const filteredItems = () => {
     if (activeCategory === 'Appliances') {
       return allItems.filter(item => item.name.includes('AC') || item.name.includes('FAN') || item.name.includes('BLOWER'));
     } else if (activeCategory === 'Sensors') {
       return allItems.filter(item => item.name.includes('SENSOR'));
     }
-    return allItems; // Default to "All"
+    return allItems;
   };
 
   return (
@@ -45,18 +41,16 @@ function ManageRoom() {
               <input
                 type="checkbox"
                 checked={isAuto}
-                onChange={() => setIsAuto(!isAuto)} // Toggles the state
+                onChange={() => setIsAuto(!isAuto)}
               />
               <span className="slider round"></span>
             </label>
             <span className={`toggle-label ${isAuto ? 'active' : ''}`}>Auto</span>
           </div>
 
-
           <div className="thermostats-container">
-  <Thermostat />
-</div>
-
+          <Thermostat isAuto={isAuto} />
+          </div>
         </div>
       </div>
 
@@ -67,14 +61,12 @@ function ManageRoom() {
         >
           All
         </button>
-
         <button
           className={`buttons-style ${activeCategory === 'Appliances' ? 'active' : ''}`}
           onClick={() => setActiveCategory('Appliances')}
         >
           Appliances
         </button>
-
         <button
           className={`buttons-style ${activeCategory === 'Sensors' ? 'active' : ''}`}
           onClick={() => setActiveCategory('Sensors')}
@@ -83,7 +75,6 @@ function ManageRoom() {
         </button>
       </div>
 
-      {/* Table Container */}
       <div className="table-container">
         <div className="table-header">
           <div className="column">Appliances</div>
@@ -96,6 +87,12 @@ function ManageRoom() {
             <div className="column">{item.name}</div>
             <div className="column">{item.status}</div>
             <div className="column">
+              {!isAuto && !item.name.includes('SENSOR') && (
+                <>
+                  <button className="control-button on-button">On</button>
+                  <button className="control-button off-button">Off</button>
+                </>
+              )}
               <button className="report-button">Report</button>
             </div>
           </div>

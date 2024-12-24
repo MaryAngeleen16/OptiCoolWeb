@@ -1,72 +1,71 @@
 .thermostat-container {
-    position: relative;
-    width: 250px;
-    height: 200px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: -10%;
-  }
-  
-  .circle-background {
-    stroke-linecap: round;
-    stroke: #ffffff;  /* White outline for the circle */
-  }
-  
-  .circle-progress {
-    transition: stroke-dashoffset 0.5s ease;
-    stroke-linecap: round;
-    stroke: #007bff;  /* Blue color for the progress */
-  }
-  
-  .temperature-display {
-    position: absolute;
-    bottom: 30px;  /* Position it slightly above the bottom */
-    left: 50%;  /* Center it horizontally */
-    transform: translateX(-50%);  /* Adjust the position to center it perfectly */
-    font-size: 30px;  /* Adjust font size if needed */
-    font-weight: bold;
-    color: #007bff;
-  }
-  
-  
-  .temperature-adjust {
-    position: absolute;
-    width: 100%;
-    top: 100%;
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 40px;
-  }
-  
-  .adjust-button {
-    width: 75px;
-    height: 50px;
-    border: none;
-    color: white;
-    font-size: 40px;
-    font-weight: bold;
-    border-radius: 25%;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    display: flex;               /* Use flexbox for centering */
-    justify-content: center;     /* Horizontally center the text */
-    align-items: center;         /* Vertically center the text */
-
-
+  position: relative;
+  width: 250px;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: -10%;
 }
 
-.adjust-button.minus 
-{
-background-color: red;
+.circle-background {
+  stroke-linecap: round;
+  stroke: #ffffff; /* White outline for the circle */
+}
+
+.circle-progress {
+  transition: stroke-dashoffset 0.5s ease;
+  stroke-linecap: round;
+  stroke: #007bff; /* Blue color for the progress */
+}
+
+.temperature-display {
+  position: absolute;
+  bottom: 30px; /* Position it slightly above the bottom */
+  left: 50%; /* Center it horizontally */
+  transform: translateX(-50%); /* Adjust the position to center it perfectly */
+  font-size: 30px; /* Adjust font size if needed */
+  font-weight: bold;
+  color: #007bff;
+}
+
+.temperature-adjust {
+  position: absolute;
+  width: 100%;
+  top: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 40px;
+}
+
+.adjust-button {
+  width: 75px;
+  height: 50px;
+  border: none;
+  color: white;
+  font-size: 40px;
+  font-weight: bold;
+  border-radius: 25%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  display: flex; /* Use flexbox for centering */
+  justify-content: center; /* Horizontally center the text */
+  align-items: center; /* Vertically center the text */
+}
+
+.adjust-button.minus {
+  background-color: red;
 }
 
 .adjust-button.add {
-background-color: blue;
+  background-color: blue;
 }
-  
-  
-  .adjust-button:hover {
-    background-color: #0056b3;
-  }
-  
+
+.adjust-button:hover {
+  background-color: #0056b3;
+}
+
+.control-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
