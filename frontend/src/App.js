@@ -5,6 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Home from './Home.js';
 import ManageRoom from './ManageRoom.js';
+import Login from './Pages/Login.js';
+import Register from './Pages/Register.js';
 
 function App() {
   return (
@@ -14,6 +16,10 @@ function App() {
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
         <Route path="/manageRoom" element={<ManageRoom />} />
+
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
       </Routes>
     </Router>
   );
