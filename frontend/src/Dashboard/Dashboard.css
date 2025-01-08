@@ -1,0 +1,55 @@
+
+.dashboard-container {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+.dashboard-header {
+  background-color: #282c34;
+  color: white;
+  padding: 20px;
+}
+
+.dashboard-main {
+  margin: 20px auto;
+  max-width: 800px;
+}
+
+.info-cards {
+  display: flex;
+  justify-content: space-around;
+}
+
+.card {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  padding: 20px;
+  width: 45%;
+}
+
+.navigation-buttons {
+  margin-top: 20px;
+}
+
+button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 10px 20px;
+  margin: 0 10px;
+  border-radius: 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.dashboard-footer {
+  margin-top: 30px;
+  font-size: 14px;
+  color: gray;
+}
+
