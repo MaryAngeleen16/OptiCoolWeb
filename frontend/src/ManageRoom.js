@@ -49,7 +49,7 @@ function ManageRoom() {
           </div>
 
           <div className="thermostats-container">
-          <Thermostat isAuto={isAuto} />
+            <Thermostat isAuto={isAuto} />
           </div>
         </div>
       </div>

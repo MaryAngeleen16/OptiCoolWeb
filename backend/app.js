@@ -10,9 +10,10 @@ app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
 
-
+const userRoutes = require('./routes/userRoutes')
 
 // Use the imported routes modules
+app.use('/api/v1/users', userRoutes)
 // app.use('/api', forum);
 // app.use('/api', event);
 // app.use('/api', venue);
