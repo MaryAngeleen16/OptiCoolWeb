@@ -5,7 +5,8 @@
     height: 13%;
     left: 0;
     top: 0;
-    background: #eaf2fd;
+    /* background: #eaf2fd; */
+    background: #ffffff;
     display: flex;
     justify-content: right;
     align-items: center;
@@ -30,7 +31,8 @@
     width: 80px; /* Set the desired width */
     height: 80px; /* Maintain aspect ratio */
     margin-right: 15px;
-    margin-top: 20px;
+    margin-left: 50px;
+    margin-top: 65px;
     margin-bottom: 20px;
     border-radius: 20%;
   }
@@ -47,6 +49,7 @@
     font-size: 24px;
     font-weight: bold;
     margin-right: 900px;
+    margin-top: 45px;
     color: #4f5e70;
 }
 

@@ -1,20 +1,9 @@
-/* .envstatus-container {
-    display: flex;
-    justify-content: center; 
-    align-items: flex-start; 
-    margin-top: 5%; 
-    margin-bottom: 3%;
-    width: 100%;
-  }
-  
-  .envstatus {
-    width: 90%;
-    height: 100px;
-    background: #FFFF;
-    box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
-    border-radius: 20px;
-  } */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap');
 
+body {
+  background-color: #eaf2fd; 
+  font-family: 'Roboto', sans-serif;
+}
 
   .envstatus-container {
     display: flex;
