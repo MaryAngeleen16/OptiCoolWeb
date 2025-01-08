@@ -1,68 +1,115 @@
-/* General Styles */
-body {
-    margin: 0;
-    font-family: "Roboto", sans-serif;
-    color: #333;
-    line-height: 1.6;
-  }
-  
-  .landing-page {
-    text-align: center;
-  }
-  
-  header {
+.landing-page {
+    position: relative; /* Establish a positioning context for absolute elements */
     display: flex;
-    justify-content: space-between;
+    height: 100vh; /* Full viewport height */
+    width: 100%;
+    overflow: hidden; /* Prevent scrolling if the image overflows */
+  }
+  
+  /* Left Section Styles */
+  .left-section {
+    flex: 3; 
+    background-color: #eaf2fd; 
+    color: white;
+    display: flex;
     align-items: center;
+    justify-content: center;
     padding: 20px;
-    background: #007bff;
-    color: #fff;
   }
   
-  .nav a {
-    color: #fff;
-    margin: 0 10px;
-    text-decoration: none;
-  }
-  
-  .nav a:hover {
-    text-decoration: underline;
-  }
-  
-  .hero {
-    padding: 50px;
-    background: #f4f4f4;
-  }
-  
-  .hero-content h1 {
-    font-size: 3rem;
-    margin-bottom: 20px;
-  }
-  
-  .cta-button {
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    color: #fff;
-    background: #007bff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .cta-button:hover {
-    background: #0056b3;
-  }
-  
-  .features, .about, .contact {
-    padding: 50px;
-  }
-  
-  .features-list {
+  /* Right Section Styles */
+  .right-section {
+    flex: 1; /* Take up half the width */
+    background-color: #ffffff; 
+    color: black;
     display: flex;
-    justify-content: space-around;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
   }
   
-  .feature {
-    max-width: 300px;
+  /* Image Styling */
+  .landing-page img {
+    position: absolute; /* Position the image over the two sections */
+    top: 0;
+    margin-top: 95px;
+    margin-left: 360px;
+    left: 50%; /* Center horizontally */
+    transform: translateX(-50%); /* Adjust position to align center */
+    width: auto; /* Keep the original aspect ratio */
+    max-width: 80%; /* Reduce the image width */
+    max-height: 68%; /* Adjust the image height to make it smaller */
+    object-fit: contain; /* Ensure the image scales properly without distortion */
+    z-index: 2; /* Place the image on top of the sections */
   }
   
+  /* Section Content */
+  .section-content {
+    text-align: left;
+    z-index: 1; /* Ensure content is below the image */
+    margin-right: 400px;
+    margin-bottom: 250px
+  }
+
+  .section-content title1 {
+    font-size: 5rem; /* Larger font size for title */
+    font-weight: bold; /* Make the title bold */
+    display: block; /* Ensure it behaves like a block element */
+    margin-bottom: 10px; /* Add spacing below the title */
+    color: black;
+  }
+  
+  .section-content subtitle {
+    font-size: 1.5rem; /* Larger font size for subtitle */
+    font-weight: 300; /* Use lighter font for contrast with title */
+    display: block; /* Ensure it behaves like a block element */
+    margin-top: 0; /* Ensure no extra spacing above */
+    color: black;
+  }
+
+  
+  .button-container {
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    align-items: center;
+    gap: 20px; /* Space between buttons */
+    padding: 20px;
+    margin-bottom: -100px;
+    margin-top: 70px;
+  }
+  
+  /* General Button Styling */
+  .action-button {
+    width: 90%; /* Full-width for a mobile-friendly design */
+    max-width: 300px; /* Prevent buttons from getting too wide */
+    padding: 10px 15px;
+    border: none;
+    border-radius: 30px; /* Rounded corners */
+    font-size: 1rem; /* Readable text size */
+    font-weight: bold;
+    color: rgb(8, 8, 8);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px; /* Space for icons if needed */
+  }
+  
+  /* Specific Button Styles */
+  .login-button {
+    background-color: #ffffff;
+  }
+  
+  .signup-button {
+    background-color: #ffffff; 
+  }
+  
+  .qr-button {
+    background-color: #000000; 
+    color: rgb(255, 255, 255);
+  }
+  
+  /* Add hover effects for better interaction */
+  .action-button:hover {
+    opacity: 0.9;
+  }
