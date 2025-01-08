@@ -8,12 +8,14 @@ import ManageRoom from './ManageRoom.js';
 import Login from './Pages/Login.js';
 import Register from './Pages/Register.js';
 import Dashb from './Dashboard/Dashb.js';
+import LandingPage from './Pages/LandingPage.js';
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Navigate to="/home" replace />} />
+        <Route path="/" element={<Navigate to="/LandingPage" replace />} />
+        <Route path="/LandingPage" element={<LandingPage />} />
         <Route path="/home" element={<Home />} />
         <Route path="/manageRoom" element={<ManageRoom />} />
         <Route path="/dashboard" element={<Dashb />} />

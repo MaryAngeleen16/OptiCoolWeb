@@ -1,0 +1,68 @@
+/* General Styles */
+body {
+    margin: 0;
+    font-family: "Roboto", sans-serif;
+    color: #333;
+    line-height: 1.6;
+  }
+  
+  .landing-page {
+    text-align: center;
+  }
+  
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #007bff;
+    color: #fff;
+  }
+  
+  .nav a {
+    color: #fff;
+    margin: 0 10px;
+    text-decoration: none;
+  }
+  
+  .nav a:hover {
+    text-decoration: underline;
+  }
+  
+  .hero {
+    padding: 50px;
+    background: #f4f4f4;
+  }
+  
+  .hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  .cta-button {
+    padding: 10px 20px;
+    font-size: 1.2rem;
+    color: #fff;
+    background: #007bff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .cta-button:hover {
+    background: #0056b3;
+  }
+  
+  .features, .about, .contact {
+    padding: 50px;
+  }
+  
+  .features-list {
+    display: flex;
+    justify-content: space-around;
+  }
+  
+  .feature {
+    max-width: 300px;
+  }
+  

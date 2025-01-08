@@ -113,12 +113,18 @@ body {
     color: #FF5733; /* Change the color using 'currentColor' */
   }
 
-  .no-scrollbar {
-    scrollbar-width: none; /* For Firefox */
-    -ms-overflow-style: none; /* For Internet Explorer and Edge */
-  }
-  
-  .no-scrollbar::-webkit-scrollbar {
-    display: none; /* For Chrome, Safari, and Opera */
-  }
+  /* Hide scrollbar but allow scrolling */
+body {
+  overflow-y: scroll;
+}
+
+body::-webkit-scrollbar {
+  display: none; /* Hides scrollbar in WebKit-based browsers */
+}
+
+html {
+  -ms-overflow-style: none; /* Hides scrollbar in IE and Edge */
+  scrollbar-width: none; /* Hides scrollbar in Firefox */
+}
+
   
