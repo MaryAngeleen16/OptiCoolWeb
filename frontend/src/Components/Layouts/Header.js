@@ -14,12 +14,17 @@ function Header() {
             <span className="logo-subtitle">DMT Room</span>
         </div>
 
-        <a href="/home">Home</a>
-        <a href="/manageRoom">Manage Room</a>
-        <a href="/">Dashboard</a>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
+      
       </div>
+
+
+      <div className="navbar">
+          <a href="/home">Home</a>
+            <a href="/manageRoom">Manage Room</a>
+            <a href="/">Dashboard</a>
+            <a href="/login">Login</a>
+            <a href="/register">Register</a>
+        </div>
     </div>
   );
 }

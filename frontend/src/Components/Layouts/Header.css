@@ -1,4 +1,4 @@
-
+/* 
 .headercustom {
     position: absolute;
     width: 100%;
@@ -28,8 +28,8 @@
   
 
   .logo {
-    width: 80px; /* Set the desired width */
-    height: 80px; /* Maintain aspect ratio */
+    width: 80px; 
+    height: 80px; 
     margin-right: 15px;
     margin-left: 50px;
     margin-top: 65px;
@@ -40,8 +40,8 @@
   .logo-container {
     display: flex;
     flex-direction: column;
-    align-items: center; /* Centers the text horizontally */
-    justify-content: center; /* Centers the text vertically */
+    align-items: center; 
+    justify-content: center; 
     text-align: center;
 }
 
@@ -60,7 +60,6 @@
 }
 
 
-  /* Responsive navbar: stack links vertically on small screens */
   @media (max-width: 768px) {
     .navbar {
       flex-direction: column;
@@ -69,4 +68,120 @@
     .navbar a {
       padding: 10px;
     }
+  } */
+
+
+
+
+
+
+  
+
+
+  .headercustom {
+    position: absolute;
+    width: 100%;
+    height: 13%;
+    left: 0;
+    top: 0;
+    background: #eaf2fd;
+    display: flex;
+    justify-content: space-between; /* Creates space between logo and navbar links */
+    align-items: center;
+    padding: 0 20px; /* Adds padding on both sides */
   }
+  
+  .navbar {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 20px; /* Adds spacing between the links */
+    margin-left: auto; /* Pushes the links to the far right */
+    color: #4f5e70 !important;
+    text-align: center;
+    padding: 8px 12px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem; /* Scales font size responsively */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+  }
+  
+  .navbar a {
+    color: #4f5e70;
+    text-align: center;
+    padding: 8px 12px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1rem; /* Scales font size responsively */
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth hover effect */
+  }
+  
+  .navbar a:hover {
+    background-color: #ffffff;
+    color: black;
+    border-radius: 5px; /* Adds slight rounding for a polished look */
+  }
+  
+  .logo {
+    width: 10vw; /* Responsive width based on viewport width */
+    height: auto; /* Maintains aspect ratio */
+    max-width: 80px; /* Prevents the logo from getting too large on big screens */
+    margin-right: 15px;
+    border-radius: 20%;
+  }
+  
+  .logo-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centers the text vertically */
+    text-align: center;
+  }
+  
+  .logo-title {
+    font-size: 1.5rem; /* Scales font size responsively */
+    font-weight: bold;
+    color: #4f5e70;
+  }
+  
+  .logo-subtitle {
+    font-size: 0.9rem; /* Adjusted for better visibility */
+    color: rgb(0, 0, 0);
+  }
+  
+  /* Responsive styles for smaller screens */
+  @media (max-width: 768px) {
+    .headercustom {
+      flex-direction: column; /* Stacks logo and navigation vertically */
+      height: auto; /* Adjusts height to fit content */
+      padding: 10px; /* Reduces padding on smaller screens */
+    }
+  
+    .navbar-links {
+      flex-direction: column;
+      gap: 10px; /* Adjusted spacing for vertical layout */
+      margin-left: 0; /* Resets margin for smaller screens */
+      
+    }
+  
+    .navbar a {
+      font-size: 0.9rem; /* Smaller font size for better fit */
+      padding: 6px 10px;
+    }
+  
+    .logo {
+      width: 50px; /* Scales down logo on smaller screens */
+    }
+  
+    .logo-title {
+      font-size: 1.2rem;
+    }
+  
+    .logo-subtitle {
+      font-size: 0.8rem;
+    }
+  }
+
