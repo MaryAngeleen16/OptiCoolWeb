@@ -1,0 +1,19 @@
+.humidity-usage-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+.title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+.chart-container {
+    margin: 20px 0;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
