@@ -5,8 +5,7 @@
     height: 13%;
     left: 0;
     top: 0;
-    /* background: #eaf2fd; */
-    background: #ffffff;
+    background: #eaf2fd;
     display: flex;
     justify-content: right;
     align-items: center;
@@ -31,8 +30,7 @@
     width: 80px; 
     height: 80px; 
     margin-right: 15px;
-    margin-left: 50px;
-    margin-top: 65px;
+    margin-top: 20px;
     margin-bottom: 20px;
     border-radius: 20%;
   }
@@ -49,7 +47,6 @@
     font-size: 24px;
     font-weight: bold;
     margin-right: 900px;
-    margin-top: 45px;
     color: #4f5e70;
 }
 
@@ -84,7 +81,8 @@
     height: 13%;
     left: 0;
     top: 0;
-    background: #eaf2fd;
+    /* background: #eaf2fd; */
+    background: #ffffff;
     display: flex;
     justify-content: space-between; /* Creates space between logo and navbar links */
     align-items: center;
@@ -150,6 +148,7 @@
   .logo-subtitle {
     font-size: 0.9rem; /* Adjusted for better visibility */
     color: rgb(0, 0, 0);
+    margin-left: px;
   }
   
   /* Responsive styles for smaller screens */
@@ -184,4 +183,3 @@
       font-size: 0.8rem;
     }
   }
-
