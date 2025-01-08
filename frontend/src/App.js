@@ -10,7 +10,6 @@ function App() {
   return (
     <Router>
       <Routes>
-        {/* Redirect from "/" to "/home" */}
         <Route path="/" element={<Navigate to="/home" replace />} />
         <Route path="/home" element={<Home />} />
         <Route path="/manageRoom" element={<ManageRoom />} />

@@ -2,20 +2,18 @@
 .headercustom {
     position: absolute;
     width: 100%;
-    height: 10%;
+    height: 13%;
     left: 0;
     top: 0;
-    background: linear-gradient(89.62deg, #3EC5E9 43.54%, #04238B 90%);
+    background: #eaf2fd;
     display: flex;
     justify-content: right;
     align-items: center;
     padding-right: 50px;
   }
   
-
-  
   .navbar a {
-    color: white;
+    color: #4f5e70;
     text-align: center;
     padding: 14px 20px;
     text-decoration: none;
@@ -23,10 +21,42 @@
   }
   
   .navbar a:hover {
-    background-color: #ddd;
+    background-color: #ffffff;
     color: black;
   }
   
+
+  .logo {
+    width: 80px; /* Set the desired width */
+    height: 80px; /* Maintain aspect ratio */
+    margin-right: 15px;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 20%;
+  }
+  
+  .logo-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centers the text horizontally */
+    justify-content: center; /* Centers the text vertically */
+    text-align: center;
+}
+
+.logo-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-right: 900px;
+    color: #4f5e70;
+}
+
+.logo-subtitle {
+    font-size: 14px;
+    margin-right: 895px;
+    color: rgb(0, 0, 0);
+}
+
+
   /* Responsive navbar: stack links vertically on small screens */
   @media (max-width: 768px) {
     .navbar {
@@ -37,4 +67,3 @@
       padding: 10px;
     }
   }
-  

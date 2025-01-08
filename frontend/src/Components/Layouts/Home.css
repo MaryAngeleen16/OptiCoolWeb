@@ -117,14 +117,19 @@
     color: #222;
   }
   
-
-
-
-
-
   .button-icon {
     width: 20px;
     height: 20px;
     margin-right: 10px;
     color: #FF5733; /* Change the color using 'currentColor' */
   }
+
+  .no-scrollbar {
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+  }
+  
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+  }
+  

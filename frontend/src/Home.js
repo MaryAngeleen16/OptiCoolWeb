@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Header from "./Components/Layouts/Header";
-import "./Home.css";
+import "./Components/Layouts/Home.css";
 
 function Home() {
   // AccuWeather API Constants
