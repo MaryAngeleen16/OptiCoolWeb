@@ -1,7 +1,7 @@
 import React from 'react';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
-
+import './StylesUsage.css';
 // Register the necessary Chart.js components
 ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
@@ -63,10 +63,10 @@ const ElectricityUsage = () => {
     const hourlyData = data[0].hourlyUsage;
 
     return (
-        <div style={{ padding: '20px' }}>
+        <div>
             <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Power Consumption Report</h1>
 
-            <section style={{  marginBottom: '5%' }}>
+            <section className="general-div">
                 <h2 >Daily</h2>
                 <Line
                     data={{
@@ -90,7 +90,7 @@ const ElectricityUsage = () => {
                 />
             </section>
 
-            <section style={{  marginBottom: '5%' }}>
+            <section className="general-div">
                 <h2>Weekly</h2>
                 <Line
                     data={{
@@ -114,7 +114,7 @@ const ElectricityUsage = () => {
                 />
             </section>
 
-            <section style={{  marginBottom: '5%' }}>
+            <section className="general-div">
                 <h2>Monthly</h2>
                 <Line
                     data={{

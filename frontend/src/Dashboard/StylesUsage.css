@@ -1,0 +1,20 @@
+.general-div {
+    padding: 4%;
+    max-width: 75%;
+    height: auto; /* Allow height to adjust based on content */
+    margin: 7% auto; 
+    display: flex; /* Enables flexbox */
+    flex-direction: column; /* Ensures elements stack vertically */
+    align-items: center; 
+    justify-content: center; 
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
+    background-color: #f9f9f9; 
+    overflow: hidden; /* Prevent content overflow */
+    min-height: 400px; /* Optional: Set a minimum height for consistent styling */
+    max-height: 80vh; /* Optional: Limits height to 80% of the viewport height */
+}
+
+
+
+

@@ -9,6 +9,7 @@ import {
     Tooltip,
     Legend,
 } from 'chart.js';
+import './StylesUsage.css'; 
 
 // Register the required components for Chart.js
 ChartJS.register(BarElement, CategoryScale, LinearScale, Title, Tooltip, Legend);
@@ -80,7 +81,7 @@ const HumidityUsage = () => {
     };
 
     return (
-        <div style={{ padding: '20px', height: '500px', marginTop: '5%', marginBottom: '5%' }}>
+        <div className='general-div'>
          <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Humidity Usage Report</h1>
 
             <Bar data={barChartData} options={options} />

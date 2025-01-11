@@ -4,6 +4,8 @@ import './Dashboard.css';
 import Header from '../Components/Layouts/Header';
 import HumidityUsage from './HumidityUsage';
 import ElectricityUsage from './ElectricityUsage';
+import TemperatureUsage from './TemperatureUsage';
+import './StylesUsage.css';
 const Dashb = () => {
   return (
     <div className="dashboard-container">
@@ -12,6 +14,8 @@ const Dashb = () => {
          <HumidityUsage/>
 
          <ElectricityUsage/>
+
+         <TemperatureUsage />
     </div>
   );
 };
