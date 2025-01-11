@@ -5,8 +5,14 @@ import axios from 'axios';
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import mime from 'mime'
+import { useNavigate } from 'react-router-dom';
+import { setAuth } from '../states/authSlice';
+import { useDispatch } from 'react-redux';
 
 export default function Register() {
+
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const validationSchema = Yup.object().shape({
         username: Yup.string()
@@ -34,6 +40,12 @@ export default function Register() {
                 }
             });
 
+            dispatch(setAuth({
+                user: data.user,
+                token: data.token,
+            }))
+
+            navigate('/home')
 
         } catch (err) {
             console.log(err);
@@ -180,13 +192,15 @@ export default function Register() {
                                         disabled={isSubmitting}
                                         onClick={handleSubmit}
                                     >
-                                        Login
+                                        Register
                                     </Button>
                                 </div>
 
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <Typography>Already have an account?</Typography>
-                                    <Button variant="text">Login</Button>
+                                    <Button variant='text' onClick={() => {
+                                        navigate('/login')
+                                    }}>Login</Button>
                                 </div>
                             </div>
 

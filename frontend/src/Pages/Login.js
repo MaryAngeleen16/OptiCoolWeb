@@ -4,8 +4,14 @@ import { TextField, Button, Typography } from '@mui/material'
 import * as Yup from 'yup';
 import { Formik } from 'formik';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { setAuth } from '../states/authSlice';
+import { useNavigate } from 'react-router-dom';
 
 export default function Login() {
+
+    const dispatch = useDispatch();
+    const navigate = useNavigate()
 
     const validationSchema = Yup.object().shape({
         email: Yup.string()
@@ -22,11 +28,13 @@ export default function Login() {
             const { data } = await axios.post(`${process.env.REACT_APP_API}/users/login`, values);
 
             console.log(data)
-            // dispatch(setAuth({
-            //     user: data.user,
-            //     token: data.token,
-            // }))
 
+            dispatch(setAuth({
+                user: data.user,
+                token: data.token,
+            }))
+
+            navigate('/home')
 
             setSubmitting(false);
         } catch (err) {
