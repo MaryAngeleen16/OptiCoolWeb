@@ -11,6 +11,9 @@ import Dashb from './Dashboard/Dashb.js';
 import LandingPage from './Pages/LandingPage.js';
 import { useSelector } from 'react-redux';
 import ViewProfile from './Pages/UserPages/ViewProfile.js';
+import ForgotPassword from './Pages/ForgotPassword.js';
+import SendCode from './Pages/SendCode.js';
+import ChangePassword from './Pages/ChangePassword.js';
 
 function App() {
 
@@ -28,6 +31,9 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot/password" element={<ForgotPassword />} />
+        <Route path="/send/code/:email" element={<SendCode />} />
+        <Route path="/change/password/:userId" element={<ChangePassword />} />
 
 
       </Routes>

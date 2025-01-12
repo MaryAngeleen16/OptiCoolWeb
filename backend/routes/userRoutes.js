@@ -13,9 +13,11 @@ router.get('/getsingle/:id', isAuthenticated, userController.getSingleUser);
 
 router.put('/update/:id', isAuthenticated, upload.single('avatar'), userController.updateUser);
 
-router.get('/sendcode/:id', isAuthenticated, userController.sendCode);
+router.put('/change/password/:id', userController.updateUser);
 
-router.post('/verifycode/:id', isAuthenticated, userController.verifyCode);
+router.get('/sendcode/:id', userController.sendCode);
+
+router.post('/verifycode/:id', userController.verifyCode);
 
 router.get('/all', userController.listAll);
 

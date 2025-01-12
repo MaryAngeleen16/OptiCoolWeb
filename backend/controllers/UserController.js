@@ -116,7 +116,20 @@ exports.sendCode = async (req, res, next) => {
 
     try {
 
-        const user = await User.findById(req.params.id);
+        let user = null;
+
+        if (req.params.id === 'email') {
+            user = await User.findOne({ email: req.query.email });
+        } else {
+            user = await User.findById(req.params.id);
+        }
+
+        if (!user) {
+            return res.status(404).json({
+                message: "Email doesn't exist.",
+                success: true,
+            })
+        }
 
         await user.getResetPasswordCode();
         await user.save();
@@ -128,6 +141,7 @@ exports.sendCode = async (req, res, next) => {
         })
 
     } catch (err) {
+        console.log(err)
         return res.status(400).json({
             message: 'Please try again later',
             success: false,
@@ -141,7 +155,13 @@ exports.verifyCode = async (req, res, next) => {
 
     try {
 
-        const user = await User.findById(req.params.id);
+        let user = null;
+
+        if (req.params.id === 'email') {
+            user = await User.findOne({ email: req.body.email });
+        } else {
+            user = await User.findById(req.params.id);
+        }
 
         const status = await user.verifyCode(req.body.code);
 
@@ -166,6 +186,7 @@ exports.verifyCode = async (req, res, next) => {
         return res.json({
             message: "You can now change your password",
             success: true,
+            user,
         })
 
     } catch (err) {

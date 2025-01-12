@@ -116,7 +116,11 @@ export default function Login() {
                                 <div style={{ display: 'flex', alignItems: 'center' }}>
                                     <Typography>Don't have an account?</Typography>
                                     <Button variant="text">Register</Button>
-                                    <Button variant="text" style={{ marginLeft: 'auto' }}>Forgot Password</Button>
+                                    <Button variant="text" style={{ marginLeft: 'auto' }}
+                                        onClick={() => navigate('/forgot/password')}
+                                    >
+                                        Forgot Password
+                                    </Button>
                                 </div>
                             </div>
 
