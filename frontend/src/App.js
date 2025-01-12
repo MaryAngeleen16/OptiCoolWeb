@@ -14,6 +14,7 @@ import ViewProfile from './Pages/UserPages/ViewProfile.js';
 import ForgotPassword from './Pages/ForgotPassword.js';
 import SendCode from './Pages/SendCode.js';
 import ChangePassword from './Pages/ChangePassword.js';
+import UsersList from './Pages/AdminPages/UsersList.js';
 
 function App() {
 
@@ -28,6 +29,7 @@ function App() {
         <Route path="/manageRoom" element={<ManageRoom />} />
         <Route path="/dashboard" element={<Dashb />} />
         <Route path='/me' element={<ViewProfile />} />
+        <Route path='/users' element={<UsersList />} />
 
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />

@@ -51,6 +51,7 @@ function Header() {
             <a href="/manageRoom">Manage Room</a>
             <a href="/dashboard">Dashboard</a>
             <a href="/me">My Profile</a>
+            <a href="/users">Users</a>
 
             <div style={{ marginLeft: 10, cursor: 'pointer' }} onClick={handleLogout}>
               <LogoutIcon />
