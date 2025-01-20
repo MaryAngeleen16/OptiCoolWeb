@@ -15,7 +15,7 @@ import ForgotPassword from './Pages/ForgotPassword.js';
 import SendCode from './Pages/SendCode.js';
 import ChangePassword from './Pages/ChangePassword.js';
 import UsersList from './Pages/AdminPages/UsersList.js';
-
+import EReport from './Pages/AdminPages/EReport.js';
 function App() {
 
   const { user, isLogin } = useSelector(state => state.auth);
@@ -36,6 +36,7 @@ function App() {
         <Route path="/forgot/password" element={<ForgotPassword />} />
         <Route path="/send/code/:email" element={<SendCode />} />
         <Route path="/change/password/:userId" element={<ChangePassword />} />
+        <Route path="/ereport" element={<EReport />} />
 
 
       </Routes>

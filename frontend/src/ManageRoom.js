@@ -5,7 +5,7 @@ import Thermostat from './Thermostat';
 
 function ManageRoom() {
   const [activeCategory, setActiveCategory] = useState('All');
-  const [isAuto, setIsAuto] = useState(false); // State to toggle between Manual and Auto
+  const [isAuto, setIsAuto] = useState(false);
 
   const allItems = [
     { name: 'AC 1', status: 'Online' },
@@ -28,6 +28,34 @@ function ManageRoom() {
     }
     return allItems;
   };
+
+  const handleReport = async (appliance, status) => {
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API}/ereport`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ appliance, status }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();  
+        throw new Error(`Server error: ${response.status} - ${errorText}`);
+      }
+
+      const data = await response.json(); 
+
+      if (data.success) {
+        alert('Report successfully submitted');
+      } else {
+        alert('Failed to submit report: ' + data.message);
+      }
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      alert('An error occurred while submitting the report.');
+    }
+};
 
   return (
     <div>
@@ -93,7 +121,9 @@ function ManageRoom() {
                   <button className="control-button off-button">Off</button>
                 </>
               )}
-              <button className="report-button">Report</button>
+              <button className="report-button" onClick={() => handleReport(item.name, item.status)}>
+                Report
+              </button>
             </div>
           </div>
         ))}
