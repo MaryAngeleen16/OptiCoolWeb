@@ -23,6 +23,7 @@ router.get('/all', userController.listAll);
 
 router.delete('/delete/:id', userController.deleteUser);
 
-router.put('/update/role/:id', userController.updateRole);
+// router.put('/update/role/:id', userController.updateRole);
+router.put('/update-role/:id', userController.updateRole);
 
 module.exports = router;    

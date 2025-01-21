@@ -243,25 +243,54 @@ exports.deleteUser = async (req, res, next) => {
 }
 
 
+// exports.updateRole = async (req, res, next) => {
+//     try {
+
+//         const user = await User.findById(req.params.id);
+
+//         user.role = req.body.role;
+
+//         user.save();
+
+//         return res.json({
+//             message: "User Deleted",
+//             success: true,
+//             user: user,
+//         })
+
+//     } catch (err) {
+//         return res.status(400).json({
+//             message: 'Please try again later',
+//             success: false,
+//         })
+//     }
+// }
+
 exports.updateRole = async (req, res, next) => {
     try {
-
         const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found',
+                success: false,
+            });
+        }
 
         user.role = req.body.role;
 
-        user.save();
+        await user.save(); // Await the save operation
 
         return res.json({
-            message: "User Deleted",
+            message: "User role updated",
             success: true,
             user: user,
-        })
-
+        });
     } catch (err) {
-        return res.status(400).json({
+        console.error(err);
+        return res.status(500).json({
             message: 'Please try again later',
             success: false,
-        })
+        });
     }
 }
