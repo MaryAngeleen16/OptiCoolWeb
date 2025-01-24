@@ -1,72 +1,154 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap');
 
-body {
-  background-color: #eaf2fd; 
+.homebody {
+  background-color: #204679;
   font-family: 'Roboto', sans-serif;
+  overflow: hidden; /* Prevents unwanted scrolling */
+  position: relative; /* Ensure proper stacking context for absolute elements */
 }
 
-  .envstatus-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    margin-top: 5%; 
-    margin-bottom: 3%;
+.svg-waves {
+  position: absolute;
+  background-image: url('../../../src/../public/waves.svg'); 
+  z-index: 0; /* Place behind other elements but above the background */
+  transform: rotate(-270.22deg) translate(-180px, 400px); 
+  width: 688.34px;
+  height:962.5px;
+  background-size: cover; /* Ensure the image scales appropriately */
+}
+
+.svg-waves2
+{
+  position: absolute;
+  background-image: url('../../../src/../public/waves2.svg');
+  z-index: 0; 
+  transform: rotate(270.22deg) translate(-180px, 800px); 
+  width: 688.34px;
+  height:962.5px;
+  background-size: cover; 
+}
+
+.glass-epek {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  backdrop-filter: blur(3px); /* Adjust blur intensity */
+
   }
-  
-  .envstatus {
-    width: 100%;
-    max-width: 800px; /* Adjust container width as needed */
-    background-color: #f9f9f9; /* Light gray background */
-    border-radius: 8px;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-  }
-  
-  .envstatus-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-  }
-  
-  .envstatus-item {
-    flex: 1;
-    text-align: center;
-  }
-  
-  .envstatus-label {
-    display: block;
-    font-size: 16px;
-    font-weight: bold;
-    color: #555;
-    margin-bottom: 8px;
-  }
-  
-  .envstatus-value {
-    font-size: 20px;
-    font-weight: bold;
-    color: #222;
-  }
-  
+
+
+.envstatus-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin-top: 10%;
+  margin-bottom: 1%;
+  z-index: 2;
+  position: relative; /* Ensure stacking context */
+}
+
+.envstatus-container-2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  margin-top: 3%;
+  margin-bottom: 1%;
+  z-index: 2;
+  position: relative;
+}
+
+/* .envstatus {
+  width: 100%;
+  max-width: 800px;
+  border-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  position: relative;
+  border-width: 1px; 
+  border-style: solid; 
+  border-radius: 8px !important;
+
+
+} */
+
+
+
+
+
+
+.envstatus {
+  width: 100%;
+  max-width: 800px;
+  background-color: rgba(255, 255, 255, 0.3); /* Adjust alpha for transparency */
+  border-radius: 8px;  /* Rounded corners for the content */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;  
+}
+
+
+
+.envstatus-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+}
+
+.envstatus-item {
+  flex: 1;
+  text-align: center;
+}
+
+.envstatus-label {
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  /* color: #555; */
+  color: #EEF5FF;
+  margin-bottom: 8px;
+}
+
+.envstatus-value {
+  font-size: 20px;
+  font-weight: bold;
+  /* color: #222; */
+  color: #EEF5FF;
+}
+
   
   .accuweather-container {
-    display: flex; /* Flex container for .accuweather and .box-container */
+    display: flex; 
     justify-content: center;
     align-items: flex-start;
     width: 100%;
+    z-index: 2;
+    position: relative;
 
   }
   
   .accuweather {
     width: 45%; /* Adjust width as needed */
     height: 50vh; /* Adjust height */
-    background: #FFFF; /* Light background color */
+    /* background: #FFFF;  */
+    background-color: rgba(255, 255, 255, 0.3); 
     box-shadow: 0px 10px 10px rgba(0, 0, 0, 0.25);
     border-radius: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
+
+
+    position: relative;
+    overflow: hidden; 
+    
   }
   
   .box-container {
@@ -76,7 +158,8 @@ body {
     margin-left: 20px; 
     width: 45%; 
     height: 50vh; /* Adjust height */
-
+    z-index: 2;
+    position: relative;
   }
   
   .box1, .box2 {

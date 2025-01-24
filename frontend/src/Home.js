@@ -64,29 +64,34 @@ function Home() {
   // useEffect Hook for Initial Data Fetch
   useEffect(() => {
     fetchWeatherData();
-  }, []); // Empty dependency array ensures it runs only on mount
+  }, []); 
 
   return (
-    <div>
+  <div className="homebody">
+      <div className="svg-waves"></div>
+      <div className="svg-waves2"></div>
+    
       <Header />
 
-      {/* Environment Status */}
-      <div className="envstatus-container">
-        <div className="envstatus">
-          <div className="envstatus-row">
-            {/* Inside Humidity */}
-            <div className="envstatus-item">
-              <span className="envstatus-label">Inside Humidity</span>
-              <span className="envstatus-value">
-                {weatherData?.RelativeHumidity || "--"}%
-              </span>
-            </div>
+  {/* Environment Status */}
+  <div className="envstatus-container">
 
-            {/* Energy Consumption */}
-            <div className="envstatus-item">
-              <span className="envstatus-label">Energy Consumption</span>
-              <span className="envstatus-value">60 KWH</span>
-            </div>
+  <div className="envstatus glass-epek">
+    {/* <div className="envstatus"> */}
+      <div className="envstatus-row">
+        {/* Inside Humidity */}
+        <div className="envstatus-item">
+          <span className="envstatus-label">Inside Humidity</span>
+          <span className="envstatus-value">
+            {weatherData?.RelativeHumidity || "--"}%
+          </span>
+        </div>
+
+        {/* Energy Consumption */}
+        <div className="envstatus-item">
+          <span className="envstatus-label">Energy Consumption</span>
+          <span className="envstatus-value">60 KWH</span>
+        </div>
 
             {/* Inside Temperature */}
             <div className="envstatus-item">
@@ -101,7 +106,7 @@ function Home() {
 
       {/* Accuweather Container */}
       <div className="accuweather-container">
-        <div className="accuweather">
+        <div className="accuweather glass-epek">
           {/* Weather Data */}
           <div>
             <span style={{ fontSize: "24px" }}>
@@ -119,7 +124,7 @@ function Home() {
 
         {/* Box Container */}
         <div className="box-container">
-          <div className="box1">
+          <div className="box1 ">
             <div className="envstatus-row">
               {/* AC */}
               <div className="envstatus-item">
@@ -142,8 +147,8 @@ function Home() {
       </div>
 
       {/* Extras */}
-      <div className="envstatus-container">
-        <div className="envstatus">
+      <div className="envstatus-container-2">
+        <div className="envstatus glass-epek">
           {/* Your content for envstatus goes here */}
 
           <div className="envstatus-row">
@@ -164,6 +169,7 @@ function Home() {
         </div>
       </div>
     </div>
+
   );
 }
 
