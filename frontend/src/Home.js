@@ -2,6 +2,15 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import Header from "./Components/Layouts/Header";
 import "./Components/Layouts/Home.css";
+import cloudIcon from "./Icons/CLOUD.png";
+import sunIcon from "./Icons/SUN.png";
+import partlySunnyIcon from "./Icons/PARTLYSUNNY.png";
+import rainIcon from "./Icons/RAIN.png";
+import windIcon from "./Icons/WIND.png";
+import thurderstormIcon from "./Icons/THUNDERSTORM.png";
+import overcastIcon from "./Icons/OVERCAST.png";
+import wIcon from "./Icons/UMBRELLA.png";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   // AccuWeather API Constants
@@ -13,6 +22,21 @@ function Home() {
   const [weatherData, setWeatherData] = useState(null);
   const [lastRequestTime, setLastRequestTime] = useState(null);
   const [isRequesting, setIsRequesting] = useState(false);
+  const [isOnline, setIsOnline] = useState(null);
+  const navigate = useNavigate();
+
+  // Weather icon mapping
+  const weatherIconMap = {
+    Sunny: sunIcon,
+    "Partly sunny": partlySunnyIcon,
+    "Mostly cloudy": cloudIcon,
+    "Partly cloudy": cloudIcon,
+    Cloudy: cloudIcon,
+    Overcast: overcastIcon,
+    Rainy: rainIcon,
+    Windy: windIcon,
+    Thunderstorms: thurderstormIcon,
+  };
 
   // Fetch Weather Data Function
   const fetchWeatherData = async () => {
@@ -64,34 +88,37 @@ function Home() {
   // useEffect Hook for Initial Data Fetch
   useEffect(() => {
     fetchWeatherData();
-  }, []); 
+  }, []);
+
+  useEffect(() => {
+    setTimeout(() => setIsOnline(true), 3000);
+  }, []);
 
   return (
-  <div className="homebody">
+    <div className="homebody">
       <div className="svg-waves"></div>
       <div className="svg-waves2"></div>
-    
+
       <Header />
 
-  {/* Environment Status */}
-  <div className="envstatus-container">
+      {/* Environment Status */}
+      <div className="envstatus-container">
+        <div className="envstatus glass-epek">
+          {/* <div className="envstatus"> */}
+          <div className="envstatus-row">
+            {/* Inside Humidity */}
+            <div className="envstatus-item">
+              <span className="envstatus-label">Inside Humidity</span>
+              <span className="envstatus-value">
+                {weatherData?.RelativeHumidity || "--"}%
+              </span>
+            </div>
 
-  <div className="envstatus glass-epek">
-    {/* <div className="envstatus"> */}
-      <div className="envstatus-row">
-        {/* Inside Humidity */}
-        <div className="envstatus-item">
-          <span className="envstatus-label">Inside Humidity</span>
-          <span className="envstatus-value">
-            {weatherData?.RelativeHumidity || "--"}%
-          </span>
-        </div>
-
-        {/* Energy Consumption */}
-        <div className="envstatus-item">
-          <span className="envstatus-label">Energy Consumption</span>
-          <span className="envstatus-value">60 KWH</span>
-        </div>
+            {/* Energy Consumption */}
+            <div className="envstatus-item">
+              <span className="envstatus-label">Energy Consumption</span>
+              <span className="envstatus-value">60 KWH</span>
+            </div>
 
             {/* Inside Temperature */}
             <div className="envstatus-item">
@@ -108,28 +135,84 @@ function Home() {
       <div className="accuweather-container">
         <div className="accuweather glass-epek">
           {/* Weather Data */}
+          {/* <div className="weather-icon">{getWeatherIcon(weatherData?.WeatherText)}</div>            */}
+          <div
+            className={`weather-icon ${
+              weatherData?.WeatherText === "Partly cloudy"
+                ? "partly-cloudy"
+                : weatherData?.WeatherText === "Sunny"
+                ? "sunny"
+                : weatherData?.WeatherText === "Partly sunny"
+                ? "partly-sunny"
+                : weatherData?.WeatherText === "Mostly cloudy"
+                ? "cloudy"
+                : weatherData?.WeatherText === "Rainy"
+                ? "rainy"
+                : weatherData?.WeatherText === "Windy"
+                ? "windy"
+                : weatherData?.WeatherText === "Thunderstorms"
+                ? "thunderstorm"
+                : weatherData?.WeatherText === "Overcast"
+                ? "overcast"
+                : ""
+            }`}
+          >
+            <img
+              src={weatherIconMap[weatherData?.WeatherText] || wIcon}
+              alt={weatherData?.WeatherText}
+              style={{
+                position: "absolute",
+                top: "20px",
+                left: "20px",
+              }}
+            />
+          </div>
+
           <div>
-            <span style={{ fontSize: "24px" }}>
-              {weatherData?.Temperature?.Metric?.Value || "--"}°C
-            </span>
-            <div>Taguig City</div>
-            <div>{weatherData?.WeatherText || "---"}</div>
-            <div>Humidity: {weatherData?.RelativeHumidity}%</div>
-            <div>
-              Feels Like:{" "}
+            <div className="temp-container">
+              <span className="temp-des">
+                {weatherData?.Temperature?.Metric?.Value || "--"}
+              </span>
+              <span className="temp-unit">°C</span>
+            </div>
+
+            <span className="accu-loc">TAGUIG</span>
+
+            {/* <div>{weatherData?.WeatherText?.toUpperCase() || "---"}</div> */}
+            <div className="accu-text1">
+              {/* {weatherData?.RelativeHumidity}% */}
+              {weatherData?.WeatherText?.toUpperCase() || "---"}{" "}
+            </div>
+
+            <div className="accu-text2">
+              FEELS LIKE:{" "}
               {weatherData?.RealFeelTemperature?.Metric?.Value || "--"}°C
             </div>
+
+            <button className="weather-btn" onClick={() => navigate("/manageRoom")}>
+              MANAGE THE ROOM
+            </button>
           </div>
         </div>
 
         {/* Box Container */}
-        <div className="box-container">
-          <div className="box1 ">
+        <div className="box-container glass-epek">
+          <div className="box1">
             <div className="envstatus-row">
               {/* AC */}
               <div className="envstatus-item">
-                <span className="box-label">Airconditioner</span>
-                <span className="box-value">ONLINE</span>
+                <span className="box-label">Airconditioners</span>
+                <span
+                  className={`box-value ${
+                    isOnline === null
+                      ? "default"
+                      : isOnline
+                      ? "online"
+                      : "offline"
+                  }`}
+                >
+                  {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
+                </span>
               </div>
             </div>
           </div>
@@ -139,7 +222,17 @@ function Home() {
             <div className="envstatus-row">
               <div className="envstatus-item">
                 <span className="box-label">Fans</span>
-                <span className="box-value">OFFLINE</span>
+                <span
+                  className={`box-value ${
+                    isOnline === null
+                      ? "default"
+                      : isOnline
+                      ? "online"
+                      : "offline"
+                  }`}
+                >
+                  {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
+                </span>
               </div>
             </div>
           </div>
@@ -169,7 +262,6 @@ function Home() {
         </div>
       </div>
     </div>
-
   );
 }
 
