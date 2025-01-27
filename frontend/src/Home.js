@@ -30,7 +30,7 @@ function Home() {
     "Sunny": sunIcon,
     "Partly sunny": partlySunnyIcon,
     "Mostly cloudy": cloudIcon,
-    "Partly cloudy": wIcon,
+    "Partly cloudy": cloudIcon,
     "Cloudy": cloudIcon,
     "Overcast": overcastIcon,
     "Rainy": rainIcon,
