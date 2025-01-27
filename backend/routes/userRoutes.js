@@ -4,6 +4,8 @@ const upload = require('../utils/multer')
 
 const userController = require('../controllers/UserController');
 const { isAuthenticated } = require('../middlewares/auth');
+const { isAdminRole } = require('../middlewares/auth'); 
+
 
 router.post('/register', upload.single('avatar'), userController.register);
 
@@ -20,6 +22,7 @@ router.get('/sendcode/:id', userController.sendCode);
 router.post('/verifycode/:id', userController.verifyCode);
 
 router.get('/all', userController.listAll);
+
 
 router.delete('/delete/:id', userController.deleteUser);
 

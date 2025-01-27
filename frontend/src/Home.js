@@ -31,8 +31,8 @@ function Home() {
     "Partly sunny": partlySunnyIcon,
     "Mostly cloudy": cloudIcon,
     "Partly cloudy": cloudIcon,
-    Cloudy: cloudIcon,
-    Overcast: overcastIcon,
+    "Cloudy": cloudIcon,
+    "Overcast": overcastIcon,
     Rainy: rainIcon,
     Windy: windIcon,
     Thunderstorms: thurderstormIcon,
@@ -145,7 +145,7 @@ function Home() {
                 : weatherData?.WeatherText === "Partly sunny"
                 ? "partly-sunny"
                 : weatherData?.WeatherText === "Mostly cloudy"
-                ? "cloudy"
+                ? "partly-cloudy"
                 : weatherData?.WeatherText === "Rainy"
                 ? "rainy"
                 : weatherData?.WeatherText === "Windy"

@@ -220,15 +220,24 @@
 // }
 
 
+
+
+
+
+
+
+
+
+
+
 import React, { useEffect, useState } from 'react';
 import Header from '../../Components/Layouts/Header';
-import { Avatar, Box, Button, Container, Menu, MenuItem, Typography } from '@mui/material';
+import { Avatar, Container, Menu, MenuItem } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import DataTable from 'datatables.net-react';
 import DT from 'datatables.net-dt';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 DataTable.use(DT);
 
@@ -236,32 +245,19 @@ export default function UsersList() {
     const [tableData, setTableData] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null); // For menu
     const [selectedUserId, setSelectedUserId] = useState(null); // Track the user being updated
-    const [isAdmin, setIsAdmin] = useState(false); // Track if the user is an admin
-    const [loading, setLoading] = useState(true); // Loading state
-    const navigate = useNavigate();
-
-    const fetchUserRole = async () => {
-        try {
-            const { data } = await axios.get(`${process.env.REACT_APP_API}/users/me`);
-            if (data.user.role === 'admin') {
-                setIsAdmin(true);
-            } else {
-                navigate('/unauthorized'); // Redirect non-admins
-            }
-        } catch (error) {
-            console.error('Failed to fetch user role:', error);
-            navigate('/unauthorized');
-        } finally {
-            setLoading(false);
-        }
-    };
+    const token = localStorage.getItem('token'); // Get token from localStorage
 
     const fetchAllUsers = async () => {
         try {
-            const { data } = await axios.get(`${process.env.REACT_APP_API}/users/all`);
+            const { data } = await axios.get(`${process.env.REACT_APP_API}/users/all`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Add token in request headers
+                }
+            });
             setTableData(data.users);
         } catch (err) {
             console.error(err);
+            // Handle error, e.g., redirect to login if not authorized
         }
     };
 
@@ -269,7 +265,12 @@ export default function UsersList() {
         try {
             const response = await axios.put(
                 `${process.env.REACT_APP_API}/users/update-role/${userId}`,
-                { role: newRole }
+                { role: newRole },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`, // Send token here too
+                    }
+                }
             );
             if (response.data.success) {
                 alert('User role updated successfully');
@@ -289,29 +290,18 @@ export default function UsersList() {
     const handleMenuClose = (newRole) => {
         setAnchorEl(null);
         if (newRole && selectedUserId) {
-            updateUserRole(selectedUserId, newRole);
+            updateUserRole(selectedUserId, newRole); // Update the user's role
         }
-        setSelectedUserId(null);
+        setSelectedUserId(null); // Clear the selected user ID
     };
 
     useEffect(() => {
-        fetchUserRole(); // Check if the user is an admin
+        fetchAllUsers();
     }, []);
 
-    useEffect(() => {
-        if (isAdmin) {
-            fetchAllUsers(); // Fetch user list only if the user is an admin
-        }
-    }, [isAdmin]);
-
-    if (loading) {
-        return <Typography>Loading...</Typography>;
-    }
-
-    return isAdmin ? (
+    return (
         <div>
             <Header />
-
             <Container sx={{ mt: 15 }}>
                 <DataTable
                     className="display"
@@ -334,13 +324,13 @@ export default function UsersList() {
                                     color="warning"
                                     sx={{ cursor: 'pointer', marginRight: 2 }}
                                     fontSize="large"
-                                    onClick={(event) => handleMenuClick(event, row._id)}
+                                    onClick={(event) => handleMenuClick(event, row._id)} // Open the menu for the selected user
                                 />
                                 <DeleteIcon
                                     color="error"
                                     sx={{ cursor: 'pointer' }}
                                     fontSize="large"
-                                    onClick={() => alert('Delete functionality not implemented')}
+                                    onClick={() => alert('Delete functionality not implemented')} // Handle delete if necessary
                                 />
                             </div>
                         ),
@@ -369,7 +359,5 @@ export default function UsersList() {
                 </Menu>
             </Container>
         </div>
-    ) : (
-        <Typography>You are not authorized to view this page.</Typography>
     );
 }
