@@ -224,9 +224,51 @@ display: inline-block; /* Keep the image and text together */
 }
 
 .weather-icon.sunny {
+  top: 50px;
+  left: 50px;
+  width: 700px;
+  height: 300px;
+}
+
+.weather-icon.rainy {
   top: 30px;
   left: 30px;
+  width: 700px;
+  height: 300px;
 }
+
+.weather-icon.windy {
+  top: 60px;
+  left: 10px;
+  width: 700px;
+  height: 300px;
+}
+
+
+
+.weather-icon.thunderstorm {
+  top: 30px;
+  left: 20px;
+
+}
+
+
+.weather-icon.overcast {
+  top: 40px;
+  left: 20px;
+
+}
+
+.weather-icon.umbrella {
+  top: 20px;
+  left: 30px;
+
+}
+
+
+
+
+
 .weather-text {
   font-size: 14px; 
 }

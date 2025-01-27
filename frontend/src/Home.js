@@ -27,15 +27,15 @@ function Home() {
 
   // Weather icon mapping
   const weatherIconMap = {
-    Sunny: sunIcon,
+    "Sunny": sunIcon,
     "Partly sunny": partlySunnyIcon,
     "Mostly cloudy": cloudIcon,
-    "Partly cloudy": cloudIcon,
+    "Partly cloudy": wIcon,
     "Cloudy": cloudIcon,
     "Overcast": overcastIcon,
-    Rainy: rainIcon,
-    Windy: windIcon,
-    Thunderstorms: thurderstormIcon,
+    "Rainy": rainIcon,
+    "Windy": windIcon,
+    "Thunderstorms": thurderstormIcon,
   };
 
   // Fetch Weather Data Function
@@ -154,7 +154,7 @@ function Home() {
                 ? "thunderstorm"
                 : weatherData?.WeatherText === "Overcast"
                 ? "overcast"
-                : ""
+                : "umbrella"
             }`}
           >
             <img
