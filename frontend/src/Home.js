@@ -17,6 +17,33 @@ function Home() {
   const AccuweatherbaseURL = "http://dataservice.accuweather.com";
   const apiKey = "I8m0OklfM6lIEJGIAl7Sa96aZSGY6Enm";
   const locationKey = "759349";
+  const ESP32_IP = "http://192.168.0.102";
+  const [insideHumidity, setInsideHumidity] = useState(null);
+  const [outsideHumidity, setOutsideHumidity] = useState(null);
+  const [insideTemperature, setInsideTemperature] = useState(null);
+  const [outsideTemperature, setOutsideTemperature] = useState(null);
+
+
+  const fetchTemperatureData = async () => {
+    try {
+      const tempResponse = await axios.get(`${ESP32_IP}/temperature`);
+      setInsideTemperature(tempResponse.data.insideTemp || "--");
+      setOutsideTemperature(tempResponse.data.outsideTemp || "--");
+    } catch (error) {
+      console.error("Error fetching temperature data from ESP32:", error);
+    }
+  };
+
+  // Fetch humidity data from ESP32 (humidity endpoint)
+  const fetchHumidityData = async () => {
+    try {
+      const humidityResponse = await axios.get(`${ESP32_IP}/humidity`);
+      setInsideHumidity(humidityResponse.data.insideHumidity || "--");
+      setOutsideHumidity(humidityResponse.data.outsideHumidity || "--");
+    } catch (error) {
+      console.error("Error fetching humidity data from ESP32:", error);
+    }
+  };
 
   // State Variables
   const [weatherData, setWeatherData] = useState(null);
@@ -27,15 +54,15 @@ function Home() {
 
   // Weather icon mapping
   const weatherIconMap = {
-    "Sunny": sunIcon,
+    Sunny: sunIcon,
     "Partly sunny": partlySunnyIcon,
     "Mostly cloudy": cloudIcon,
     "Partly cloudy": cloudIcon,
-    "Cloudy": cloudIcon,
-    "Overcast": overcastIcon,
-    "Rainy": rainIcon,
-    "Windy": windIcon,
-    "Thunderstorms": thurderstormIcon,
+    Cloudy: cloudIcon,
+    Overcast: overcastIcon,
+    Rainy: rainIcon,
+    Windy: windIcon,
+    Thunderstorms: thurderstormIcon,
   };
 
   // Fetch Weather Data Function
@@ -85,10 +112,13 @@ function Home() {
     }
   };
 
-  // useEffect Hook for Initial Data Fetch
-  useEffect(() => {
-    fetchWeatherData();
-  }, []);
+
+ // useEffect Hook for Initial Data Fetch
+ useEffect(() => {
+  fetchWeatherData();
+  fetchTemperatureData(); // Fetch temperature data from ESP32
+  fetchHumidityData(); // Fetch humidity data from ESP32
+}, []);
 
   useEffect(() => {
     setTimeout(() => setIsOnline(true), 3000);
@@ -110,7 +140,7 @@ function Home() {
             <div className="envstatus-item">
               <span className="envstatus-label">Inside Humidity</span>
               <span className="envstatus-value">
-                {weatherData?.RelativeHumidity || "--"}%
+                {insideHumidity !== null ? `${insideHumidity}%` : "--"}
               </span>
             </div>
 
@@ -124,7 +154,7 @@ function Home() {
             <div className="envstatus-item">
               <span className="envstatus-label">Inside Temperature</span>
               <span className="envstatus-value">
-                {weatherData?.Temperature?.Metric?.Value || "--"}°C
+                {insideTemperature !== null ? `${insideTemperature}°C` : "--"}
               </span>
             </div>
           </div>
@@ -189,7 +219,10 @@ function Home() {
               {weatherData?.RealFeelTemperature?.Metric?.Value || "--"}°C
             </div>
 
-            <button className="weather-btn" onClick={() => navigate("/manageRoom")}>
+            <button
+              className="weather-btn"
+              onClick={() => navigate("/manageRoom")}
+            >
               MANAGE THE ROOM
             </button>
           </div>
@@ -249,14 +282,16 @@ function Home() {
             <div className="envstatus-item">
               <span className="envstatus-label">Outside Humidity</span>
               <span className="envstatus-value">
-                {weatherData?.RelativeHumidity || "--"}%
+                {outsideHumidity !== null ? `${outsideHumidity}%` : "--"}
               </span>
             </div>
 
             {/* Outside Temperature */}
             <div className="envstatus-item">
               <span className="envstatus-label">Outside Temperature</span>
-              <span className="envstatus-value">32°C</span>
+              <span className="envstatus-value">
+                {outsideTemperature !== null ? `${outsideTemperature}°C` : "--"}
+              </span>
             </div>
           </div>
         </div>
