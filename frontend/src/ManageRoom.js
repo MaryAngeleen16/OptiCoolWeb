@@ -146,15 +146,20 @@
 
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Components/Layouts/Header';
 import './ManageRoom.css';
 import Thermostat from './Thermostat';
+import "./Components/Layouts/Home.css";
 
 function ManageRoom() {
   const [activeCategory, setActiveCategory] = useState('All');
   const [isAuto, setIsAuto] = useState(false);
   const [isOn, setIsOn] = useState(false);
+  const [deviceStatuses, setDeviceStatuses] = useState([]);
+
+  const ESP32_IP = "http://192.168.0.102";
+
 
   const allItems = [
     { name: 'AC 1', status: 'Online' },
@@ -170,13 +175,51 @@ function ManageRoom() {
   ];
 
   const filteredItems = () => {
-    if (activeCategory === 'Appliances') {
-      return allItems.filter(item => item.name.includes('AC') || item.name.includes('FAN') || item.name.includes('BLOWER'));
-    } else if (activeCategory === 'Sensors') {
-      return allItems.filter(item => item.name.includes('SENSOR'));
+    if (activeCategory === "Appliances") {
+      return deviceStatuses.filter(item => item.name.includes("AC") || item.name.includes("FAN") || item.name.includes("BLOWER"));
+    } else if (activeCategory === "Sensors") {
+      return deviceStatuses.filter(item => item.name.includes("SENSOR"));
     }
-    return allItems;
+    return deviceStatuses;
   };
+  
+
+
+  const fetchDeviceStatus = async () => {
+    try {
+      const response = await fetch(`${ESP32_IP}/status`);
+      if (!response.ok) throw new Error("Failed to fetch");
+  
+      const data = await response.json();
+      console.log("Fetched Status:", data);
+  
+      // Map all items, ensuring every device has a status (fallback to 'Offline' if missing)
+      const updatedStatuses = allItems.map((item) => ({
+        name: item.name,
+        status: data[`${item.name.toLowerCase().replace(/ /g, "_")}_status`] ? "Online" : "Offline"
+      }));
+  
+      setDeviceStatuses(updatedStatuses);
+    } catch (error) {
+      console.error("Error fetching device status:", error);
+      
+      // If fetching fails, retain existing statuses or fall back to default ones
+      setDeviceStatuses(allItems.map((item) => ({
+        name: item.name,
+        status: "Offline"
+      })));
+    }
+  };
+  
+  // Fetch status when the component mounts
+  useEffect(() => {
+    fetchDeviceStatus();
+    const interval = setInterval(fetchDeviceStatus, 5000); // Refresh every 5 seconds
+    return () => clearInterval(interval);
+  }, []);
+  
+
+
 
   const handleReport = async (appliance, status) => {
     try {

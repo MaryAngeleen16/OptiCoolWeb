@@ -11,7 +11,6 @@
 
 // export default function UsersList() {
 
-
 //     const [tableData, setTableData] = useState([]);
 
 //     const fetchAllUsers = async () => {
@@ -30,7 +29,6 @@
 //     useEffect(() => {
 //         fetchAllUsers();
 //     }, [])
-
 
 //     return (
 //         <div>
@@ -76,26 +74,11 @@
 //                     </thead>
 //                 </DataTable>
 
-
 //             </Container>
 
 //         </div>
 //     )
 // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import React, { useEffect, useState } from 'react';
 // import Header from '../../Components/Layouts/Header';
@@ -218,8 +201,6 @@
 //         </div>
 //     );
 // }
-
-
 
 
 
@@ -361,3 +342,5 @@ export default function UsersList() {
         </div>
     );
 }
+
+
