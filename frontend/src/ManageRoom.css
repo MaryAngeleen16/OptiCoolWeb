@@ -7,9 +7,9 @@
   margin-bottom: 1%;
 }
 
+
 .ac-status {
-  height: 100%;
-  min-height: 300px;
+  min-height: 400px;
   width: 100%;
   max-width: 800px; /* Adjust container width as needed */
   background-color: #f9f9f9; /* Light gray background */

@@ -22,7 +22,7 @@ function Home() {
   const [outsideHumidity, setOutsideHumidity] = useState(null);
   const [insideTemperature, setInsideTemperature] = useState(null);
   const [outsideTemperature, setOutsideTemperature] = useState(null);
-
+  const [powerConsumption, setPowerConsumption] = useState(null);
 
   const fetchTemperatureData = async () => {
     try {
@@ -42,6 +42,16 @@ function Home() {
       setOutsideHumidity(humidityResponse.data.outsideHumidity || "--");
     } catch (error) {
       console.error("Error fetching humidity data from ESP32:", error);
+    }
+  };
+
+  // Fetch power consumption data
+  const fetchPowerConsumption = async () => {
+    try {
+      const response = await axios.get(`${ESP32_IP}/power_consumption_data`);
+      setPowerConsumption(response.data || []);
+    } catch (error) {
+      console.error("Error fetching power consumption data:", error);
     }
   };
 
@@ -112,13 +122,12 @@ function Home() {
     }
   };
 
-
- // useEffect Hook for Initial Data Fetch
- useEffect(() => {
-  fetchWeatherData();
-  fetchTemperatureData(); // Fetch temperature data from ESP32
-  fetchHumidityData(); // Fetch humidity data from ESP32
-}, []);
+  // useEffect Hook for Initial Data Fetch
+  useEffect(() => {
+    fetchWeatherData();
+    fetchTemperatureData(); // Fetch temperature data from ESP32
+    fetchHumidityData(); // Fetch humidity data from ESP32
+  }, []);
 
   useEffect(() => {
     setTimeout(() => setIsOnline(true), 3000);
@@ -147,7 +156,9 @@ function Home() {
             {/* Energy Consumption */}
             <div className="envstatus-item">
               <span className="envstatus-label">Energy Consumption</span>
-              <span className="envstatus-value">60 KWH</span>
+              <span className="envstatus-value">
+              {powerConsumption !== null ? `${powerConsumption}kWh` : "--"}
+              </span>
             </div>
 
             {/* Inside Temperature */}
