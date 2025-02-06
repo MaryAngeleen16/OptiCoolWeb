@@ -81,10 +81,11 @@ const HumidityUsage = () => {
     };
 
     return (
-        <div className='general-div'>
-         <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Humidity Usage Report</h1>
+        <div className='chart'>
+         <h4 style={{ textAlign: 'center', marginBottom: '5px' }}>Humidity Usage Report</h4>
 
-            <Bar data={barChartData} options={options} />
+            <Bar style={{paddingBottom: '40px' }}
+            data={barChartData} options={options} />
         </div>
     );
 };

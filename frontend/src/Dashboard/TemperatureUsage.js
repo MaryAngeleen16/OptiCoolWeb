@@ -72,9 +72,11 @@ const TemperatureUsage = () => {
     };
 
     return (
-        <div className="general-div">
-            <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Temperature Usage Report</h1>
-            <Bar data={barChartData} options={options} />
+        <div className="chart">
+           <h4 style={{ textAlign: 'center', marginBottom: '5px' }}>Temperature Report</h4>
+          
+            <Bar style={{paddingBottom: '40px' }}
+            data={barChartData} options={options} />
         </div>
     );
 };

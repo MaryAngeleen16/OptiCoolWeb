@@ -1,138 +1,115 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
-import './StylesUsage.css';
-// Register the necessary Chart.js components
-ChartJS.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
-
-// Generate dummy data
-const generateDummyData = () => {
-    const dummyData = [];
-    const totalDays = 60; // 60 days of reports
-    const hoursPerDay = 12;
-
-    for (let day = 1; day <= totalDays; day++) {
-        const hourlyUsage = [];
-        for (let hour = 1; hour <= hoursPerDay; hour++) {
-            hourlyUsage.push(parseFloat((Math.random() * 5 + 1).toFixed(2))); // Random usage between 1 to 6 kWh
-        }
-        dummyData.push({
-            day: day,
-            date: new Date(2024, 0, day),
-            hourlyUsage: hourlyUsage,
-        });
-    }
-    return dummyData;
-};
-
-// Aggregate data by week and month
-const aggregateData = (data) => {
-    const weeklyData = [];
-    const monthlyData = [];
-
-    let weekTotal = 0;
-    let monthTotal = 0;
-    let weekCount = 0;
-
-    data.forEach((dayData, index) => {
-        const dailyTotal = dayData.hourlyUsage.reduce((a, b) => a + b, 0);
-        weekTotal += dailyTotal;
-        monthTotal += dailyTotal;
-
-        if ((index + 1) % 5 === 0) {
-            weeklyData.push(parseFloat(weekTotal.toFixed(2)));
-            weekTotal = 0;
-            weekCount += 1;
-        }
-
-        if (weekCount === 4) {
-            monthlyData.push(parseFloat(monthTotal.toFixed(2)));
-            monthTotal = 0;
-            weekCount = 0;
-        }
-    });
-
-    return { weeklyData, monthlyData };
-};
 
 const ElectricityUsage = () => {
-    const data = generateDummyData();
-    const { weeklyData, monthlyData } = aggregateData(data);
+    const [view, setView] = useState('daily');
+    const [data, setData] = useState({
+        labels: ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'],
+        datasets: [
+            {
+                label: 'Electricity Usage (kWh)',
+                data: [5, 6, 7, 8, 5, 6, 7, 8, 5, 6, 7, 8, 5, 6, 7, 8, 5, 6, 7, 8, 5, 6, 7, 8],
+                borderColor: 'rgba(75,192,192,1)',
+                backgroundColor: 'rgba(75,192,192,0.2)',
+            },
+        ],
+    });
 
-    // Hourly data for the first day
-    const hourlyData = data[0].hourlyUsage;
+    useEffect(() => {
+        fetchData(view);
+    }, [view]);
+
+    const generateDummyElectricityData = (view) => {
+        let labels = [];
+        let dummyData = [];
+
+        if (view === 'daily') {
+            labels = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
+            dummyData = Array.from({ length: 24 }, () => Math.floor(Math.random() * 30));
+        } else if (view === 'weekly') {
+            labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            dummyData = Array.from({ length: 7 }, () => Math.floor(Math.random() * 150));
+        } else if (view === 'monthly') {
+            labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            dummyData = Array.from({ length: 12 }, () => Math.floor(Math.random() * 700));
+        }
+
+        return { labels, dummyData };
+    };
+
+    const fetchData = async (view) => {
+        try {
+            const response = await axios.get(`http://your_raspberry_pi_ip:5000/power_consumption_data?view=${view}`);
+            const fetchedData = response.data;
+
+            let labels = [];
+            if (view === 'daily') {
+                labels = ['00:00', '01:00', '02:00', '03:00', '04:00', '05:00', '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00', '22:00', '23:00'];
+            } else if (view === 'weekly') {
+                labels = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            } else if (view === 'monthly') {
+                labels = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+            }
+
+            setData({
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Electricity Usage (kWh)',
+                        data: fetchedData.data,
+                        borderColor: 'rgba(75,192,192,1)',
+                        backgroundColor: 'rgba(75,192,192,0.2)',
+                    },
+                ],
+            });
+        } catch (error) {
+            console.error('Error fetching electricity usage data:', error);
+
+            // Use dummy data in case of error
+            const { labels, dummyData } = generateDummyElectricityData(view);
+            setData({
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Electricity Usage (kWh)',
+                        data: dummyData,
+                        borderColor: 'rgba(75,192,192,1)',
+                        backgroundColor: 'rgba(75,192,192,0.2)',
+                    },
+                ],
+            });
+        }
+    };
+
+    const handleViewChange = (newView) => {
+        setView(newView);
+    };
 
     return (
         <div>
-            <h1 style={{ textAlign: 'center', marginBottom: '20px' }}>Power Consumption Report</h1>
+            <div className="view-toggle"  style={{paddingBottom: '40px' }}>
+                <button onClick={() => handleViewChange('daily')} className={view === 'daily' ? 'active' : ''}>Daily</button>
+                <button onClick={() => handleViewChange('weekly')} className={view === 'weekly' ? 'active' : ''}>Weekly</button>
+                <button onClick={() => handleViewChange('monthly')} className={view === 'monthly' ? 'active' : ''}>Monthly</button>
+            </div>
 
-            <section className="general-div">
-                <h2 >Daily</h2>
+            <section  style={{fontSize: '20px' }}>
                 <Line
-                    data={{
-                        labels: Array.from({ length: hourlyData.length }, (_, i) => `H${i + 1}`),
-                        datasets: [
-                            {
-                                label: 'Hourly Usage (kWh)',
-                                data: hourlyData,
-                                backgroundColor: 'rgba(90, 167, 57, 0.2)',
-                                borderColor: 'rgba(90, 167, 57, 1)',
-                                borderWidth: 2,
-                            },
-                        ],
-                    }}
+                    data={data}
                     options={{
                         responsive: true,
                         plugins: {
                             legend: { display: true },
                         },
-                    }}
-                />
-            </section>
-
-            <section className="general-div">
-                <h2>Weekly</h2>
-                <Line
-                    data={{
-                        labels: weeklyData.map((_, index) => `W${index + 1}`),
-                        datasets: [
-                            {
-                                label: 'Weekly Usage (kWh)',
-                                data: weeklyData,
-                                backgroundColor: 'rgba(205, 89, 29, 0.2)',
-                                borderColor: 'rgba(205, 89, 29, 1)',
-                                borderWidth: 2,
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'kWh',
+                                    
+                                },
                             },
-                        ],
-                    }}
-                    options={{
-                        responsive: true,
-                        plugins: {
-                            legend: { display: true },
-                        },
-                    }}
-                />
-            </section>
-
-            <section className="general-div">
-                <h2>Monthly</h2>
-                <Line
-                    data={{
-                        labels: monthlyData.map((_, index) => `Month ${index + 1}`),
-                        datasets: [
-                            {
-                                label: 'Monthly Usage (kWh)',
-                                data: monthlyData,
-                                backgroundColor: 'rgba(131, 75, 224, 0.2)',
-                                borderColor: 'rgba(131, 75, 224, 1)',
-                                borderWidth: 2,
-                            },
-                        ],
-                    }}
-                    options={{
-                        responsive: true,
-                        plugins: {
-                            legend: { display: true },
                         },
                     }}
                 />

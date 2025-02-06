@@ -230,7 +230,7 @@ function Header() {
                       <ListItemIcon>
                         <SummarizeIcon />
                       </ListItemIcon>
-                      <ListItemText primary="Error Reports" />
+                      <ListItemText primary="Error Report" />
                     </ListItemButton>
                   </ListItem>
                 )}
