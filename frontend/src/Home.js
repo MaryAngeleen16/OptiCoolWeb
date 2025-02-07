@@ -64,15 +64,15 @@ function Home() {
 
   // Weather icon mapping
   const weatherIconMap = {
-    Sunny: sunIcon,
+    "Sunny": sunIcon,
     "Partly sunny": partlySunnyIcon,
     "Mostly cloudy": cloudIcon,
     "Partly cloudy": cloudIcon,
-    Cloudy: cloudIcon,
-    Overcast: overcastIcon,
-    Rainy: rainIcon,
-    Windy: windIcon,
-    Thunderstorms: thurderstormIcon,
+    "Cloudy": cloudIcon,
+    "Overcast": overcastIcon,
+    "Rainy": rainIcon,
+    "Windy": windIcon,
+    "Thunderstorms": thurderstormIcon,
   };
 
   // Fetch Weather Data Function
@@ -186,6 +186,8 @@ function Home() {
                 : weatherData?.WeatherText === "Partly sunny"
                 ? "partly-sunny"
                 : weatherData?.WeatherText === "Mostly cloudy"
+                ? "partly-cloudy"
+                : weatherData?.WeatherText === "Cloudy"
                 ? "partly-cloudy"
                 : weatherData?.WeatherText === "Rainy"
                 ? "rainy"

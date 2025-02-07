@@ -217,7 +217,7 @@ display: inline-block; /* Keep the image and text together */
 
 .weather-icon.partly-cloudy {
   top: 10px;
-  left: 20px;
+  left: -5px;
   width: 700px;
   height: 275px;
   margin-right: 3%;
