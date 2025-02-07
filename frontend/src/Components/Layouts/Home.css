@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap");
 
 .homebody {
-  background-color: #bbd7ff;
+  background-color: #ffffff;
   font-family: "Roboto", sans-serif;
   overflow: hidden; /* Prevents unwanted scrolling */
   position: relative; /* Ensure proper stacking context for absolute elements */
@@ -120,6 +120,7 @@
   width: 100%;
   z-index: 2;
   position: relative;
+  margin-left: 30px;
 }
 
 .accuweather {

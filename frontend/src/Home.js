@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import Header from "./Components/Layouts/Header";
+// import Header from "./Components/Layouts/Header";
 import "./Components/Layouts/Home.css";
 import cloudIcon from "./Icons/CLOUD.png";
 import sunIcon from "./Icons/SUN.png";
@@ -10,7 +10,9 @@ import windIcon from "./Icons/WIND.png";
 import thurderstormIcon from "./Icons/THUNDERSTORM.png";
 import overcastIcon from "./Icons/OVERCAST.png";
 import wIcon from "./Icons/UMBRELLA.png";
+import Sidebar from "./Components/Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
+import UserDashboard from "./Dashboard/UserDashboard";
 
 function Home() {
   // AccuWeather API Constants
@@ -134,177 +136,176 @@ function Home() {
   }, []);
 
   return (
-    <div className="homebody">
-      <div className="svg-waves"></div>
-      <div className="svg-waves2"></div>
+    <div className="homebody" style={{ display: 'flex' }}>
+      <Sidebar />
+      <UserDashboard />
+      <div style={{ flex: 1, marginLeft: '80px' }}> {/* Adjust margin to match sidebar width */}
+        {/* Environment Status */}
+        <div className="envstatus-container">
+          <div className="envstatus glass-epek">
+            {/* <div className="envstatus"> */}
+            <div className="envstatus-row">
+              {/* Inside Humidity */}
+              <div className="envstatus-item">
+                <span className="envstatus-label">Inside Humidity</span>
+                <span className="envstatus-value">
+                  {insideHumidity !== null ? `${insideHumidity}%` : "--"}
+                </span>
+              </div>
 
-      <Header />
+              {/* Energy Consumption */}
+              <div className="envstatus-item">
+                <span className="envstatus-label">Energy Consumption</span>
+                <span className="envstatus-value">
+                {powerConsumption !== null ? `${powerConsumption}kWh` : "--"}
+                </span>
+              </div>
 
-      {/* Environment Status */}
-      <div className="envstatus-container">
-        <div className="envstatus glass-epek">
-          {/* <div className="envstatus"> */}
-          <div className="envstatus-row">
-            {/* Inside Humidity */}
-            <div className="envstatus-item">
-              <span className="envstatus-label">Inside Humidity</span>
-              <span className="envstatus-value">
-                {insideHumidity !== null ? `${insideHumidity}%` : "--"}
-              </span>
-            </div>
-
-            {/* Energy Consumption */}
-            <div className="envstatus-item">
-              <span className="envstatus-label">Energy Consumption</span>
-              <span className="envstatus-value">
-              {powerConsumption !== null ? `${powerConsumption}kWh` : "--"}
-              </span>
-            </div>
-
-            {/* Inside Temperature */}
-            <div className="envstatus-item">
-              <span className="envstatus-label">Inside Temperature</span>
-              <span className="envstatus-value">
-                {insideTemperature !== null ? `${insideTemperature}°C` : "--"}
-              </span>
+              {/* Inside Temperature */}
+              <div className="envstatus-item">
+                <span className="envstatus-label">Inside Temperature</span>
+                <span className="envstatus-value">
+                  {insideTemperature !== null ? `${insideTemperature}°C` : "--"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Accuweather Container */}
-      <div className="accuweather-container">
-        <div className="accuweather glass-epek">
-          {/* Weather Data */}
-          {/* <div className="weather-icon">{getWeatherIcon(weatherData?.WeatherText)}</div>            */}
-          <div
-            className={`weather-icon ${
-              weatherData?.WeatherText === "Partly cloudy"
-                ? "partly-cloudy"
-                : weatherData?.WeatherText === "Sunny"
-                ? "sunny"
-                : weatherData?.WeatherText === "Partly sunny"
-                ? "partly-sunny"
-                : weatherData?.WeatherText === "Mostly cloudy"
-                ? "partly-cloudy"
-                : weatherData?.WeatherText === "Cloudy"
-                ? "partly-cloudy"
-                : weatherData?.WeatherText === "Rainy"
-                ? "rainy"
-                : weatherData?.WeatherText === "Windy"
-                ? "windy"
-                : weatherData?.WeatherText === "Thunderstorms"
-                ? "thunderstorm"
-                : weatherData?.WeatherText === "Overcast"
-                ? "overcast"
-                : "umbrella"
-            }`}
-          >
-            <img
-              src={weatherIconMap[weatherData?.WeatherText] || wIcon}
-              alt={weatherData?.WeatherText}
-              style={{
-                position: "absolute",
-                top: "20px",
-                left: "20px",
-              }}
-            />
-          </div>
-
-          <div>
-            <div className="temp-container">
-              <span className="temp-des">
-                {weatherData?.Temperature?.Metric?.Value || "--"}
-              </span>
-              <span className="temp-unit">°C</span>
-            </div>
-
-            <span className="accu-loc">TAGUIG</span>
-
-            {/* <div>{weatherData?.WeatherText?.toUpperCase() || "---"}</div> */}
-            <div className="accu-text1">
-              {/* {weatherData?.RelativeHumidity}% */}
-              {weatherData?.WeatherText?.toUpperCase() || "---"}{" "}
-            </div>
-
-            <div className="accu-text2">
-              FEELS LIKE:{" "}
-              {weatherData?.RealFeelTemperature?.Metric?.Value || "--"}°C
-            </div>
-
-            <button
-              className="weather-btn"
-              onClick={() => navigate("/manageRoom")}
+        {/* Accuweather Container */}
+        <div className="accuweather-container">
+          <div className="accuweather glass-epek">
+            {/* Weather Data */}
+            {/* <div className="weather-icon">{getWeatherIcon(weatherData?.WeatherText)}</div>            */}
+            <div
+              className={`weather-icon ${
+                weatherData?.WeatherText === "Partly cloudy"
+                  ? "partly-cloudy"
+                  : weatherData?.WeatherText === "Sunny"
+                  ? "sunny"
+                  : weatherData?.WeatherText === "Partly sunny"
+                  ? "partly-sunny"
+                  : weatherData?.WeatherText === "Mostly cloudy"
+                  ? "partly-cloudy"
+                  : weatherData?.WeatherText === "Cloudy"
+                  ? "partly-cloudy"
+                  : weatherData?.WeatherText === "Rainy"
+                  ? "rainy"
+                  : weatherData?.WeatherText === "Windy"
+                  ? "windy"
+                  : weatherData?.WeatherText === "Thunderstorms"
+                  ? "thunderstorm"
+                  : weatherData?.WeatherText === "Overcast"
+                  ? "overcast"
+                  : "umbrella"
+              }`}
             >
-              MANAGE THE ROOM
-            </button>
-          </div>
-        </div>
+              <img
+                src={weatherIconMap[weatherData?.WeatherText] || wIcon}
+                alt={weatherData?.WeatherText}
+                style={{
+                  position: "absolute",
+                  top: "20px",
+                  left: "20px",
+                }}
+              />
+            </div>
 
-        {/* Box Container */}
-        <div className="box-container glass-epek">
-          <div className="box1">
-            <div className="envstatus-row">
-              {/* AC */}
-              <div className="envstatus-item">
-                <span className="box-label">Airconditioners</span>
-                <span
-                  className={`box-value ${
-                    isOnline === null
-                      ? "default"
-                      : isOnline
-                      ? "online"
-                      : "offline"
-                  }`}
-                >
-                  {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
+            <div style={{ textAlign: "right" }}>
+              <div className="temp-container">
+                <span className="temp-des">
+                  {weatherData?.Temperature?.Metric?.Value || "--"}
                 </span>
+                <span className="temp-unit">°C</span>
+              </div>
+
+              <span className="accu-loc">TAGUIG</span>
+
+              {/* <div>{weatherData?.WeatherText?.toUpperCase() || "---"}</div> */}
+              <div className="accu-text1">
+                {/* {weatherData?.RelativeHumidity}% */}
+                {weatherData?.WeatherText?.toUpperCase() || "---"}{" "}
+              </div>
+
+              <div className="accu-text2">
+                FEELS LIKE:{" "}
+                {weatherData?.RealFeelTemperature?.Metric?.Value || "--"}°C
+              </div>
+
+              <button
+                className="weather-btn"
+                onClick={() => navigate("/manageRoom")}
+              >
+                MANAGE THE ROOM
+              </button>
+            </div>
+          </div>
+
+          {/* Box Container */}
+          <div className="box-container glass-epek">
+            <div className="box1">
+              <div className="envstatus-row">
+                {/* AC */}
+                <div className="envstatus-item">
+                  <span className="box-label">Airconditioners</span>
+                  <span
+                    className={`box-value ${
+                      isOnline === null
+                        ? "default"
+                        : isOnline
+                        ? "online"
+                        : "offline"
+                    }`}
+                  >
+                    {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="box2">
+              {/* FANS */}
+              <div className="envstatus-row">
+                <div className="envstatus-item">
+                  <span className="box-label">Fans</span>
+                  <span
+                    className={`box-value ${
+                      isOnline === null
+                        ? "default"
+                        : isOnline
+                        ? "online"
+                        : "offline"
+                    }`}
+                  >
+                    {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
+        </div>
 
-          <div className="box2">
-            {/* FANS */}
+        {/* Extras */}
+        <div className="envstatus-container-2">
+          <div className="envstatus glass-epek">
+            {/* Your content for envstatus goes here */}
+
             <div className="envstatus-row">
+              {/* Inside Humidity */}
               <div className="envstatus-item">
-                <span className="box-label">Fans</span>
-                <span
-                  className={`box-value ${
-                    isOnline === null
-                      ? "default"
-                      : isOnline
-                      ? "online"
-                      : "offline"
-                  }`}
-                >
-                  {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
+                <span className="envstatus-label">Outside Humidity</span>
+                <span className="envstatus-value">
+                  {outsideHumidity !== null ? `${outsideHumidity}%` : "--"}
                 </span>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Extras */}
-      <div className="envstatus-container-2">
-        <div className="envstatus glass-epek">
-          {/* Your content for envstatus goes here */}
-
-          <div className="envstatus-row">
-            {/* Inside Humidity */}
-            <div className="envstatus-item">
-              <span className="envstatus-label">Outside Humidity</span>
-              <span className="envstatus-value">
-                {outsideHumidity !== null ? `${outsideHumidity}%` : "--"}
-              </span>
-            </div>
-
-            {/* Outside Temperature */}
-            <div className="envstatus-item">
-              <span className="envstatus-label">Outside Temperature</span>
-              <span className="envstatus-value">
-                {outsideTemperature !== null ? `${outsideTemperature}°C` : "--"}
-              </span>
+              {/* Outside Temperature */}
+              <div className="envstatus-item">
+                <span className="envstatus-label">Outside Temperature</span>
+                <span className="envstatus-value">
+                  {outsideTemperature !== null ? `${outsideTemperature}°C` : "--"}
+                </span>
+              </div>
             </div>
           </div>
         </div>
