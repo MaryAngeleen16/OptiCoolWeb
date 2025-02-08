@@ -55,6 +55,7 @@ exports.login = async (req, res, next) => {
         }
 
         user = await User.findOne(user._id);
+        await user.setActive();
 
         sendToken(user, 200, res, 'Successfully Login')
 
@@ -297,5 +298,27 @@ exports.updateRole = async (req, res, next) => {
 
 
 
+exports.getActiveUsers = async (req, res) => {
+    try {
+        const activeUsers = await User.find({ isActive: true }).select('username email');
+        res.status(200).json({ success: true, users: activeUsers });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Failed to fetch active users.' });
+    }
+};
 
-
+exports.getNumberOfUsers = async (req, res) => {
+    try {
+        const userCount = await User.countDocuments();
+        return res.json({
+            success: true,
+            count: userCount,
+        });
+    } catch (err) {
+        return res.status(400).json({
+            message: 'Please try again later',
+            success: false,
+        });
+    }
+};

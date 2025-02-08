@@ -86,6 +86,21 @@ userSchema.methods.getResetPasswordCode = async function () {
     return code;
 }
 
+
+// Method to set user as active when they log in
+userSchema.methods.setActive = async function () {
+    this.isActive = true;
+    await this.save();
+}
+
+// Method to set user as inactive when they log out
+userSchema.methods.setInactive = async function () {
+    this.isActive = false;
+    await this.save();
+}
+
+
+
 userSchema.methods.sendResetPasswordCode = async function () {
     await sendEmail({
         email: this.email,
@@ -111,5 +126,7 @@ userSchema.methods.verifyCode = async function (inputtedCode) {
     return 'success'
 
 }
+
+
 
 module.exports = mongoose.model('User', userSchema)

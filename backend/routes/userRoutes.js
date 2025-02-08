@@ -30,5 +30,6 @@ router.delete('/delete/:id', userController.deleteUser);
 router.put('/update-role/:id', userController.updateRole);
 
 
+router.get('/active', userController.getActiveUsers);
 
 module.exports = router;    

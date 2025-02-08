@@ -31,6 +31,7 @@ function Home() {
   const [outsideTemp, setOutsideTemp] = useState(null);
   const [outsideHumidity, setOutsideHumidity] = useState(null); // State for humidity
   const [insideHumidity, setInsideHumidity] = useState(null); // State for inside humidity
+  const [acTemp, setAcTemp] = useState(null); // State for AC temperature
 
 
   useEffect(() => {
@@ -75,7 +76,19 @@ useEffect(() => {
   fetchInsideData();
 }, []);
 
+useEffect(() => {
+  const fetchAcTemp = async () => {
+    try {
+      const acTempData = await dmtAPI.getCurrentACTempAPI();
+      setAcTemp(acTempData.temperature); // Set AC temperature
+    } catch (error) {
+      console.error("Error fetching AC temperature:", error);
+      setAcTemp("N/A");
+    }
+  };
 
+  fetchAcTemp();
+}, []);
 
 
 
@@ -268,16 +281,9 @@ useEffect(() => {
                 {/* AC */}
                 <div className="envstatus-item">
                   <span className="box-label">Airconditioners</span>
-                  <span
-                    className={`box-value ${
-                      isOnline === null
-                        ? "default"
-                        : isOnline
-                        ? "online"
-                        : "offline"
-                    }`}
-                  >
-                    {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
+                  <span className="envstatus-value"
+                  style={{fontSize: "2rem", fontWeight: "bold"}}>
+                    {acTemp !== null ? `${acTemp}°C` : "---"}
                   </span>
                 </div>
               </div>
@@ -285,7 +291,7 @@ useEffect(() => {
 
             <div className="box2">
               {/* FANS */}
-              <div className="envstatus-row">
+              {/* <div className="envstatus-row">
                 <div className="envstatus-item">
                   <span className="box-label">Fans</span>
                   <span
@@ -300,7 +306,7 @@ useEffect(() => {
                     {isOnline === null ? "---" : isOnline ? "ONLINE" : "OFFLINE"}
                   </span>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

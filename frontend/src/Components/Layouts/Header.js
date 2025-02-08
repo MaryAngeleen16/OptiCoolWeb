@@ -18,7 +18,9 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import GroupIcon from "@mui/icons-material/Group";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
-import SummarizeIcon from '@mui/icons-material/Summarize';
+import SummarizeIcon from "@mui/icons-material/Summarize";
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+
 import "./Header.css";
 
 function Header() {
@@ -157,6 +159,22 @@ function Header() {
                         <SummarizeIcon />
                       </ListItemIcon>
                       <ListItemText primary="Error Report" />
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
+                {user?.role === "admin" && (
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      onClick={() => {
+                        navigate("/active");
+                        setDrawerOpen(false);
+                      }}
+                    >
+                      <ListItemIcon>
+                        <SupervisorAccountIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Active Users" />
                     </ListItemButton>
                   </ListItem>
                 )}
