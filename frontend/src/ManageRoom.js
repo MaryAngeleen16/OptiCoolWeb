@@ -1,336 +1,165 @@
-// import React, { useState } from 'react';
-// import Header from './Components/Layouts/Header';
-// import './ManageRoom.css';
-// import Thermostat from './Thermostat';
-
-// function ManageRoom() {
-//   const [activeCategory, setActiveCategory] = useState('All');
-//   const [isAuto, setIsAuto] = useState(false);
-
-//   const allItems = [
-//     { name: 'AC 1', status: 'Online' },
-//     { name: 'AC 2', status: 'Offline' },
-//     { name: 'EXHAUST FAN', status: 'Online' },
-//     { name: 'BLOWER', status: 'Offline' },
-//     { name: 'FAN 1', status: 'Online' },
-//     { name: 'FAN 2', status: 'Online' },
-//     { name: 'FAN 3', status: 'Offline' },
-//     { name: 'FAN 4', status: 'Online' },
-//     { name: 'TEMP N HUMID SENSOR (OUTSIDE)', status: 'Online' },
-//     { name: 'TEMP N HUMID SENSOR (INSIDE)', status: 'Offline' },
-//   ];
-
-//   const filteredItems = () => {
-//     if (activeCategory === 'Appliances') {
-//       return allItems.filter(item => item.name.includes('AC') || item.name.includes('FAN') || item.name.includes('BLOWER'));
-//     } else if (activeCategory === 'Sensors') {
-//       return allItems.filter(item => item.name.includes('SENSOR'));
-//     }
-//     return allItems;
-//   };
-
-//   const handleReport = async (appliance, status) => {
-//     try {
-//       const response = await fetch(`${process.env.REACT_APP_API}/ereport`, {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({ appliance, status }),
-//       });
-
-//       if (!response.ok) {
-//         const errorText = await response.text();
-//         throw new Error(`Server error: ${response.status} - ${errorText}`);
-//       }
-
-//       const data = await response.json();
-
-//       if (data.success) {
-//         alert('Report successfully submitted');
-//       } else {
-//         alert('Failed to submit report: ' + data.message);
-//       }
-//     } catch (error) {
-//       console.error('Error submitting report:', error);
-//       alert('An error occurred while submitting the report.');
-//     }
-// };
-
-//   return (
-//     <div>
-//       <Header />
-
-//       <div className="ac-container">
-//         <div className="ac-status">
-//           <div className="toggle-container">
-//             <span className={`toggle-label ${!isAuto ? 'active' : ''}`}>Manual</span>
-//             <label className="switch">
-//               <input
-//                 type="checkbox"
-//                 checked={isAuto}
-//                 onChange={() => setIsAuto(!isAuto)}
-//               />
-//               <span className="slider round"></span>
-//             </label>
-//             <span className={`toggle-label ${isAuto ? 'active' : ''}`}>Auto</span>
-//           </div>
-
-//           <div className="thermostats-container">
-//             <Thermostat isAuto={isAuto} />
-//           </div>
-//         </div>
-//       </div>
-
-//       <div className="buttons-container">
-//         <button
-//           className={`buttons-style ${activeCategory === 'All' ? 'active' : ''}`}
-//           onClick={() => setActiveCategory('All')}
-//         >
-//           All
-//         </button>
-//         <button
-//           className={`buttons-style ${activeCategory === 'Appliances' ? 'active' : ''}`}
-//           onClick={() => setActiveCategory('Appliances')}
-//         >
-//           Appliances
-//         </button>
-//         <button
-//           className={`buttons-style ${activeCategory === 'Sensors' ? 'active' : ''}`}
-//           onClick={() => setActiveCategory('Sensors')}
-//         >
-//           Sensors
-//         </button>
-//       </div>
-
-//       <div className="table-container">
-//         <div className="table-header">
-//           <div className="column">Appliances</div>
-//           <div className="column">Status</div>
-//           <div className="column">Action</div>
-//         </div>
-
-//         {filteredItems().map((item, index) => (
-//           <div key={index} className="table-row">
-//             <div className="column">{item.name}</div>
-//             <div className="column">{item.status}</div>
-//             <div className="column">
-//               {!isAuto && !item.name.includes('SENSOR') && (
-//                 <>
-//                   <button className="control-button on-button">On</button>
-//                   <button className="control-button off-button">Off</button>
-//                 </>
-//               )}
-//               <button className="report-button" onClick={() => handleReport(item.name, item.status)}>
-//                 Report
-//               </button>
-//             </div>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
-
-// export default ManageRoom;
-
 import React, { useState, useEffect } from "react";
 import Header from "./Components/Layouts/Header";
 import "./ManageRoom.css";
-import Thermostat from "./Thermostat";
-import "./Components/Layouts/Home.css";
+import dmtAPI from "./dmtAPI";
+import "./manage.css";
 
 function ManageRoom() {
-  const [activeCategory, setActiveCategory] = useState("All");
-  const [isAuto, setIsAuto] = useState(false);
-  const [isOn, setIsOn] = useState(false);
-  const [deviceStatuses, setDeviceStatuses] = useState([]);
+  const [isOn, setIsOn] = useState(() => JSON.parse(localStorage.getItem("isOn")) ?? false);
+  const [mode, setMode] = useState(() => localStorage.getItem("mode") ?? "auto");
+  const [deviceStates, setDeviceStates] = useState(() => JSON.parse(localStorage.getItem("deviceStates")) ?? {
+    ac: false,
+    fan: false,
+    blower: false,
+    exhaustFan: false,
+  });
+  const [acTemp, setAcTemp] = useState(() => JSON.parse(localStorage.getItem("acTemp")) ?? 25);
 
-  const ESP32_IP = "http://192.168.0.102";
-
-  const allItems = [
-    { name: "AC 1", status: "Online" },
-    { name: "AC 2", status: "Offline" },
-    { name: "EXHAUST FAN", status: "Online" },
-    { name: "BLOWER", status: "Offline" },
-    { name: "FAN 1", status: "Online" },
-    { name: "FAN 2", status: "Online" },
-    { name: "FAN 3", status: "Offline" },
-    { name: "FAN 4", status: "Online" },
-    { name: "TEMP N HUMID SENSOR (OUTSIDE)", status: "Online" },
-    { name: "TEMP N HUMID SENSOR (INSIDE)", status: "Offline" },
-  ];
-
-  const filteredItems = () => {
-    if (activeCategory === "Appliances") {
-      return deviceStatuses.filter(
-        (item) =>
-          item.name.includes("AC") ||
-          item.name.includes("FAN") ||
-          item.name.includes("BLOWER")
-      );
-    } else if (activeCategory === "Sensors") {
-      return deviceStatuses.filter((item) => item.name.includes("SENSOR"));
-    }
-    return deviceStatuses;
-  };
-
-  const fetchDeviceStatus = async () => {
-    try {
-      const response = await fetch(`${ESP32_IP}/status`);
-      if (!response.ok) throw new Error("Failed to fetch");
-
-      const data = await response.json();
-      console.log("Fetched Status:", data);
-
-      // Map all items, ensuring every device has a status (fallback to 'Offline' if missing)
-      const updatedStatuses = allItems.map((item) => ({
-        name: item.name,
-        status: data[`${item.name.toLowerCase().replace(/ /g, "_")}_status`]
-          ? "Online"
-          : "Offline",
-      }));
-
-      setDeviceStatuses(updatedStatuses);
-    } catch (error) {
-      console.error("Error fetching device status:", error);
-
-      // If fetching fails, retain existing statuses or fall back to default ones
-      setDeviceStatuses(
-        allItems.map((item) => ({
-          name: item.name,
-          status: "Offline",
-        }))
-      );
-    }
-  };
-
-  // Fetch status when the component mounts
   useEffect(() => {
-    fetchDeviceStatus();
-    const interval = setInterval(fetchDeviceStatus, 5000); // Refresh every 5 seconds
-    return () => clearInterval(interval);
-  }, []);
+    localStorage.setItem("isOn", JSON.stringify(isOn));
+    localStorage.setItem("mode", mode);
+    localStorage.setItem("deviceStates", JSON.stringify(deviceStates));
+    localStorage.setItem("acTemp", JSON.stringify(acTemp));
+  }, [isOn, mode, deviceStates, acTemp]);
 
-  const handleReport = async (appliance, status) => {
-    try {
-      const response = await fetch(`${process.env.REACT_APP_API}/ereport`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appliance, status }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
+  // Toggle Power
+  const togglePower = () => {
+    setIsOn((prevState) => {
+      const newState = !prevState;
+      if (!newState) {
+        setMode("auto");
+        setDeviceStates({ ac: false, fan: false, blower: false, exhaustFan: false });
+        setAcTemp(25);
       }
+      return newState;
+    });
+  };
 
-      const data = await response.json();
-      alert(
-        data.success
-          ? "Report successfully submitted"
-          : "Failed to submit report: " + data.message
-      );
+  // Toggle Mode
+  const toggleMode = (newMode) => {
+    if (isOn) setMode(newMode);
+  };
+
+  // Toggle Device with API Calls
+  const toggleDevice = async (device) => {
+    try {
+      let updatedState = !deviceStates[device];
+      if (device === "ac") updatedState ? await dmtAPI.turnOnAllAC() : await dmtAPI.turnOffAllAC();
+      if (device === "fan") updatedState ? await dmtAPI.turnOnEFans() : await dmtAPI.turnOffEFans();
+      if (device === "blower") updatedState ? await dmtAPI.turnOnBlower() : await dmtAPI.turnOffBlower();
+      if (device === "exhaustFan") updatedState ? await dmtAPI.turnOnExhaust() : await dmtAPI.turnOffExhaust();
+      
+      setDeviceStates((prevState) => ({ ...prevState, [device]: updatedState }));
     } catch (error) {
-      console.error("Error submitting report:", error);
-      alert("An error occurred while submitting the report.");
+      console.error(`Error toggling ${device}:`, error);
+      alert(`Failed to toggle ${device}.`);
     }
+  };
+
+  // Adjust AC Temperature
+  const changeACTemp = async (value) => {
+    const newTemp = acTemp + value;
+    if (newTemp >= 19 && newTemp <= 28) {
+      try {
+        await dmtAPI.setAcTemperature(newTemp);
+        setAcTemp(newTemp);
+      } catch (error) {
+        console.error("Error adjusting AC temperature:", error);
+        alert("Failed to adjust AC temperature.");
+      }
+    }
+  };
+
+  // Report Issue (Placeholder)
+  const reportIssue = (device) => {
+    alert(`Reported issue for ${device}`);
   };
 
   return (
-    <div className="manageroombody bottomimage">
-        <Header />
+    <div className="manage-room-container">
+      <Header />
+      <div className="power-control">
+        <button onClick={togglePower}>{isOn ? "Turn Off" : "Turn On"}</button>
+      </div>
 
-        <div className="ac-container">
-          <div className="ac-status">
-            <button
-              className={`power-button ${isOn ? "on" : "off"}`}
-              onClick={() => {
-                setIsOn(!isOn);
-                if (!isOn) setIsAuto(true);
-              }}
-              style={{
-                backgroundColor: isOn ? "green" : "red",
-                color: "white",
-              }}
-            >
-              {isOn ? "Turn Off" : "Turn On"}
+      {isOn && (
+        <div className="mode-control">
+          <p style={{ textAlign: "center", fontWeight: "bold" }}>
+            Current Mode:{" "}
+            <span style={{ fontWeight: "bold", textTransform: "uppercase", color: "red" }}>
+              {mode}
+            </span>
+          </p>
+          <div className="mode-buttons">
+            <button className={mode === "auto" ? "active" : "inactive"} onClick={() => toggleMode("auto")}>
+              Auto Mode
             </button>
-
-            <div className="toggle-container">
-              <button
-                className={`mode-button ${!isAuto ? "active" : ""}`}
-                onClick={() => setIsAuto(false)}
-                disabled={!isOn}
-                style={{
-                  backgroundColor: isOn ? "" : "gray",
-                  color: isOn ? "" : "white",
-                }}
-              >
-                Manual
-              </button>
-              <button
-                className={`mode-button ${isAuto ? "active" : ""}`}
-                onClick={() => setIsAuto(true)}
-                disabled={!isOn}
-                style={{
-                  backgroundColor: isOn ? "" : "gray",
-                  color: isOn ? "" : "white",
-                }}
-              >
-                Auto
-              </button>
-            </div>
-
-            <div className="thermostats-container">
-              <Thermostat isAuto={isAuto && isOn} disabled={!isOn} />
-            </div>
+            <button className={mode === "manual" ? "active" : "inactive"} onClick={() => toggleMode("manual")}>
+              Manual Mode
+            </button>
           </div>
         </div>
+      )}
 
-        <div className="buttons-container">
-          {["All", "Appliances", "Sensors"].map((category) => (
-            <button
-              key={category}
-              className={`buttons-style ${
-                activeCategory === category ? "active" : ""
-              }`}
-              onClick={() => setActiveCategory(category)}
-            >
-              {category}
+      {mode === "manual" && isOn && (
+        <div className="manual-controls-container">
+          {/* AC Controls */}
+          <div className="device-row">
+            <label>Air Conditioner</label>
+            <button onClick={() => toggleDevice("ac")} className="AC-Fan-Button">
+              {deviceStates.ac ? "Off" : "On"}
             </button>
-          ))}
-        </div>
-
-        <div className="table-container">
-          <div className="table-header">
-            <div className="column">Appliances</div>
-            <div className="column">Status</div>
-            <div className="column">Action</div>
+            <button className="report-button" onClick={() => reportIssue("Air Conditioner")}>
+              Report
+            </button>
           </div>
 
-          {filteredItems().map((item, index) => (
-            <div key={index} className="table-row">
-              <div className="column">{item.name}</div>
-              <div className="column">{item.status}</div>
-              <div className="column">
-                {!isAuto && isOn && !item.name.includes("SENSOR") && (
-                  <>
-                    <button className="control-button on-button">On</button>
-                    <button className="control-button off-button">Off</button>
-                  </>
-                )}
-                <button
-                  className="report-button"
-                  onClick={() => handleReport(item.name, item.status)}
-                >
-                  Report
-                </button>
-              </div>
+          {/* AC Temperature Controls */}
+          <div className="temperature-control">
+            <label style={{textTransform:"uppercase"}}>AC Temperature: 
+              <span style={{textTransform:"uppercase", fontWeight:"bold"
+                , fontSize:"32px"
+              }}> {acTemp}°C</span></label>
+            <div>
+              <button onClick={() => changeACTemp(-1)} disabled={acTemp <= 16}>-</button>
+              <button onClick={() => changeACTemp(1)} disabled={acTemp >= 30}>+</button>
             </div>
-          ))}
+          </div>
+
+          {/* Fan Controls */}
+          <div className="device-row">
+            <label>FAN</label>
+            <button onClick={() => toggleDevice("fan")} className="AC-Fan-Button">
+              {deviceStates.fan ? "Off" : "On"}
+            </button>
+            <button className="report-button" onClick={() => reportIssue("Fan")}>
+              Report
+            </button>
+          </div>
+
+          {/* Blower Controls */}
+          <div className="device-row">
+            <label>BLOWER</label>
+            <button onClick={() => toggleDevice("blower")} className="AC-Fan-Button">
+              {deviceStates.blower ? "Off" : "On"}
+            </button>
+            <button className="report-button" onClick={() => reportIssue("Blower")}>
+              Report
+            </button>
+          </div>
+
+          {/* Exhaust Fan Controls */}
+          <div className="device-row">
+            <label>EXHAUST FAN</label>
+            <button onClick={() => toggleDevice("exhaustFan")} className="AC-Fan-Button">
+              {deviceStates.exhaustFan ? "Off" : "On"}
+            </button>
+            <button className="report-button" onClick={() => reportIssue("Exhaust Fan")}>
+              Report
+            </button>
+          </div>
         </div>
-        {/* <div className="bottomimage">
-        </div> */}
+      )}
     </div>
   );
 }

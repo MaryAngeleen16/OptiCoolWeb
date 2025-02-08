@@ -309,3 +309,51 @@ function Home() {
 
 export default Home;
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import dmt3API from '../services/dmt3API';
+
+const YourComponent = () => {
+  const [insideHumidity, setInsideHumidity] = useState(null);
+
+  useEffect(() => {
+    const fetchInsideHumidity = async () => {
+      try {
+        const data = await dmt3API.getDevicesDataAPI();
+        setInsideHumidity(data.inside.humidity);
+      } catch (error) {
+        console.error('Error fetching inside humidity:', error);
+      }
+    };
+
+    fetchInsideHumidity();
+  }, []);
+
+  return (
+    <div className="envstatus-item">
+      <span className="envstatus-label">Inside Humidity</span>
+      <span className="envstatus-value">
+        {insideHumidity !== null ? `${insideHumidity}%` : "--"}
+      </span>
+    </div>
+  );
+};
+
+export default YourComponent;

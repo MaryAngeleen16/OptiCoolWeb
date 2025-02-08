@@ -13,49 +13,71 @@ import wIcon from "./Icons/UMBRELLA.png";
 import Sidebar from "./Components/Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
 import UserDashboard from "./Dashboard/UserDashboard";
+import dmtAPI from "./dmtAPI";
+
+
+
 
 function Home() {
   // AccuWeather API Constants
   const AccuweatherbaseURL = "http://dataservice.accuweather.com";
   const apiKey = "I8m0OklfM6lIEJGIAl7Sa96aZSGY6Enm";
   const locationKey = "759349";
-  const ESP32_IP = "http://192.168.0.102";
-  const [insideHumidity, setInsideHumidity] = useState(null);
-  const [outsideHumidity, setOutsideHumidity] = useState(null);
-  const [insideTemperature, setInsideTemperature] = useState(null);
-  const [outsideTemperature, setOutsideTemperature] = useState(null);
-  const [powerConsumption, setPowerConsumption] = useState(null);
 
-  const fetchTemperatureData = async () => {
+  // const [insideTemperature, setInsideTemperature] = useState(null);
+  // const [outsideTemperature, setOutsideTemperature] = useState(null);
+  const [powerConsumption, setPowerConsumption] = useState(null);  
+  const [insideTemp, setInsideTemp] = useState(null); 
+  const [outsideTemp, setOutsideTemp] = useState(null);
+  const [outsideHumidity, setOutsideHumidity] = useState(null); // State for humidity
+  const [insideHumidity, setInsideHumidity] = useState(null); // State for inside humidity
+
+
+  useEffect(() => {
+    const fetchOutsideData = async () => {
+      try {
+        const devicesData = await dmtAPI.getDevicesDataAPI();
+        
+        setOutsideTemp(devicesData.outside.temperature); // Set outside temp
+        setOutsideHumidity(devicesData.outside.humidity); // Set outside humidity
+      } catch (error) {
+        console.error("Error fetching outside data:", error);
+        setOutsideTemp("N/A");
+        setOutsideHumidity("N/A");
+      }
+    };
+  
+    fetchOutsideData();
+  }, []);
+
+
+
+
+
+useEffect(() => {
+  const fetchInsideData = async () => {
     try {
-      const tempResponse = await axios.get(`${ESP32_IP}/temperature`);
-      setInsideTemperature(tempResponse.data.insideTemp || "--");
-      setOutsideTemperature(tempResponse.data.outsideTemp || "--");
+      const devicesData = await dmtAPI.getDevicesDataAPI();
+      
+      setInsideTemp(devicesData.inside.temperature); // Set inside temp
+      setInsideHumidity(devicesData.inside.humidity); // Set inside humidity
+      setPowerConsumption(devicesData.power.consumption); // Fetch power consumption
+
     } catch (error) {
-      console.error("Error fetching temperature data from ESP32:", error);
+      console.error("Error fetching inside data:", error);
+      setInsideTemp("N/A");
+      setInsideHumidity("N/A");
+      setPowerConsumption("N/A");
+
     }
   };
 
-  // Fetch humidity data from ESP32 (humidity endpoint)
-  const fetchHumidityData = async () => {
-    try {
-      const humidityResponse = await axios.get(`${ESP32_IP}/humidity`);
-      setInsideHumidity(humidityResponse.data.insideHumidity || "--");
-      setOutsideHumidity(humidityResponse.data.outsideHumidity || "--");
-    } catch (error) {
-      console.error("Error fetching humidity data from ESP32:", error);
-    }
-  };
+  fetchInsideData();
+}, []);
 
-  // Fetch power consumption data
-  const fetchPowerConsumption = async () => {
-    try {
-      const response = await axios.get(`${ESP32_IP}/power_consumption_data`);
-      setPowerConsumption(response.data || []);
-    } catch (error) {
-      console.error("Error fetching power consumption data:", error);
-    }
-  };
+
+
+
 
   // State Variables
   const [weatherData, setWeatherData] = useState(null);
@@ -127,8 +149,6 @@ function Home() {
   // useEffect Hook for Initial Data Fetch
   useEffect(() => {
     fetchWeatherData();
-    fetchTemperatureData(); // Fetch temperature data from ESP32
-    fetchHumidityData(); // Fetch humidity data from ESP32
   }, []);
 
   useEffect(() => {
@@ -157,7 +177,7 @@ function Home() {
               <div className="envstatus-item">
                 <span className="envstatus-label">Energy Consumption</span>
                 <span className="envstatus-value">
-                {powerConsumption !== null ? `${powerConsumption}kWh` : "--"}
+                {powerConsumption !== null ? `${powerConsumption} kW` : "---"}
                 </span>
               </div>
 
@@ -165,7 +185,7 @@ function Home() {
               <div className="envstatus-item">
                 <span className="envstatus-label">Inside Temperature</span>
                 <span className="envstatus-value">
-                  {insideTemperature !== null ? `${insideTemperature}°C` : "--"}
+                {insideTemp !== null ? `${insideTemp}°C` : "---"}
                 </span>
               </div>
             </div>
@@ -295,7 +315,7 @@ function Home() {
               <div className="envstatus-item">
                 <span className="envstatus-label">Outside Humidity</span>
                 <span className="envstatus-value">
-                  {outsideHumidity !== null ? `${outsideHumidity}%` : "--"}
+                {insideHumidity !== null ? `${insideHumidity}%` : "---"}
                 </span>
               </div>
 
@@ -303,7 +323,7 @@ function Home() {
               <div className="envstatus-item">
                 <span className="envstatus-label">Outside Temperature</span>
                 <span className="envstatus-value">
-                  {outsideTemperature !== null ? `${outsideTemperature}°C` : "--"}
+                {outsideTemp !== null ? `${outsideTemp}°C` : "---"}
                 </span>
               </div>
             </div>

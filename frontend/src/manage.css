@@ -1,0 +1,247 @@
+.manage-room-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 10%;
+    margin-bottom: 2%;
+    width: 100%;
+  }
+  
+  .power-control-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px;
+  }
+  
+  
+  .power-button {
+    font-size: 2rem;
+    padding: 20px 40px;
+    border: none;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .power-button.on {
+    background-color: green;
+    color: white;
+  }
+  
+  .power-button.off {
+    background-color: red;
+    color: white;
+  }
+  
+  .power-button:hover {
+    opacity: 0.8;
+  }
+  
+  .mode-control-container {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    
+  }
+  
+  .mode-button {
+    font-size: 1.5rem;
+    padding: 15px 30px;
+    border: 2px solid #ccc;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+
+  
+  }
+  
+  .mode-button.active {
+    background-color: #4CAF50;
+    color: white;
+    border-color: #4CAF50;
+  }
+  
+  .mode-button:hover {
+    opacity: 0.8;
+  }
+  
+  .manual-controls-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .device-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensures even spacing */
+    gap: 10px; /* Adds spacing between elements */
+    width: 100%;
+    max-width: 400px; /* Adjust width as needed */
+    margin: 10px auto; /* Centers the container */
+    padding: 10px;
+    border-radius: 5px;
+  }
+
+
+  .device-container label {
+    font-size: 1.2rem;
+  }
+  
+  .device-container button {
+    padding: 8px;
+    font-size: 16px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .device-container button:hover {
+    background-color: #0056b3;
+  }
+  .device-container button:active {
+    background-color: #4CAF50;
+    color: white;
+  }
+  
+.device-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.report-button {
+  background-color: #b30000;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  width: 100px;
+  text-transform: uppercase;
+  font-size: 16px;
+}
+
+
+
+  .ac-temp-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  
+  .ac-temp-container label {
+    font-size: 18px;
+  }
+  
+  .ac-temp-container button {
+    padding: 8px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .ac-temp-container button:hover {
+    background-color: #45a049;
+  }
+  
+
+
+  .ac-extended-controls {
+    margin-top: 15px;
+  }
+  
+  .ac-extended-controls .device-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .ac-extended-controls button {
+    padding: 8px;
+    font-size: 14px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .ac-extended-controls button:hover {
+    background-color: #45a049;
+  }
+  
+
+
+
+  .mode-buttons button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    margin: 5px;
+    margin-bottom: 5%;
+  }
+  
+  .mode-buttons button.active {
+    background-color: #4CAF50 !important; 
+    color: white;
+  }
+  
+  .mode-buttons button.inactive {
+    background-color: #7c7c7c; 
+    color: white;
+  }
+  
+  .mode-buttons button:hover {
+    background-color: #0b7dda; 
+    color: white;
+  }
+  
+  .mode-buttons button:active {
+    background-color: #0a6ab6; 
+  }
+  
+  .power-control button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #738574; 
+    color: white;
+    transition: background-color 0.3s;
+    width:200px;
+    position: relative;
+    margin-bottom: 5%;
+  }
+  
+  .power-control button:hover {
+    background-color: #0b7dda;  
+  }
+  
+  .power-control button:active {
+    background-color: #3e8e41; 
+  } 
+
+
+  .AC-Fan-Button
+  {
+  width: 100px;
+  text-transform: uppercase;
+  font-size: 16px;
+  }
+
+   
