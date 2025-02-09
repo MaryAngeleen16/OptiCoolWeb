@@ -18,3 +18,11 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server started on port: ${PORT} in ${process.env.NODE_ENV} mode`);
 });
+
+
+const cors = require("cors");
+
+app.use(cors({
+  origin: "https://https://opticool-web.vercel.app", // Change this to your Vercel frontend URL
+  credentials: true
+}));
