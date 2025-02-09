@@ -4,6 +4,9 @@ import "./ManageRoom.css";
 import dmtAPI from "./dmtAPI";
 import "./manage.css";
 
+
+
+
 function ManageRoom() {
   const [isOn, setIsOn] = useState(() => JSON.parse(localStorage.getItem("isOn")) ?? false);
   const [mode, setMode] = useState(() => localStorage.getItem("mode") ?? "auto");
@@ -158,8 +161,12 @@ function ManageRoom() {
               Report
             </button>
           </div>
+
+       
         </div>
       )}
+
+      
     </div>
   );
 }

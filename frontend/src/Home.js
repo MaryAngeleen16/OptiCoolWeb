@@ -14,9 +14,7 @@ import Sidebar from "./Components/Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
 import UserDashboard from "./Dashboard/UserDashboard";
 import dmtAPI from "./dmtAPI";
-
-
-
+import Header from "./Components/Layouts/Header";
 
 function Home() {
   // AccuWeather API Constants
@@ -26,19 +24,18 @@ function Home() {
 
   // const [insideTemperature, setInsideTemperature] = useState(null);
   // const [outsideTemperature, setOutsideTemperature] = useState(null);
-  const [powerConsumption, setPowerConsumption] = useState(null);  
-  const [insideTemp, setInsideTemp] = useState(null); 
+  const [powerConsumption, setPowerConsumption] = useState(null);
+  const [insideTemp, setInsideTemp] = useState(null);
   const [outsideTemp, setOutsideTemp] = useState(null);
   const [outsideHumidity, setOutsideHumidity] = useState(null); // State for humidity
   const [insideHumidity, setInsideHumidity] = useState(null); // State for inside humidity
   const [acTemp, setAcTemp] = useState(null); // State for AC temperature
 
-
   useEffect(() => {
     const fetchOutsideData = async () => {
       try {
         const devicesData = await dmtAPI.getDevicesDataAPI();
-        
+
         setOutsideTemp(devicesData.outside.temperature); // Set outside temp
         setOutsideHumidity(devicesData.outside.humidity); // Set outside humidity
       } catch (error) {
@@ -47,50 +44,42 @@ function Home() {
         setOutsideHumidity("N/A");
       }
     };
-  
+
     fetchOutsideData();
   }, []);
 
+  useEffect(() => {
+    const fetchInsideData = async () => {
+      try {
+        const devicesData = await dmtAPI.getDevicesDataAPI();
 
+        setInsideTemp(devicesData.inside.temperature); // Set inside temp
+        setInsideHumidity(devicesData.inside.humidity); // Set inside humidity
+        setPowerConsumption(devicesData.power.consumption); // Fetch power consumption
+      } catch (error) {
+        console.error("Error fetching inside data:", error);
+        setInsideTemp("N/A");
+        setInsideHumidity("N/A");
+        setPowerConsumption("N/A");
+      }
+    };
 
+    fetchInsideData();
+  }, []);
 
+  useEffect(() => {
+    const fetchAcTemp = async () => {
+      try {
+        const acTempData = await dmtAPI.getCurrentACTempAPI();
+        setAcTemp(acTempData.temperature); // Set AC temperature
+      } catch (error) {
+        console.error("Error fetching AC temperature:", error);
+        setAcTemp("N/A");
+      }
+    };
 
-useEffect(() => {
-  const fetchInsideData = async () => {
-    try {
-      const devicesData = await dmtAPI.getDevicesDataAPI();
-      
-      setInsideTemp(devicesData.inside.temperature); // Set inside temp
-      setInsideHumidity(devicesData.inside.humidity); // Set inside humidity
-      setPowerConsumption(devicesData.power.consumption); // Fetch power consumption
-
-    } catch (error) {
-      console.error("Error fetching inside data:", error);
-      setInsideTemp("N/A");
-      setInsideHumidity("N/A");
-      setPowerConsumption("N/A");
-
-    }
-  };
-
-  fetchInsideData();
-}, []);
-
-useEffect(() => {
-  const fetchAcTemp = async () => {
-    try {
-      const acTempData = await dmtAPI.getCurrentACTempAPI();
-      setAcTemp(acTempData.temperature); // Set AC temperature
-    } catch (error) {
-      console.error("Error fetching AC temperature:", error);
-      setAcTemp("N/A");
-    }
-  };
-
-  fetchAcTemp();
-}, []);
-
-
+    fetchAcTemp();
+  }, []);
 
   // State Variables
   const [weatherData, setWeatherData] = useState(null);
@@ -101,15 +90,15 @@ useEffect(() => {
 
   // Weather icon mapping
   const weatherIconMap = {
-    "Sunny": sunIcon,
+    Sunny: sunIcon,
     "Partly sunny": partlySunnyIcon,
     "Mostly cloudy": cloudIcon,
     "Partly cloudy": cloudIcon,
-    "Cloudy": cloudIcon,
-    "Overcast": overcastIcon,
-    "Rainy": rainIcon,
-    "Windy": windIcon,
-    "Thunderstorms": thurderstormIcon,
+    Cloudy: cloudIcon,
+    Overcast: overcastIcon,
+    Rainy: rainIcon,
+    Windy: windIcon,
+    Thunderstorms: thurderstormIcon,
   };
 
   // Fetch Weather Data Function
@@ -169,10 +158,15 @@ useEffect(() => {
   }, []);
 
   return (
-    <div className="homebody" style={{ display: 'flex' }}>
-      <Sidebar />
-      <UserDashboard />
-      <div style={{ flex: 1, marginLeft: '80px' }}> {/* Adjust margin to match sidebar width */}
+    <div className="homebody">
+      <div className="svg-waves"></div>
+      <div className="svg-waves2"></div>
+      <Header />
+      {/* <Sidebar /> */}
+      {/* <UserDashboard /> */}
+      <div style={{ flex: 1, marginLeft: "80px" }}>
+        {" "}
+        {/* Adjust margin to match sidebar width */}
         {/* Environment Status */}
         <div className="envstatus-container">
           <div className="envstatus glass-epek">
@@ -190,7 +184,7 @@ useEffect(() => {
               <div className="envstatus-item">
                 <span className="envstatus-label">Energy Consumption</span>
                 <span className="envstatus-value">
-                {powerConsumption !== null ? `${powerConsumption} kW` : "---"}
+                  {powerConsumption !== null ? `${powerConsumption} kW` : "---"}
                 </span>
               </div>
 
@@ -198,13 +192,12 @@ useEffect(() => {
               <div className="envstatus-item">
                 <span className="envstatus-label">Inside Temperature</span>
                 <span className="envstatus-value">
-                {insideTemp !== null ? `${insideTemp}°C` : "---"}
+                  {insideTemp !== null ? `${insideTemp}°C` : "---"}
                 </span>
               </div>
             </div>
           </div>
         </div>
-
         {/* Accuweather Container */}
         <div className="accuweather-container">
           <div className="accuweather glass-epek">
@@ -281,8 +274,10 @@ useEffect(() => {
                 {/* AC */}
                 <div className="envstatus-item">
                   <span className="box-label">Airconditioners</span>
-                  <span className="envstatus-value"
-                  style={{fontSize: "2rem", fontWeight: "bold"}}>
+                  <span
+                    className="envstatus-value"
+                    style={{ fontSize: "2rem", fontWeight: "bold" }}
+                  >
                     {acTemp !== null ? `${acTemp}°C` : "---"}
                   </span>
                 </div>
@@ -310,7 +305,6 @@ useEffect(() => {
             </div>
           </div>
         </div>
-
         {/* Extras */}
         <div className="envstatus-container-2">
           <div className="envstatus glass-epek">
@@ -321,7 +315,7 @@ useEffect(() => {
               <div className="envstatus-item">
                 <span className="envstatus-label">Outside Humidity</span>
                 <span className="envstatus-value">
-                {insideHumidity !== null ? `${insideHumidity}%` : "---"}
+                  {insideHumidity !== null ? `${insideHumidity}%` : "---"}
                 </span>
               </div>
 
@@ -329,7 +323,7 @@ useEffect(() => {
               <div className="envstatus-item">
                 <span className="envstatus-label">Outside Temperature</span>
                 <span className="envstatus-value">
-                {outsideTemp !== null ? `${outsideTemp}°C` : "---"}
+                  {outsideTemp !== null ? `${outsideTemp}°C` : "---"}
                 </span>
               </div>
             </div>

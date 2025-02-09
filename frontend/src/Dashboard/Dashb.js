@@ -12,7 +12,7 @@ const Dashb = () => {
   return (
     <div style={styles.dashboardContainer}>
       <Header />
-      <Sidebar />
+      {/* <Sidebar /> */}
       <div style={styles.content}>
         Dashboard
         <div style={styles.chartContainer}>
