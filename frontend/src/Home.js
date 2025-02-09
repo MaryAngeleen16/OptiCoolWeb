@@ -18,7 +18,7 @@ import Header from "./Components/Layouts/Header";
 
 function Home() {
   // AccuWeather API Constants
-  const AccuweatherbaseURL = "http://dataservice.accuweather.com";
+  const AccuweatherbaseURL = "https://dataservice.accuweather.com";
   const apiKey = "I8m0OklfM6lIEJGIAl7Sa96aZSGY6Enm";
   const locationKey = "759349";
 
