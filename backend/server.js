@@ -21,8 +21,3 @@ app.listen(PORT, () => {
 
 
 const cors = require("cors");
-
-app.use(cors({
-  origin: "https://opticool-web.vercel.app", // Change this to your Vercel frontend URL
-  credentials: true
-}));
