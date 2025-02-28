@@ -13,6 +13,7 @@ export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [loginError, setLoginError] = useState("");
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
   const handleMouseDownPassword = (event) => event.preventDefault();
@@ -33,8 +34,6 @@ export default function Login() {
         values
       );
 
-      console.log(data);
-
       dispatch(
         setAuth({
           user: data.user,
@@ -43,11 +42,14 @@ export default function Login() {
       );
 
       navigate("/home");
-
       setSubmitting(false);
     } catch (err) {
       setSubmitting(false);
-      console.info(err);
+      if (err.response && err.response.status === 401) {
+        setLoginError("Incorrect email or password");
+      } else {
+        console.info(err);
+      }
     }
   };
 
@@ -65,6 +67,7 @@ export default function Login() {
           validateOnChange={true}
           validateOnBlur={true}
           onSubmit={(values, { setSubmitting }) => {
+            setLoginError(""); // Clear previous login error
             handleSubmit(values, setSubmitting);
           }}
         >
@@ -135,6 +138,12 @@ export default function Login() {
                   }}
                 />
               </div>
+
+              {loginError && (
+                <Typography color="error" variant="body2">
+                  {loginError}
+                </Typography>
+              )}
 
               <div>
                 <div>
