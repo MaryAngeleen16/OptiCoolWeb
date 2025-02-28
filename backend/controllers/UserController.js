@@ -349,3 +349,33 @@ exports.deleteUser = async (req, res, next) => {
         });
     }
 };
+
+
+
+
+
+
+
+
+exports.logout = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.user.id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        user.isActive = false;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: 'Logged out successfully'
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+};

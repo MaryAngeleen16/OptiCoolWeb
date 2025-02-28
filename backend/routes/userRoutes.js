@@ -34,5 +34,6 @@ router.get('/active', userController.getActiveUsers);
 
 router.delete('/delete/:id', userController.deleteUser);
 
+router.route('/logout').get(isAuthenticatedUser, userController.logout);
 
 module.exports = router;    

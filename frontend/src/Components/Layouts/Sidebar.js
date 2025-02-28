@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import axios from "axios";
 import { removeAuth } from "../../states/authSlice";
 import {
   Drawer,
@@ -30,9 +31,14 @@ function Sidebar() {
     navigate(route);
   };
 
-  const handleLogout = () => {
-    dispatch(removeAuth());
-    navigate("/");
+  const handleLogout = async () => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API}/users/logout`);
+      dispatch(removeAuth());
+      navigate("/");
+    } catch (err) {
+      console.error("Failed to log out:", err);
+    }
   };
 
   const menuItems = [
