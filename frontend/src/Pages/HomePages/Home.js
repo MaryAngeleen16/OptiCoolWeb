@@ -1,20 +1,25 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 // import Header from "./Components/Layouts/Header";
-import "./Components/Layouts/Home.css";
-import cloudIcon from "./Icons/CLOUD.png";
-import sunIcon from "./Icons/SUN.png";
-import partlySunnyIcon from "./Icons/PARTLYSUNNY.png";
-import rainIcon from "./Icons/RAIN.png";
-import windIcon from "./Icons/WIND.png";
-import thurderstormIcon from "./Icons/THUNDERSTORM.png";
-import overcastIcon from "./Icons/OVERCAST.png";
-import wIcon from "./Icons/UMBRELLA.png";
-import Sidebar from "./Components/Layouts/Sidebar";
+import "./Home.css";
+import cloudIcon from "../../Icons/CLOUD.png"; // Corrected path
+import sunIcon from "../../Icons/SUN.png";
+import partlySunnyIcon from "../../Icons/PARTLYSUNNY.png";
+import rainIcon from "../../Icons/RAIN.png";
+import windIcon from "../../Icons/WIND.png";
+import thurderstormIcon from "../../Icons/THUNDERSTORM.png";
+import overcastIcon from "../../Icons/OVERCAST.png";
+import wIcon from "../../Icons/UMBRELLA.png";
+import Sidebar from "../../Components/Layouts/Sidebar";
 import { useNavigate } from "react-router-dom";
-import UserDashboard from "./Dashboard/UserDashboard";
-import dmtAPI from "./dmtAPI";
-import Header from "./Components/Layouts/Header";
+import UserDashboard from "../../Dashboard/UserDashboard";
+import dmtAPI from "../../dmtAPI";
+import Header from "../../Components/Layouts/Header";
+import NotificationsIcon from '@mui/icons-material/Notifications';
+import SettingsIcon from '@mui/icons-material/Settings';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import EnergyStatus from "./EnergyStatus";
+import TemperatureDisplay from "./TemperatureDisplay";
 
 function Home() {
   // AccuWeather API Constants
@@ -159,10 +164,31 @@ function Home() {
 
   return (
     <div className="homebody">
-      <div className="svg-waves"></div>
-      <div className="svg-waves2"></div>
-      <Header />
-      {/* <Sidebar /> */}
+      <div className="header-container">
+        <div className="header-left">
+          <h1>Hello, Nick!</h1>
+          <p>Welcome home!</p>
+        </div>
+        <div className="header-center">
+          <input type="text" placeholder="Search" className="search-input" />
+        </div>
+        <div className="header-right">
+          <NotificationsIcon style={{ color: "#2F80ED", fontSize: 30 }} />
+          <SettingsIcon style={{ color: "#2F80ED", fontSize: 30 }} />
+          <AccountCircleIcon style={{ color: "#2F80ED", fontSize: 50, marginTop: -10 }} /> {/* Make avatar icon bigger */}
+        </div>
+      </div>
+
+      <div className="first-row">
+        <EnergyStatus />
+        <TemperatureDisplay />
+      </div>
+
+      {/* Commenting out visuals */}
+      {/* <div className="svg-waves"></div>
+      <div className="svg-waves2"></div> */}
+      {/* <Header /> */}
+      <Sidebar />
       {/* <UserDashboard /> */}
       <div style={{ flex: 1, marginLeft: "80px" }}>
         {" "}
@@ -202,8 +228,8 @@ function Home() {
         <div className="accuweather-container">
           <div className="accuweather glass-epek">
             {/* Weather Data */}
-            {/* <div className="weather-icon">{getWeatherIcon(weatherData?.WeatherText)}</div>            */}
-            <div
+            {/* Commenting out visuals */}
+            {/* <div
               className={`weather-icon ${
                 weatherData?.WeatherText === "Partly cloudy"
                   ? "partly-cloudy"
@@ -235,7 +261,7 @@ function Home() {
                   left: "20px",
                 }}
               />
-            </div>
+            </div> */}
 
             <div style={{ textAlign: "right" }}>
               <div className="temp-container">

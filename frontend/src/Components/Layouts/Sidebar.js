@@ -9,6 +9,7 @@ import {
   ListItem,
   ListItemButton,
   ListItemIcon,
+  ListItemText,
 } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import DashboardIcon from "@mui/icons-material/Dashboard";
@@ -42,14 +43,14 @@ function Sidebar() {
   };
 
   const menuItems = [
-    { icon: <HomeIcon style={{ fontSize: 25, marginLeft: 5, marginTop: 25 }} />, route: "/home" },
-    { icon: <RoomIcon style={{ fontSize: 25, marginLeft: 5, marginTop: 15 }} />, route: "/manageRoom" },
-    { icon: <DashboardIcon style={{ fontSize: 25, marginLeft: 5 }} />, route: "/dashboard" },
-    { icon: <AccountCircleIcon style={{ fontSize: 25, marginLeft: 5 }} />, route: "/me" },
+    { icon: <HomeIcon style={{ fontSize: 25 }} />, route: "/home", label: "Home" },
+    { icon: <RoomIcon style={{ fontSize: 25 }} />, route: "/manageRoom", label: "Manage Room" },
+    { icon: <DashboardIcon style={{ fontSize: 25 }} />, route: "/dashboard", label: "Dashboard" },
+    { icon: <AccountCircleIcon style={{ fontSize: 25 }} />, route: "/me", label: "Profile" },
     ...(user?.role === "admin"
       ? [
-          { icon: <GroupIcon style={{ fontSize: 25, marginLeft: 5 }} />, route: "/users" },
-          { icon: <SummarizeIcon style={{ fontSize: 25, marginLeft: 5 }} />, route: "/ereport" },
+          { icon: <GroupIcon style={{ fontSize: 25 }} />, route: "/users", label: "Users" },
+          { icon: <SummarizeIcon style={{ fontSize: 25 }} />, route: "/ereport", label: "Reports" },
         ]
       : []),
   ];
@@ -58,9 +59,6 @@ function Sidebar() {
     <div className="sidebar-container">
       {isLogin && (
         <>
-          <div className="menu-icon-container">
-            <MenuIcon />
-          </div>
           <Drawer variant="permanent" className="styled-drawer">
             <List className="sidebar-list">
               {menuItems.map((item, index) => (
@@ -70,19 +68,27 @@ function Sidebar() {
                       activeIndex === index ? "active" : ""
                     }`}
                     onClick={() => handleItemClick(index, item.route)}
-                    style={{ justifyContent: 'center', paddingLeft: 0, paddingTop: 25 }} // Center button content and adjust padding
                   >
-                    <ListItemIcon className={`styled-icon ${activeIndex === index ? "active-icon" : ""}`} style={{ minWidth: 40, justifyContent: 'center' }}>
+                    <ListItemIcon
+                      className={`styled-icon ${
+                        activeIndex === index ? "active-icon" : ""
+                      }`}
+                    >
                       {item.icon}
                     </ListItemIcon>
+                    <ListItemText
+                      primary={item.label}
+                      className="sidebar-text"
+                    />
                   </ListItemButton>
                 </ListItem>
               ))}
               <ListItem disablePadding className="logout-item">
-                <ListItemButton onClick={handleLogout} style={{ justifyContent: 'center', paddingLeft: 0, paddingTop: 70 }}>
-                  <ListItemIcon className="styled-icon" style={{ minWidth: 40, justifyContent: 'center' }}>
-                    <LogoutIcon style={{ fontSize: 25, marginLeft: 5 }} />
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemIcon className="styled-icon">
+                    <LogoutIcon style={{ fontSize: 25 }} />
                   </ListItemIcon>
+                  <ListItemText primary="Logout" className="sidebar-text" />
                 </ListItemButton>
               </ListItem>
             </List>

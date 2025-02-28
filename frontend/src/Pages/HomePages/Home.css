@@ -1,20 +1,22 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap");
 
 .homebody {
-  background-color: #bbd7ff;
+  background-color: #ffffff; /* Change background color to white */
   font-family: "Roboto", sans-serif;
   overflow: hidden; /* Prevents unwanted scrolling */
   position: relative; /* Ensure proper stacking context for absolute elements */
 }
 
+/* Commenting out visuals */
+/*
 .svg-waves {
   position: absolute;
   background-image: url("../../../src/../public/waves.svg");
-  z-index: 0; /* Place behind other elements but above the background */
+  z-index: 0; 
   transform: translate(-100px, -100px);
   width: 894.34px;
   height: 887.27px;
-  background-size: cover; /* Ensure the image scales appropriately */
+  background-size: cover;
 }
 
 .svg-waves2 {
@@ -25,6 +27,74 @@
   width: 690.69px;
   height: 1004.16px;
   background-size: cover;
+}
+*/
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background-color: #ffffff;
+  width: calc(100% - 80px); /* Adjust width to account for sidebar */
+  margin-left: 80px; /* Position header more to the right */
+}
+
+.header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end; /* Align text to the right */
+  margin-top: 25px;
+}
+
+.header-left h1 {
+  color: #23265a;
+  margin: 0;
+  font-size: 2.5rem; /* Make "Hello, Nick!" bigger */
+  margin-left: 50px; /* Move "Hello, Nick!" to the right */
+}
+
+.header-left p {
+  color: #2F80ED;
+  margin: 0;
+  font-size: 14px;
+  margin-right: 50px;
+}
+
+.header-center {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+  margin-right: 40px;
+}
+
+.search-input {
+  width: 300px; /* Increase width */
+  padding: 10px 20px; /* Increase padding */
+  border-radius: 25px; /* More rounded corners */
+  border: 1px solid #ccc; /* Light gray border */
+  outline: none;
+  font-size: 16px; /* Increase font size */
+  transition: all 0.3s ease; /* Smooth transition */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add subtle shadow */
+}
+
+.search-input:focus {
+  border-color: #2F80ED; /* Change border color on focus */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Enhance shadow on focus */
+}
+
+.header-right {
+  display: flex;
+  gap: 15px;
+  margin-top: 25px;
+  margin-right: 20px;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
 }
 
 .glass-epek {

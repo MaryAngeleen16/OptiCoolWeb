@@ -1,0 +1,43 @@
+.temperature-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin-top: 20px;
+    margin-left: 550px;
+  }
+  
+  .temperature-box {
+    text-align: center;
+    flex: 1;
+  }
+  
+  .label {
+    display: block;
+    font-size: 14px;
+    color: #ff6b81;
+    margin-bottom: 5px;
+  }
+  
+  .icon {
+    font-size: 24px;
+    color: #ff6b81;
+  }
+  
+  .temp {
+    font-size: 24px;
+    font-weight: bold;
+    color: #343a40;
+  }
+  
+  .divider {
+    width: 2px;
+    height: 50px;
+    background: #dee2e6;
+    margin: 0 15px;
+  }
+  

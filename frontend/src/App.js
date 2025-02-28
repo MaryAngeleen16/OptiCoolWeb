@@ -3,7 +3,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Home from './Home.js';
+import Home from './Pages/HomePages/Home.js';
 import ManageRoom from './ManageRoom.js';
 import Login from './Pages/Login.js';
 import Register from './Pages/Register.js';
