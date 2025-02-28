@@ -151,7 +151,7 @@ export default function Register() {
                                     fullWidth
                                     id="confirmPassword"
                                     name='confirmPassword'
-                                    label="Cofirm Password"
+                                    label="Confirm Password"
                                     variant="outlined"
                                     onChange={handleChange}
                                     onBlur={handleBlur}
