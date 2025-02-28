@@ -1,16 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import Header from "../Components/Layouts/Header";
-import { TextField, Button, Typography } from "@mui/material";
+import { TextField, Button, Typography, IconButton, InputAdornment } from "@mui/material";
 import * as Yup from "yup";
 import { Formik } from "formik";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { setAuth } from "../states/authSlice";
 import { useNavigate } from "react-router-dom";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 export default function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
+  const handleMouseDownPassword = (event) => event.preventDefault();
 
   const validationSchema = Yup.object().shape({
     email: Yup.string()
@@ -57,6 +62,8 @@ export default function Login() {
             password: "",
           }}
           validationSchema={validationSchema}
+          validateOnChange={true}
+          validateOnBlur={true}
           onSubmit={(values, { setSubmitting }) => {
             handleSubmit(values, setSubmitting);
           }}
@@ -106,13 +113,26 @@ export default function Login() {
                   name="password"
                   label="Password"
                   variant="outlined"
+                  type={showPassword ? "text" : "password"} // Ensure password is hidden by default
                   onChange={handleChange}
                   onBlur={handleBlur}
                   value={values.password}
                   error={touched.password && !!errors.password}
-                  helperText={
-                    touched.password && errors.password && errors.password
-                  }
+                  helperText={touched.password && errors.password && errors.password}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                        >
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
                 />
               </div>
 

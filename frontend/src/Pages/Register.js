@@ -82,6 +82,8 @@ export default function Register() {
                         avatar: '',
                     }}
                     validationSchema={validationSchema}
+                    validateOnChange={true}
+                    validateOnBlur={true}
                     onSubmit={(values, { setSubmitting }) => {
                         submit(values, setSubmitting);
                     }}
