@@ -223,25 +223,25 @@ exports.listAll = async (req, res, next) => {
 }
 
 
-exports.deleteUser = async (req, res, next) => {
-    try {
+// exports.deleteUser = async (req, res, next) => {
+//     try {
 
-        console.log(req.params.id)
+//         console.log(req.params.id)
 
-        await User.findByIdAndDelete(req.params.id);
+//         await User.findByIdAndDelete(req.params.id);
 
-        return res.json({
-            message: "User Deleted",
-            success: true,
-        })
+//         return res.json({
+//             message: "User Deleted",
+//             success: true,
+//         })
 
-    } catch (err) {
-        return res.status(400).json({
-            message: 'Please try again later',
-            success: false,
-        })
-    }
-}
+//     } catch (err) {
+//         return res.status(400).json({
+//             message: 'Please try again later',
+//             success: false,
+//         })
+//     }
+// }
 
 
 // exports.updateRole = async (req, res, next) => {
@@ -317,6 +317,33 @@ exports.getNumberOfUsers = async (req, res) => {
         });
     } catch (err) {
         return res.status(400).json({
+            message: 'Please try again later',
+            success: false,
+        });
+    }
+};
+
+
+exports.deleteUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found',
+                success: false,
+            });
+        }
+
+        await user.deleteOne(); // Deletes the user from the database
+
+        return res.json({
+            message: "User deleted successfully",
+            success: true,
+        });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
             message: 'Please try again later',
             success: false,
         });

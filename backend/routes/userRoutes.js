@@ -24,12 +24,15 @@ router.post('/verifycode/:id', userController.verifyCode);
 router.get('/all', userController.listAll);
 
 
-router.delete('/delete/:id', userController.deleteUser);
+// router.delete('/delete/:id', userController.deleteUser);
 
 // router.put('/update/role/:id', userController.updateRole);
 router.put('/update-role/:id', userController.updateRole);
 
 
 router.get('/active', userController.getActiveUsers);
+
+router.delete('/delete/:id', userController.deleteUser);
+
 
 module.exports = router;    

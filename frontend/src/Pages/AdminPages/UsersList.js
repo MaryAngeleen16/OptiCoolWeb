@@ -263,6 +263,28 @@ export default function UsersList() {
         }
     };
 
+    const deleteUser = async (userId) => {
+        if (!window.confirm("Are you sure you want to delete this user?")) return;
+    
+        try {
+            const response = await axios.delete(`${process.env.REACT_APP_API}/users/delete/${userId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`, // Ensure the token is included
+                }
+            });
+    
+            if (response.data.success) {
+                alert("User deleted successfully");
+                fetchAllUsers(); // Refresh the user list after deletion
+            }
+        } catch (error) {
+            console.error("Delete failed:", error);
+            alert("Failed to delete user");
+        }
+    };
+    
+
+
     const handleMenuClick = (event, userId) => {
         setAnchorEl(event.currentTarget);
         setSelectedUserId(userId);
@@ -307,12 +329,13 @@ export default function UsersList() {
                                     fontSize="large"
                                     onClick={(event) => handleMenuClick(event, row._id)} // Open the menu for the selected user
                                 />
-                                <DeleteIcon
-                                    color="error"
-                                    sx={{ cursor: 'pointer' }}
-                                    fontSize="large"
-                                    onClick={() => alert('Delete functionality not implemented')} // Handle delete if necessary
-                                />
+                             <DeleteIcon
+                                color="error"
+                                sx={{ cursor: 'pointer' }}
+                                fontSize="large"
+                                onClick={() => deleteUser(row._id)} // Call deleteUser with the user ID
+                            />
+
                             </div>
                         ),
                     }}

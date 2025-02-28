@@ -38,6 +38,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'user'
     },
+
+    isActive: {
+        type: Boolean,
+        default: false, // Default to false so users are inactive until logged in
+    },
     resetPasswordCode: String,
     resetPasswordCodeExpire: Date,
     resetPasswordToken: String,
