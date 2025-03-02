@@ -1,0 +1,66 @@
+.humidity-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 900px; /* Wider */
+    min-height: 150px; /* Bigger */
+    margin: 20px auto;
+    margin-left: 150px;
+    margin-top: 30px;
+}
+
+.humidity-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+}
+
+.weather-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.label {
+    font-size: 14px;
+    color: #ff6b81;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.value {
+    font-size: 24px;
+    font-weight: bold;
+    color: #343a40;
+}
+
+.icon {
+    font-size: 30px;
+    margin-top: 8px;
+}
+
+.blue {
+    color: #3498db;
+}
+
+.red {
+    color: #e74c3c;
+}
+
+.yellow {
+    color: #f39c12;
+}
+
+.divider {
+    width: 2px;
+    height: 60px;
+    background: #dee2e6;
+    margin: 0 20px;
+}

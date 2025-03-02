@@ -56,9 +56,9 @@
 }
 
 .active {
-  background-color: white !important; /* Pure white background for active item */
+  background-color: #f3f6f8 !important; /* Pure white background for active item */
   border-radius: 30px;
-  border-left: 1px solid white !important; /* Make left border white to blend */
+  border-left: 1px solid #f3f6f8 !important; /* Make left border white to blend */
 }
 
 .active .styled-icon {

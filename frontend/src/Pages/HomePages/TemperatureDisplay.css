@@ -1,43 +1,63 @@
 .temperature-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 400px;
-    margin-top: 20px;
-    margin-left: 550px;
-  }
-  
-  .temperature-box {
-    text-align: center;
-    flex: 1;
-  }
-  
-  .label {
-    display: block;
-    font-size: 14px;
-    color: #ff6b81;
-    margin-bottom: 5px;
-  }
-  
-  .icon {
-    font-size: 24px;
-    color: #ff6b81;
-  }
-  
-  .temp {
-    font-size: 24px;
-    font-weight: bold;
-    color: #343a40;
-  }
-  
-  .divider {
-    width: 2px;
-    height: 50px;
-    background: #dee2e6;
-    margin: 0 15px;
-  }
-  
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 900px; /* Wider */
+  min-height: 150px; /* Bigger */
+  margin: 20px auto;
+  margin-left: 150px;
+  margin-top: 30px;
+}
+
+/* Each temperature section */
+.temperature-box {
+  flex: 1;
+  text-align: center;
+}
+
+/* Holds label & value */
+.temp-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* Holds text + icon */
+.temperature-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Labels (Indoor/Outdoor Temperature) */
+.label {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff6b81;
+  margin-bottom: 5px;
+}
+
+/* Temperature values */
+.temp {
+  font-size: 32px;
+  font-weight: bold;
+  color: #343a40;
+}
+
+/* Icons */
+.icon {
+  font-size: 40px;
+  color: #ff6b81;
+}
+
+/* Divider line */
+.divider {
+  width: 2px;
+  height: 80px;
+  background: #dee2e6;
+  margin: 0 25px;
+}
