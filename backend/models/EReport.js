@@ -13,13 +13,15 @@ const ereportSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,  // Automatically set the report date
     },
-    reportTime: {
-        type: String,  // You can use String to store time in HH:mm format
-        default: () => {
-            const now = new Date();
-            return now.toTimeString().slice(0, 5);
-        }
-    }
+    timeReported: {
+        type: String,
+        required: true,
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',  // Store only user ID and populate dynamically
+        required: true,
+    },
 });
 
 module.exports = mongoose.model('EReport', ereportSchema);

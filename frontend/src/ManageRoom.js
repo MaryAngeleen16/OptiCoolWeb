@@ -3,9 +3,7 @@ import Header from "./Components/Layouts/Header";
 import "./ManageRoom.css";
 import dmtAPI from "./dmtAPI";
 import "./manage.css";
-
-
-
+import ReportForm from "./ReportForm"; // Import the new ReportForm component
 
 function ManageRoom() {
   const [isOn, setIsOn] = useState(() => JSON.parse(localStorage.getItem("isOn")) ?? false);
@@ -17,6 +15,8 @@ function ManageRoom() {
     exhaustFan: false,
   });
   const [acTemp, setAcTemp] = useState(() => JSON.parse(localStorage.getItem("acTemp")) ?? 25);
+  const [showReportForm, setShowReportForm] = useState(false);
+  const [reportDevice, setReportDevice] = useState("");
 
   useEffect(() => {
     localStorage.setItem("isOn", JSON.stringify(isOn));
@@ -73,9 +73,10 @@ function ManageRoom() {
     }
   };
 
-  // Report Issue (Placeholder)
+  // Report Issue
   const reportIssue = (device) => {
-    alert(`Reported issue for ${device}`);
+    setReportDevice(device);
+    setShowReportForm(true);
   };
 
   return (
@@ -161,12 +162,15 @@ function ManageRoom() {
               Report
             </button>
           </div>
-
-       
         </div>
       )}
 
-      
+      {showReportForm && (
+        <ReportForm
+          device={reportDevice}
+          onClose={() => setShowReportForm(false)}
+        />
+      )}
     </div>
   );
 }

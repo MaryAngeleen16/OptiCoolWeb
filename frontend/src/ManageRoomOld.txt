@@ -627,3 +627,128 @@ function ManageRoom() {
 }
 
 export default ManageRoom;
+
+
+
+
+
+//model
+const mongoose = require('mongoose');
+
+const ereportSchema = new mongoose.Schema({
+    appliance: {
+        type: String,
+        required: true,
+    },
+    status: {
+        type: String,
+        required: true,
+    },
+    reportDate: {
+        type: Date,
+        default: Date.now,  // Automatically set the report date
+    },
+    timeReported: {
+        type: String,
+        required: true,
+    },
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',  // Store only user ID and populate dynamically
+        required: true,
+    },
+});
+
+module.exports = mongoose.model('EReport', ereportSchema);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//controller
+
+
+
+exports.reportSent = async (req, res, next) => {
+    try {
+        console.log("Raw Request Body:", req.body);
+
+        const { appliance, status, user, timeReported } = req.body;  // Destructure appliance, status, user, and timeReported from the request body
+
+        if (!appliance || !status || !user || !timeReported) {
+            console.log("Missing required fields:", { appliance, status, user, timeReported }); // Log missing fields
+            return res.status(400).json({ message: 'Appliance, status, user, and timeReported are required.' });
+        }
+
+        const userData = await User.findById(user);
+        if (!userData) {
+            return res.status(404).json({ message: 'User not found.' });
+        }
+
+        console.log("Time Reported:", timeReported); // Log the timeReported value
+
+        // Create a new report
+        const newReport = await Report.create({
+            appliance,
+            status,
+            reportDate: new Date(),  // Optional: you can store the report's timestamp
+            timeReported: timeReported, // Ensure it's named correctly
+            user: userData._id,  // Store only user ID
+        });
+
+        console.log("Saved in MongoDB:", await Report.findById(newReport._id));
+
+        if (!newReport) {
+            return res.status(400).json({ message: 'Report could not be created.' });
+        }
+
+        return res.status(201).json({ message: 'Report successfully submitted', success: true }); // Success response
+    } catch (err) {
+        console.error("Error submitting report:", err.message);  // Log error for debugging purposes
+        return res.status(400).json({
+            message: 'Something went wrong while submitting the report. Please try again later.',
+            success: false,
+        });
+    }
+    
+};
+
+
+
+
+
+
+
+
+exports.getAllReports = async (req, res, next) => {
+    try {
+        const reports = await Report.find()
+            .populate('user', 'username email') // Populate user email and username
+            .sort({ reportDate: -1 }); // Sort by reportDate in descending order
+
+        if (!reports || reports.length === 0) {
+            return res.status(404).json({ message: 'No reports found.' });
+        }
+
+        console.log("Fetched Reports:", reports); // Log the fetched reports
+
+        return res.status(200).json({ reports });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: 'Something went wrong while fetching the reports. Please try again later.',
+            success: false,
+        });
+    }
+};

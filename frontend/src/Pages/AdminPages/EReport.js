@@ -5,24 +5,36 @@ import Header from '../../Components/Layouts/Header';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import '../../Dashboard/StylesUsage.css';
+import ReactPaginate from 'react-paginate'; // Import ReactPaginate
 
 export default function EReport() {
     const [reports, setReports] = useState([]);
+    const [users, setUsers] = useState([]);
     const [chartData, setChartData] = useState(null);
     const [latestReport, setLatestReport] = useState(null);
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [sortedAppliances, setSortedAppliances] = useState([]);
+    const [pageCount, setPageCount] = useState(0); // State to store page count
+    const [currentPage, setCurrentPage] = useState(0); // State to store current page
+    const reportsPerPage = 10; // Number of reports per page
 
     useEffect(() => {
-        const fetchReports = async () => {
+        const fetchReportsAndUsers = async () => {
             try {
-                const response = await axios.get(`${process.env.REACT_APP_API}/getreport`);
-                if (response.status === 200) {
-                    const data = response.data.reports;
-                    setReports(data);
+                const [reportsResponse, usersResponse] = await Promise.all([
+                    axios.get(`${process.env.REACT_APP_API}/getreport`),
+                    axios.get(`${process.env.REACT_APP_API}/users/all`)
+                ]);
+
+                if (reportsResponse.status === 200 && usersResponse.status === 200) {
+                    const reportsData = reportsResponse.data.reports;
+                    const usersData = usersResponse.data.users;
+
+                    setReports(reportsData);
+                    setUsers(usersData);
 
                     // Aggregate data for the chart
-                    const applianceCounts = data.reduce((acc, report) => {
+                    const applianceCounts = reportsData.reduce((acc, report) => {
                         acc[report.appliance] = (acc[report.appliance] || 0) + 1;
                         return acc;
                     }, {});
@@ -45,21 +57,39 @@ export default function EReport() {
                     const sorted = Object.entries(applianceCounts).sort((a, b) => b[1] - a[1]);
                     setSortedAppliances(sorted);
 
-                    if (data.length > 0) {
-                        const sortedReports = [...data].sort((a, b) => new Date(b.reportDate) - new Date(a.reportDate));
+                    if (reportsData.length > 0) {
+                        const sortedReports = [...reportsData].sort((a, b) => new Date(b.reportDate) - new Date(a.reportDate));
                         setLatestReport(sortedReports[0]);
                         setOpenSnackbar(true);
                     }
+
+                    // Set the page count for pagination
+                    setPageCount(Math.ceil(reportsData.length / reportsPerPage));
                 }
             } catch (error) {
-                console.error('Error fetching reports:', error);
+                console.error('Error fetching reports and users:', error);
             }
         };
 
-        fetchReports();
+        fetchReportsAndUsers();
     }, []);
 
     const formatDate = (date) => new Date(date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+    const getUserInfo = (userId) => {
+        const user = users.find(user => user._id === userId);
+        return user ? { email: user.email, username: user.username } : { email: 'N/A', username: 'N/A' };
+    };
+
+    const handlePageClick = (data) => {
+        const selectedPage = data.selected;
+        setCurrentPage(selectedPage);
+    };
+
+    // Calculate the reports to display on the current page
+    const offset = currentPage * reportsPerPage;
+    const sortedReports = [...reports].sort((a, b) => new Date(b.reportDate) - new Date(a.reportDate));
+    const currentReports = sortedReports.slice(offset, offset + reportsPerPage);
 
     return (
         <div
@@ -69,6 +99,7 @@ export default function EReport() {
                 justifyContent: 'center',
                 alignItems: 'center',
                 backgroundColor: '#f9f9f9',
+                marginTop: '20%',
             }}
         >
             <Container style={{ maxWidth: '75%', marginTop: '30%' }}>
@@ -131,12 +162,60 @@ export default function EReport() {
                     </CardContent>
                 </Card>
 
+                <Card style={{ marginTop: 20, width: '100%' }}>
+                    <CardContent>
+                        <Typography variant="h6" gutterBottom>All Reports</Typography>
+                        <TableContainer component={Paper}>
+                            <Table>
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>Appliance</TableCell>
+                                        <TableCell>Status</TableCell>
+                                        <TableCell>Report Date</TableCell>
+                                        <TableCell>Report Time</TableCell>
+                                        <TableCell>Reported By (Email)</TableCell>
+                                        <TableCell>Reported By (Username)</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {currentReports.map((report, index) => {
+                                        const userInfo = getUserInfo(report.user);
+                                        return (
+                                            <TableRow key={index}>
+                                                <TableCell>{report.appliance}</TableCell>
+                                                <TableCell>{report.status}</TableCell>
+                                                <TableCell>{formatDate(report.reportDate)}</TableCell>
+                                                <TableCell>{report.timeReported}</TableCell>
+                                                <TableCell>{userInfo.email}</TableCell>
+                                                <TableCell>{userInfo.username}</TableCell>
+                                            </TableRow>
+                                        );
+                                    })}
+                                </TableBody>
+                            </Table>
+                        </TableContainer>
+                        <ReactPaginate
+                            previousLabel={"previous"}
+                            nextLabel={"next"}
+                            breakLabel={"..."}
+                            breakClassName={"break-me"}
+                            pageCount={pageCount}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={5}
+                            onPageChange={handlePageClick}
+                            containerClassName={"pagination"}
+                            subContainerClassName={"pages pagination"}
+                            activeClassName={"active"}
+                        />
+                    </CardContent>
+                </Card>
+
                 {latestReport && (
                     <Snackbar
                         open={openSnackbar}
                         autoHideDuration={6000}
                         onClose={() => setOpenSnackbar(false)}
-                        message={`${latestReport.appliance} reported on ${formatDate(latestReport.reportDate)} at ${latestReport.reportTime}`}
+                        message={`${latestReport.appliance} reported on ${formatDate(latestReport.reportDate)} at ${latestReport.timeReported}`}
                     />
                 )}
             </Container>
