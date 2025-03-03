@@ -4,6 +4,8 @@ import "./ManageRoom.css";
 import dmtAPI from "./dmtAPI";
 import "./manage.css";
 import ReportForm from "./ReportForm"; // Import the new ReportForm component
+import axios from 'axios';
+import { useSelector } from 'react-redux'; // Import useSelector from react-redux
 
 function ManageRoom() {
   const [isOn, setIsOn] = useState(() => JSON.parse(localStorage.getItem("isOn")) ?? false);
@@ -18,6 +20,8 @@ function ManageRoom() {
   const [showReportForm, setShowReportForm] = useState(false);
   const [reportDevice, setReportDevice] = useState("");
 
+  const { user, token } = useSelector(state => state.auth); // Get user and token from Redux store
+
   useEffect(() => {
     localStorage.setItem("isOn", JSON.stringify(isOn));
     localStorage.setItem("mode", mode);
@@ -25,10 +29,27 @@ function ManageRoom() {
     localStorage.setItem("acTemp", JSON.stringify(acTemp));
   }, [isOn, mode, deviceStates, acTemp]);
 
+  const logUserAction = async (action) => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API}/userlogs`, {
+        user: user._id ? user._id : "Missing ID",
+        action,
+        timestamp: new Date().toISOString(),
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error('Error logging user action:', error);
+    }
+  };
+
   // Toggle Power
   const togglePower = () => {
     setIsOn((prevState) => {
       const newState = !prevState;
+      logUserAction(`Turned ${newState ? 'On' : 'Off'} Power`);
       if (!newState) {
         setMode("auto");
         setDeviceStates({ ac: false, fan: false, blower: false, exhaustFan: false });
@@ -40,11 +61,15 @@ function ManageRoom() {
 
   // Toggle Mode
   const toggleMode = (newMode) => {
-    if (isOn) setMode(newMode);
+    if (isOn) {
+      setMode(newMode);
+      logUserAction(`Switched to ${newMode} Mode`);
+    }
   };
 
   // Toggle Device with API Calls
   const toggleDevice = async (device) => {
+    logUserAction(`Toggled ${device} ${!deviceStates[device] ? 'On' : 'Off'}`);
     try {
       let updatedState = !deviceStates[device];
       if (device === "ac") updatedState ? await dmtAPI.turnOnAllAC() : await dmtAPI.turnOffAllAC();
@@ -62,7 +87,8 @@ function ManageRoom() {
   // Adjust AC Temperature
   const changeACTemp = async (value) => {
     const newTemp = acTemp + value;
-    if (newTemp >= 19 && newTemp <= 28) {
+    logUserAction(`Changed AC Temperature to ${newTemp}°C`);
+    if (newTemp >= 16 && newTemp <= 30) {
       try {
         await dmtAPI.setAcTemperature(newTemp);
         setAcTemp(newTemp);

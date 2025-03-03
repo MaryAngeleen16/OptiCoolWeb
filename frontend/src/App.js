@@ -17,6 +17,8 @@ import ChangePassword from './Pages/ChangePassword.js';
 import UsersList from './Pages/AdminPages/UsersList.js';
 import EReport from './Pages/AdminPages/EReport.js';
 import ActiveUsers from './Pages/AdminPages/ActiveUsers.js';
+import UserLogs from './Pages/AdminPages/UserLogs.js';
+
 function App() {
 
   const { user, isLogin } = useSelector(state => state.auth);
@@ -39,6 +41,8 @@ function App() {
         <Route path="/change/password/:userId" element={<ChangePassword />} />
         <Route path="/ereport" element={<EReport />} />
         <Route path="/active" element={<ActiveUsers />} />
+
+        <Route path="/loglist" element={<UserLogs />} />
 
 
       </Routes>

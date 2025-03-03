@@ -12,8 +12,9 @@ app.use(cookieParser());
 
 const userRoutes = require('./routes/userRoutes')
 const ereportRoutes = require('./routes/ereportRoutes')
+const logRoutes = require('./routes/logRoutes')
 // Use the imported routes modules
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1', ereportRoutes)
-
+app.use('/api/v1', logRoutes)
 module.exports = app;
