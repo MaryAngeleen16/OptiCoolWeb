@@ -20,7 +20,8 @@ import GroupIcon from "@mui/icons-material/Group";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
-
+import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
+import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import "./Header.css";
 
 function Header() {
@@ -147,6 +148,22 @@ function Header() {
                   </ListItem>
                 )}
 
+              {user?.role === "admin" && (
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      onClick={() => {
+                        navigate("/loglist");
+                        setDrawerOpen(false);
+                      }}
+                    >
+                      <ListItemIcon>
+                        <ManageSearchIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="User Logs" />
+                    </ListItemButton>
+                  </ListItem>
+                )}
+
                 {user?.role === "admin" && (
                   <ListItem disablePadding>
                     <ListItemButton
@@ -156,7 +173,7 @@ function Header() {
                       }}
                     >
                       <ListItemIcon>
-                        <SummarizeIcon />
+                        <SignalCellularAltIcon />
                       </ListItemIcon>
                       <ListItemText primary="Error Report" />
                     </ListItemButton>

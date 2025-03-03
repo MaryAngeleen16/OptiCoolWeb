@@ -72,10 +72,10 @@ function ManageRoom() {
     logUserAction(`Toggled ${device} ${!deviceStates[device] ? 'On' : 'Off'}`);
     try {
       let updatedState = !deviceStates[device];
-      if (device === "ac") updatedState ? await dmtAPI.turnOnAllAC() : await dmtAPI.turnOffAllAC();
-      if (device === "fan") updatedState ? await dmtAPI.turnOnEFans() : await dmtAPI.turnOffEFans();
-      if (device === "blower") updatedState ? await dmtAPI.turnOnBlower() : await dmtAPI.turnOffBlower();
-      if (device === "exhaustFan") updatedState ? await dmtAPI.turnOnExhaust() : await dmtAPI.turnOffExhaust();
+      if (device === "Air Conditioner") updatedState ? await dmtAPI.turnOnAllAC() : await dmtAPI.turnOffAllAC();
+      if (device === "Fan") updatedState ? await dmtAPI.turnOnEFans() : await dmtAPI.turnOffEFans();
+      if (device === "Blower") updatedState ? await dmtAPI.turnOnBlower() : await dmtAPI.turnOffBlower();
+      if (device === "ExhaustFan") updatedState ? await dmtAPI.turnOnExhaust() : await dmtAPI.turnOffExhaust();
       
       setDeviceStates((prevState) => ({ ...prevState, [device]: updatedState }));
     } catch (error) {
@@ -85,9 +85,24 @@ function ManageRoom() {
   };
 
   // Adjust AC Temperature
+  // const changeACTemp = async (value) => {
+  //   const newTemp = acTemp + value;
+  //   logUserAction(`Changed AC Temperature to ${newTemp}°C`);
+  //   if (newTemp >= 16 && newTemp <= 30) {
+  //     try {
+  //       await dmtAPI.setAcTemperature(newTemp);
+  //       setAcTemp(newTemp);
+  //     } catch (error) {
+  //       console.error("Error adjusting AC temperature:", error);
+  //       alert("Failed to adjust AC temperature.");
+  //     }
+  //   }
+  // };
+
+
   const changeACTemp = async (value) => {
     const newTemp = acTemp + value;
-    logUserAction(`Changed AC Temperature to ${newTemp}°C`);
+    logUserAction(`Changed Air Condtioner's Temperature to ${newTemp}°C`);
     if (newTemp >= 16 && newTemp <= 30) {
       try {
         await dmtAPI.setAcTemperature(newTemp);
@@ -136,7 +151,7 @@ function ManageRoom() {
           {/* AC Controls */}
           <div className="device-row">
             <label>Air Conditioner</label>
-            <button onClick={() => toggleDevice("ac")} className="AC-Fan-Button">
+            <button onClick={() => toggleDevice("Air Conditioner")} className="AC-Fan-Button">
               {deviceStates.ac ? "Off" : "On"}
             </button>
             <button className="report-button" onClick={() => reportIssue("Air Conditioner")}>
@@ -159,7 +174,7 @@ function ManageRoom() {
           {/* Fan Controls */}
           <div className="device-row">
             <label>FAN</label>
-            <button onClick={() => toggleDevice("fan")} className="AC-Fan-Button">
+            <button onClick={() => toggleDevice("Fan")} className="AC-Fan-Button">
               {deviceStates.fan ? "Off" : "On"}
             </button>
             <button className="report-button" onClick={() => reportIssue("Fan")}>
@@ -170,7 +185,7 @@ function ManageRoom() {
           {/* Blower Controls */}
           <div className="device-row">
             <label>BLOWER</label>
-            <button onClick={() => toggleDevice("blower")} className="AC-Fan-Button">
+            <button onClick={() => toggleDevice("Blower")} className="AC-Fan-Button">
               {deviceStates.blower ? "Off" : "On"}
             </button>
             <button className="report-button" onClick={() => reportIssue("Blower")}>
@@ -181,7 +196,7 @@ function ManageRoom() {
           {/* Exhaust Fan Controls */}
           <div className="device-row">
             <label>EXHAUST FAN</label>
-            <button onClick={() => toggleDevice("exhaustFan")} className="AC-Fan-Button">
+            <button onClick={() => toggleDevice("Exhaust Fan")} className="AC-Fan-Button">
               {deviceStates.exhaustFan ? "Off" : "On"}
             </button>
             <button className="report-button" onClick={() => reportIssue("Exhaust Fan")}>

@@ -7,26 +7,20 @@ const ActiveUsers = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchActiveUsers = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API}/users/all`); // Corrected URL to use baseURL
-      setUsers(response.data.users);
-    } catch (err) {
-      console.error(err);
-      setError('Failed to load active users');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchActiveUsers = async () => {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_API}/users/all`); // Corrected URL to use baseURL
+        setUsers(response.data.users);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load active users');
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchActiveUsers();
-
-    const intervalId = setInterval(() => {
-      fetchActiveUsers();
-    }, 5000); // Fetch every 5 seconds
-
-    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
 
   if (loading) {
@@ -90,7 +84,7 @@ const styles = {
     width: '80%',
     borderCollapse: 'collapse',
     margin: '0 auto', 
-    display: 'table',
+    display: 'table'   ,
     marginTop: '5%',
   },
   th: {
