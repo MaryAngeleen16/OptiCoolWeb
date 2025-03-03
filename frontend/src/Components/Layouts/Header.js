@@ -23,6 +23,7 @@ import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import SignalCellularAltIcon from '@mui/icons-material/SignalCellularAlt';
 import ManageSearchIcon from '@mui/icons-material/ManageSearch';
 import "./Header.css";
+import axios from "axios";
 
 function Header() {
   const { isLogin, user } = useSelector((state) => state.auth);
@@ -41,10 +42,17 @@ function Header() {
     setDrawerOpen(open);
   };
 
-  const handleLogout = () => {
-    dispatch(removeAuth());
-    navigate("/");
-    setDrawerOpen(false);
+  const handleLogout = async () => {
+    try {
+      const { data } = await axios.get(`${process.env.REACT_APP_API}/users/logout/${user._id}`);
+      if (data.success === true) {
+        dispatch(removeAuth());
+        navigate("/");
+        setDrawerOpen(false);
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
   return (

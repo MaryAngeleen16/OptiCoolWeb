@@ -4,7 +4,6 @@ import Header from '../../Components/Layouts/Header';
 
 const ActiveUsers = () => {
   const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -15,24 +14,13 @@ const ActiveUsers = () => {
       } catch (err) {
         console.error(err);
         setError('Failed to load active users');
-      } finally {
-        setLoading(false);
       }
     };
 
     fetchActiveUsers();
+    const intervalId = setInterval(fetchActiveUsers, 5000); // Refresh every 5 seconds
+    return () => clearInterval(intervalId); // Cleanup interval on component unmount
   }, []);
-
-  if (loading) {
-    return (
-      <div style={styles.centered}>
-        <div className="spinner-border text-primary" role="status">
-          <span className="sr-only">Loading...</span>
-        </div>
-        <p>Loading active users...</p>
-      </div>
-    );
-  }
 
   if (error) {
     return (
@@ -84,7 +72,7 @@ const styles = {
     width: '80%',
     borderCollapse: 'collapse',
     margin: '0 auto', 
-    display: 'table'   ,
+    display: 'table',
     marginTop: '5%',
   },
   th: {

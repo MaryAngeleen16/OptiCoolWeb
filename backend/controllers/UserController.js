@@ -359,20 +359,22 @@ exports.deleteUser = async (req, res, next) => {
 
 exports.logout = async (req, res, next) => {
     try {
-        const user = await User.findById(req.user.id);
+        const user = await User.findById(req.params.id);
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        user = await User.findOne(user._id);
-        await user.setInactive();
+        user.isActive = false;
+       const user1 = await user.save();
+       console.log(user1)
 
         res.status(200).json({
             success: true,
             message: 'Logged out successfully'
         });
     } catch (error) {
+        console.error(error);
         res.status(500).json({
             success: false,
             message: 'Server error'
