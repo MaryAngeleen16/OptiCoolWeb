@@ -213,3 +213,15 @@ input:checked + .slider:before {
   background-color: #f44336;
   color: white;
 }
+
+
+.disable-notification {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: rgb(255, 255, 244);
+  padding: 10px;
+  border: 1px solid black;
+  z-index: 1000;
+  text-align: center;
+}

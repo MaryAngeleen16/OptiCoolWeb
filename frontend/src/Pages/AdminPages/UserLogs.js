@@ -68,7 +68,6 @@ export default function UserLogs() {
                                 <TableCell>Action</TableCell>
                                 <TableCell>Timestamp</TableCell>
                                 <TableCell>Email</TableCell>
-                                <TableCell>Username</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -76,11 +75,10 @@ export default function UserLogs() {
                                 const userInfo = getUserInfo(log.user._id);
                                 return (
                                     <TableRow key={index}>
-                                        <TableCell>{log.user._id}</TableCell>
+                                         <TableCell>{userInfo.username}</TableCell>
                                         <TableCell>{log.action}</TableCell>
                                         <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
                                         <TableCell>{userInfo.email}</TableCell>
-                                        <TableCell>{userInfo.username}</TableCell>
                                     </TableRow>
                                 );
                             })}
