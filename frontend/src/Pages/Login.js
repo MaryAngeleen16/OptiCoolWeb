@@ -8,6 +8,8 @@ import { useDispatch } from "react-redux";
 import { setAuth } from "../states/authSlice";
 import { useNavigate } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Login() {
   const dispatch = useDispatch();
@@ -47,6 +49,8 @@ export default function Login() {
       setSubmitting(false);
       if (err.response && err.response.status === 401) {
         setLoginError("Incorrect email or password");
+      } else if (err.response && err.response.status === 403) {
+        toast.error("You are not yet a user");
       } else {
         console.info(err);
       }
@@ -56,7 +60,7 @@ export default function Login() {
   return (
     <div>
       <Header />
-
+      <ToastContainer />
       <div style={{ marginTop: "5%" }}>
         <Formik
           initialValues={{

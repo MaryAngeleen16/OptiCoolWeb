@@ -3,8 +3,8 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import "./Dashboard.css";
 import Header from "../Components/Layouts/Header";
 import HumidityUsage from "./HumidityUsage";
-import ElectricityUsage from "./ElectricityUsage";
 import TemperatureUsage from "./TemperatureUsage";
+import UsageTracking from "../Pages/HomePages/UsageTracking";
 import "./StylesUsage.css";
 import Sidebar from "../Components/Layouts/Sidebar";
 
@@ -18,7 +18,7 @@ const Dashb = () => {
         <div style={styles.chartContainer}>
           <HumidityUsage />
           <TemperatureUsage />
-          <ElectricityUsage />
+          <UsageTracking />
         </div>
       </div>
     </div>

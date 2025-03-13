@@ -43,6 +43,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: false, // Default to false so users are inactive until logged in
     },
+    isApproved: {
+        type: Boolean,
+        default: false, // Default to false so users are not approved until admin approves
+    },
     resetPasswordCode: String,
     resetPasswordCodeExpire: Date,
     resetPasswordToken: String,

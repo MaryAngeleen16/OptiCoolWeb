@@ -1,0 +1,110 @@
+.general-div {
+    padding: 4%;
+    max-width: 75%;    
+    height: auto; /* Allow height to adjust based on content */
+    display: flex; /* Enables flexbox */
+    flex-direction: column; /* Ensures elements stack vertically */
+    align-items: center; 
+    justify-content: center; 
+    border: 1px solid #ccc;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); 
+    background-color: #f9f9f9; 
+    overflow: hidden; /* Prevent content overflow */
+    min-height: 400px; /* Optional: Set a minimum height for consistent styling */
+    max-height: 80vh; /* Optional: Limits height to 80% of the viewport height */
+}
+
+.chart-container {
+    width: 100%;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chart {
+  width: max-content;
+    height: 700px; /* Increase the height of the chart */
+}
+
+.loading {
+  text-align: center;
+  color: #000000;
+}
+
+.summary-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  width: 90%;
+  margin: 10px auto;
+}
+
+.summary-item {
+  flex: 1;
+  text-align: center;
+}
+
+.divider {
+  width: 0.5px;
+  background-color: #ccc;
+  height: 60%;
+  margin: 0 5px;
+}
+
+.icon {
+  font-size: 18px;
+  margin-bottom: 3px;
+}
+
+.label {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 2px;
+}
+
+.value {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.table-container {
+  margin-top: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+
+.table-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+
+.table-header-text {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.table-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+.table-cell {
+  font-size: 14px;
+}

@@ -2,71 +2,160 @@ const User = require('../models/User');
 const sendToken = require('../utils/jwtToken');
 const File = require('../utils/cloudinary');
 
+// exports.register = async (req, res, next) => {
+
+//     try {
+
+//         const file = req.file;
+
+//         if (!file) return res.status(400).send('No image in the request');
+
+//         req.body.avatar = await File.uploadSingle({ filePath: file.path });
+
+//         console.log(req.body);
+
+//         const user = await User.create(req.body)
+
+//         if (!user) {
+//             return res.status(400).send('the user cannot be created!')
+//         }
+
+//         return sendToken(user, 200, res, 'Success');
+
+//     } catch (err) {
+//         console.log(err);
+//         return res.status(400).json({
+//             message: 'Please try again later',
+//             success: false,
+//         })
+//     }
+// }
+
+
 exports.register = async (req, res, next) => {
-
     try {
-
         const file = req.file;
-
         if (!file) return res.status(400).send('No image in the request');
-
         req.body.avatar = await File.uploadSingle({ filePath: file.path });
-
-        console.log(req.body);
-
-        const user = await User.create(req.body)
-
+        const user = await User.create(req.body);
         if (!user) {
-            return res.status(400).send('the user cannot be created!')
+            return res.status(400).send('The user cannot be created!');
         }
-
-        return sendToken(user, 200, res, 'Success');
-
+        return res.status(200).json({
+            message: 'Thank you for signing up, wait for the admin to review your credentials',
+            success: true,
+        });
     } catch (err) {
         console.log(err);
         return res.status(400).json({
             message: 'Please try again later',
             success: false,
-        })
+        });
     }
-}
+};
+
+
+// exports.login = async (req, res, next) => {
+
+//     try {
+
+//         const { email, password } = req.body;
+
+//         if (!email || !password) {
+//             return res.status(400).json({ message: 'Please enter email & password' })
+//         }
+
+//         let user = await User.findOne({ email }).select('+password');
+
+
+//         if (!user) {
+//             return res.status(400).json({ message: 'Invalid Email or Password' });
+//         }
+
+//         const passwordMatched = await user.comparePassword(password);
+
+//         if (!passwordMatched) {
+//             return res.status(401).json({ message: 'Invalid Email or Password' })
+//         }
+
+//         user = await User.findOne(user._id);
+//         await user.setActive();
+
+//         sendToken(user, 200, res, 'Successfully Login')
+
+//     } catch (err) {
+//         return res.status(400).json({
+//             message: 'Please try again later',
+//             success: false,
+//         })
+//     }
+
+// }
+
 
 exports.login = async (req, res, next) => {
-
     try {
-
         const { email, password } = req.body;
-
         if (!email || !password) {
-            return res.status(400).json({ message: 'Please enter email & password' })
+            return res.status(400).json({ message: 'Please enter email & password' });
         }
-
         let user = await User.findOne({ email }).select('+password');
-
-
         if (!user) {
             return res.status(400).json({ message: 'Invalid Email or Password' });
         }
-
         const passwordMatched = await user.comparePassword(password);
-
         if (!passwordMatched) {
-            return res.status(401).json({ message: 'Invalid Email or Password' })
+            return res.status(401).json({ message: 'Invalid Email or Password' });
         }
-
+        if (!user.isApproved) {
+            return res.status(403).json({ message: 'Looks like you are not approved by the admin yet' });
+        }
         user = await User.findOne(user._id);
         await user.setActive();
-
-        sendToken(user, 200, res, 'Successfully Login')
-
+        sendToken(user, 200, res, 'Successfully Login');
     } catch (err) {
         return res.status(400).json({
             message: 'Please try again later',
             success: false,
-        })
+        });
     }
+};
 
-}
+
+
+
+exports.approveUser = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found', success: false });
+        }
+        if (req.body.isApproved) {
+            user.isApproved = true;
+            await user.save();
+            return res.json({
+                message: 'User approved successfully',
+                success: true,
+            });
+        } else {
+            await user.deleteOne();
+            return res.json({
+                message: 'User declined and deleted successfully',
+                success: true,
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: 'Please try again later',
+            success: false,
+        });
+    }
+};
+
+
+
+
 
 exports.getSingleUser = async (req, res, next) => {
 

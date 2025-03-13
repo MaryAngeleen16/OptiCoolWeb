@@ -8,6 +8,12 @@ import mime from 'mime'
 import { useNavigate } from 'react-router-dom';
 import { setAuth } from '../states/authSlice';
 import { useDispatch } from 'react-redux';
+import 'react-toastify/dist/ReactToastify.css';
+import { toast, ToastContainer } from 'react-toastify';
+
+
+
+
 
 export default function Register() {
 
@@ -30,28 +36,49 @@ export default function Register() {
         avatar: Yup.string().required('Avatar is required'),
     });
 
-    const register = async (formData) => {
+    // const register = async (formData) => {
 
+    //     try {
+
+    //         const { data } = await axios.post(`${process.env.REACT_APP_API}/users/register`, formData, {
+    //             headers: {
+    //                 "Content-Type": 'multipart/form-data'
+    //             }
+    //         });
+
+    //         dispatch(setAuth({
+    //             user: data.user,
+    //             token: data.token,
+    //         }))
+
+    //         navigate('/home')
+
+    //     } catch (err) {
+    //         console.log(err);
+    //     }
+
+    // }
+
+
+
+
+        const register = async (formData) => {
         try {
-
             const { data } = await axios.post(`${process.env.REACT_APP_API}/users/register`, formData, {
                 headers: {
                     "Content-Type": 'multipart/form-data'
                 }
             });
-
-            dispatch(setAuth({
-                user: data.user,
-                token: data.token,
-            }))
-
-            navigate('/home')
-
+            toast.success(data.message);
+            navigate('/');
         } catch (err) {
             console.log(err);
-        }
+            toast.error('Registration failed. Please try again later.');
 
-    }
+        }
+    };
+
+
 
     const submit = async (userData, setSubmitting) => {
 

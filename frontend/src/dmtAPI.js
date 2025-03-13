@@ -17,19 +17,47 @@ const getSensorsStatusesAPI = async () => {
     return data;
 };
 
-const getDevicesDataAPI = async () => {
+// const getDevicesDataAPI = async () => {
 
-    // Sample Data
-    // const data = {
-    //     "inside": {
-    //         "humidity": 0, "temperature": 0
-    //     },
-    //     "outside": { "humidity": 0, "temperature": 0 },
-    //     "power_consumption": 0
-    // }
-    const { data } = await axios.get(`${dmtUrl}/devices_data`)
-    return data;
-};
+//     // Sample Data
+//     // const data = {
+//     //     "inside": {
+//     //         "humidity": 0, "temperature": 0
+//     //     },
+//     //     "outside": { "humidity": 0, "temperature": 0 },
+//     //     "power_consumption": 0
+//     // }
+//     const { data } = await axios.get(`${dmtUrl}/devices_data`)
+//     return data;
+// };
+
+
+const getDevicesDataAPI = async () => {
+    try {
+      const response = await axios.get(`${dmtUrl}/devices_data`, {
+        headers: { "Accept": "application/json" }
+      });
+  
+      const contentType = response.headers['content-type'];
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Invalid response format: Expected JSON but received something else.");
+      }
+  
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching devices data:", error);
+      throw error;
+    }
+  };
+  
+
+
+
+
+
+
+
+
 
 const getCurrentACTempAPI = async () => {
     // Sample Data

@@ -42,7 +42,7 @@ export default function UserLogs() {
 
     const getUserInfo = (userId) => {
         const user = users.find((user) => user._id === userId);
-        return user ? { email: user.email, username: user.username } : { email: "N/A", username: "N/A" };
+        return user ? { email: user.email, username: user.username } : { email: "Unavailable", username: "Deleted User" };
     };
 
     const handlePageClick = (data) => {
@@ -72,10 +72,10 @@ export default function UserLogs() {
                         </TableHead>
                         <TableBody>
                             {currentLogs.map((log, index) => {
-                                const userInfo = getUserInfo(log.user._id);
+                                const userInfo = log.user ? getUserInfo(log.user._id) : { email: "Unavailable", username: "Deleted User" };
                                 return (
                                     <TableRow key={index}>
-                                         <TableCell>{userInfo.username}</TableCell>
+                                        <TableCell>{userInfo.username}</TableCell>
                                         <TableCell>{log.action}</TableCell>
                                         <TableCell>{new Date(log.timestamp).toLocaleString()}</TableCell>
                                         <TableCell>{userInfo.email}</TableCell>

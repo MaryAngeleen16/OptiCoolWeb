@@ -29,11 +29,12 @@ router.get('/all', userController.listAll);
 // router.put('/update/role/:id', userController.updateRole);
 router.put('/update-role/:id', userController.updateRole);
 
-
 router.get('/active', userController.getActiveUsers);
 
 router.delete('/delete/:id', userController.deleteUser);
 
 router.get('/logout/:id', userController.logout);
+
+router.put('/approve/:id', userController.approveUser);
 
 module.exports = router;    
