@@ -1,32 +1,48 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./DashboardContainer.css";
+import { FaUserCircle } from "react-icons/fa";
 
 const DashboardContainer = () => {
-  const members = [
-    { name: "Alex", color: "pink" },
-    { name: "Jhon", color: "blue" },
-    { name: "Alisha", color: "pink" },
-    { name: "Piter", color: "yellow" },
-    { name: "Rachel", color: "pink" },
-  ];
+  const [userList, setUserList] = useState([]);
+  const token = localStorage.getItem("token");
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.REACT_APP_API}/users/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setUserList(data.users); // Set the user list from API response
+      } catch (err) {
+        console.error("Failed to fetch users:", err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const devices = [
     { name: "Aircon", icon: "❄️", color: "pink" },
     { name: "Fan", icon: "🌀", color: "blue" },
-    { name: "Exhaust", icon: "💡", color: "blue" },
-    { name: "Blower", icon: "🎵", color: "pink" },
+    { name: "Exhaust", icon: "🌫️", color: "blue" },
+    { name: "Blower", icon: "💨", color: "pink" },
   ];
 
   return (
     <div className="dashboard-container">
-      {/* Members Section */}
+      {/* User List Section */}
       <div className="card">
-        <h2 className="section-title">Members</h2>
+        <h2 className="section-title">Users</h2>
         <div className="members-list">
-          {members.map((member, index) => (
+          {userList.map((user, index) => (
             <div key={index} className="member">
-              <div className="avatar"></div>
-              <span className={`member-name ${member.color}`}>{member.name}</span>
+              <FaUserCircle className="icon blue" />
+              <span className={`member-name ${user.color || "default"}`}>
+                {user.username}
+              </span>
             </div>
           ))}
         </div>

@@ -5,52 +5,58 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
     max-width: 350px;
-    margin: auto;
-    margin-left: 150px;
-    margin-top: 50px;
-  }
-  
-  .header {
+    margin: auto; /* Center horizontally */
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    min-height: 200px; /* Ensure enough height for vertical centering */
+}
+  
+.header {
+    display: flex;
+    flex-direction: column; /* Stack date and location vertically */
+    align-items: center; /* Center align the text */
     font-weight: bold;
-  }
+    gap: 5px; /* Add spacing between date and location */
+}
   
-  .date {
+.date {
     color: #333;
-  }
+    font-size: larger;
+}
   
-  .location {
+.location {
     color: #555;
-  }
+    font-size: smaller;
+}
   
-  .weather-info {
+.weather-info {
     font-size: 14px;
     margin: 10px 0;
-  }
+}
   
-  .energy-stats {
+.energy-stats {
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-weight: bold;
-  }
+}
   
-  .saved, .used {
+.saved, .used {
     display: flex;
     align-items: center;
-  }
+}
   
-  .icon {
+.icon {
     margin-right: 5px;
     font-size: 18px;
-  }
+}
   
-  .green {
+.green {
     color: green;
-  }
+}
   
-  .red {
+.red {
     color: red;
-  }
-  
+}

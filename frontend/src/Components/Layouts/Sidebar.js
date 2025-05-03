@@ -18,6 +18,8 @@ import GroupIcon from "@mui/icons-material/Group";
 import RoomIcon from "@mui/icons-material/MeetingRoom";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import LogoutIcon from "@mui/icons-material/Logout";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 import MenuIcon from "@mui/icons-material/Menu";
 import "./Sidebar.css"; // Import the CSS file
 
@@ -50,10 +52,13 @@ function Sidebar() {
     { icon: <RoomIcon style={{ fontSize: 25 }} />, route: "/manageRoom", label: "Manage Room" },
     { icon: <DashboardIcon style={{ fontSize: 25 }} />, route: "/dashboard", label: "Dashboard" },
     { icon: <AccountCircleIcon style={{ fontSize: 25 }} />, route: "/me", label: "Profile" },
+  
     ...(user?.role === "admin"
       ? [
-          { icon: <GroupIcon style={{ fontSize: 25 }} />, route: "/users", label: "Users" },
-          { icon: <SummarizeIcon style={{ fontSize: 25 }} />, route: "/ereport", label: "Reports" },
+          {icon: <GroupIcon style={{ fontSize: 25 }} />, route: "/users", label: "Users" },
+          {icon: <SummarizeIcon style={{ fontSize: 25 }} />, route: "/ereport", label: "Reports" },
+          {icon: <ManageSearchIcon style={{ fontSize: 25 }} />, route: "/loglist", label: "Logs" },
+          {icon: <SupervisorAccountIcon style={{ fontSize: 25 }} />, route: "/active", label: "Active Users" },
         ]
       : []),
   ];

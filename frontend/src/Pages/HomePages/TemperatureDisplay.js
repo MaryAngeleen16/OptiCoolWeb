@@ -6,10 +6,10 @@ import "./TemperatureDisplay.css";
 
 const TemperatureDisplay = () => {
   const [indoorTemperature, setIndoorTemperature] = useState(null);
-  const [outdoorTemperature, setOutdoorTemperature] = useState(21); // Placeholder value
+  const [outdoorTemperature, setOutdoorTemperature] = useState(null); // Placeholder value
 
   useEffect(() => {
-    const fetchIndoorTemperature = async () => {
+    const fetchTemperatures = async () => {
       try {
         const response = await axios.get(`${dmtUrl}/devices_data`, {
           headers: { "Accept": "application/json" },
@@ -23,18 +23,28 @@ const TemperatureDisplay = () => {
         const data = response.data; // Axios already parses JSON
         console.log("Fetched JSON data:", data);
 
-        if (data && data.inside && data.inside.temperature !== undefined) {
-          setIndoorTemperature(data.inside.temperature);
+        if (data) {
+          if (data.inside && data.inside.temperature !== undefined) {
+            setIndoorTemperature(data.inside.temperature);
+          } else {
+            console.warn("Invalid indoor temperature structure");
+          }
+
+          if (data.outside && data.outside.temperature !== undefined) {
+            setOutdoorTemperature(data.outside.temperature);
+          } else {
+            console.warn("Invalid outdoor temperature structure");
+          }
         } else {
           throw new Error("Invalid JSON structure");
         }
       } catch (err) {
-        console.error("Error fetching room temperature:", err.message);
-        alert("Failed to fetch indoor temperature.");
+        console.error("Error fetching temperatures:", err.message);
+        alert("Failed to fetch temperatures.");
       }
     };
 
-    fetchIndoorTemperature();
+    fetchTemperatures();
   }, []);
 
   return (
@@ -46,7 +56,7 @@ const TemperatureDisplay = () => {
             <span className="label">Indoor temperature</span>
             <span className="temp">{indoorTemperature !== null ? `${indoorTemperature}°C` : "---°C"}</span>
           </div>
-          <FaThermometerHalf className="icon" />
+          {/* <FaThermometerHalf className="icon" /> */}
         </div>
       </div>
 
@@ -57,9 +67,9 @@ const TemperatureDisplay = () => {
         <div className="temperature-content">
           <div className="temp-info">
             <span className="label">Outdoor temperature</span>
-            <span className="temp">{outdoorTemperature}°C</span>
+            <span className="temp">{outdoorTemperature !== null ? `${outdoorTemperature}°C` : "---°C"}</span>
           </div>
-          <FaThermometerHalf className="icon" />
+          {/* <FaThermometerHalf className="icon" /> */}
         </div>
       </div>
     </div>

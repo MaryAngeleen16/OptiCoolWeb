@@ -5,93 +5,101 @@
     display: flex;
     flex-direction: column;
     gap: 16px;
-    margin-left: 125px;
-  }
+    margin-left: auto; /* Center horizontally */
+    margin-right: auto; /* Center horizontally */
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+}
   
-  .card {
+.card {
     background-color: white;
     padding: 16px;
     border-radius: 12px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  }
+}
   
-  .section-title {
+.section-title {
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 12px;
-  }
+}
   
-  .members-list {
+.members-list {
     display: flex;
-    gap: 16px;
-  }
+    flex-wrap: wrap; /* Allow wrapping if there are many users */
+    justify-content: center; /* Center the list horizontally */
+    align-items: center; /* Center the list vertically */
+    gap: 16px; /* Add spacing between users */
+}
   
-  .member {
+.member {
     display: flex;
     flex-direction: column;
-    align-items: center;
-  }
+    align-items: center; /* Center content horizontally */
+    justify-content: center; /* Center content vertically */
+    text-align: center; /* Ensure text is centered */
+}
   
-  .avatar {
+.avatar {
     width: 48px;
     height: 48px;
     background-color: #ddd;
     border-radius: 50%;
-  }
+}
   
-  .member-name {
+.member-name {
     margin-top: 6px;
     font-size: 0.9rem;
     font-weight: 500;
-  }
+}
   
-  .pink {
+.pink {
     color: #ff4081;
-  }
+}
   
-  .blue {
+.blue {
     color: #2196f3;
-  }
+}
   
-  .yellow {
+.yellow {
     color: #ffeb3b;
-  }
+}
   
-  /* Devices Section */
-  .devices-grid {
+/* Devices Section */
+.devices-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
-  }
+}
   
-  .device-card {
+.device-card {
     padding: 12px;
     border-radius: 12px;
     color: white;
     display: flex;
     flex-direction: column;
     align-items: center;
-  }
+}
   
-  .device-card.pink {
+.device-card.pink {
     background-color: #ff4081;
-  }
+}
   
-  .device-card.blue {
+.device-card.blue {
     background-color: #2196f3;
-  }
+}
   
-  .device-icon {
+.device-icon {
     font-size: 24px;
-  }
+}
   
-  .device-name {
+.device-name {
     margin-top: 6px;
     font-size: 0.9rem;
     font-weight: 500;
-  }
+}
   
-  .toggle-switch {
+.toggle-switch {
     margin-top: 8px;
     background-color: white;
     width: 40px;
@@ -100,12 +108,11 @@
     display: flex;
     align-items: center;
     padding: 2px;
-  }
+}
   
-  .toggle-circle {
+.toggle-circle {
     width: 16px;
     height: 16px;
     background-color: gray;
     border-radius: 50%;
-  }
-  
+}

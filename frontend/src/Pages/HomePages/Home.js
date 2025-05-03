@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { useSelector } from "react-redux"; // Import useSelector
 import "./Home.css";
 import cloudIcon from "../../Icons/CLOUD.png";
 import sunIcon from "../../Icons/SUN.png";
@@ -20,6 +21,7 @@ import EnergyStatus from "./EnergyStatus";
 import TemperatureDisplay from "./TemperatureDisplay";
 import HumidityStatus from "./HumidityStatus";
 import DashboardContainer from "./DashboardContainer";
+import { Tooltip, Menu, MenuItem } from "@mui/material"; // Import Tooltip, Menu, and MenuItem
 
 function Home() {
   // AccuWeather API Constants
@@ -38,19 +40,29 @@ function Home() {
   const [lastRequestTime, setLastRequestTime] = useState(null);
   const [isRequesting, setIsRequesting] = useState(false);
   const [isOnline, setIsOnline] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth); // Fetch user from Redux state
 
   // Weather icon mapping
   const weatherIconMap = {
-    Sunny: sunIcon,
+    "Sunny": sunIcon,
     "Partly sunny": partlySunnyIcon,
     "Mostly cloudy": cloudIcon,
-    "Partly cloudy": cloudIcon,
-    Cloudy: cloudIcon,
-    Overcast: overcastIcon,
-    Rainy: rainIcon,
-    Windy: windIcon,
-    Thunderstorms: thurderstormIcon,
+    "Partly cloudy": wIcon,
+    "Cloudy": cloudIcon,
+    "Overcast": overcastIcon,
+    "Rainy": rainIcon,
+    "Windy": windIcon,
+    "Thunderstorms": thurderstormIcon,
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
   };
 
   // Fetch Device Data
@@ -135,18 +147,26 @@ function Home() {
     <div className="homebody">
       <div className="header-container">
         <div className="header-left">
-          <h1>Hello, Nick!</h1>
-          <p>Welcome home!</p>
-        </div>
-        <div className="header-center">
-          <input type="text" placeholder="Search" className="search-input" />
+          <h1>Hello, {user?.username || "User"}</h1> {/* Display username dynamically */}
+          <h3>Welcome Back!</h3>
         </div>
         <div className="header-right">
-          <NotificationsIcon style={{ color: "#2F80ED", fontSize: 30 }} />
-          <SettingsIcon style={{ color: "#2F80ED", fontSize: 30 }} />
-          <AccountCircleIcon
-            style={{ color: "#2F80ED", fontSize: 50, marginTop: -10 }}
-          />
+          <Tooltip title="Profile" arrow>
+            <AccountCircleIcon
+              style={{ color: "#2F80ED", fontSize: 50, marginTop: -10, cursor: "pointer" }}
+              onMouseEnter={handleMenuOpen} // Open menu on hover
+            />
+          </Tooltip>
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            onMouseLeave={handleMenuClose} // Close menu when mouse leaves
+          >
+            <MenuItem onClick={() => { navigate("/me"); handleMenuClose(); }}>
+              Profile
+            </MenuItem>
+          </Menu>
         </div>
       </div>
 
@@ -157,14 +177,11 @@ function Home() {
           <HumidityStatus />
           <DashboardContainer />
         </div>
-        <div className="vertical-box">
-          <h3>Additional Info</h3>
-          <p>Some relevant details...</p>
-        </div>
+     
       </div>
 
       <Sidebar />
-
+{/* 
       <div className="accuweather-container">
         <div className="accuweather glass-epek">
           <div className="temp-container">
@@ -192,7 +209,7 @@ function Home() {
             MANAGE THE ROOM
           </button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
