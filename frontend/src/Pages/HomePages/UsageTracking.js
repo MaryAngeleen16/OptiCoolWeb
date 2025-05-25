@@ -1,88 +1,66 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from 'react'
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+} from "@mui/material";
 import axios from "axios";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
-import './UsageTracking.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-const UsageTracking = () => {
-  const [startDate, setStartDate] = useState(new Date().toISOString().split("T")[0]);
-  const [endDate, setEndDate] = useState(new Date().toISOString().split("T")[0]);
-  const [chartData, setChartData] = useState({
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-    datasets: [{ data: [20, 45, 28, 80, 99, 43] }],
-  });
-  const [todayUsage, setTodayUsage] = useState(50);
-  const [monthlyUsage, setMonthlyUsage] = useState(300);
-  const [loading, setLoading] = useState(false);
-  const [powerData, setPowerData] = useState([]);
+function UsageTracking() {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log("Component mounted, fetching initial data...");
-    fetchPowerData();
+    axios.get(`${process.env.REACT_APP_API}/getpowerconsumption`)
+      .then(res => {
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
   }, []);
 
-  const fetchPowerData = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API}/power-consumption/getpowerconsumption`);
-      const data = response.data;
-      setPowerData(data); // Set power data for the table
-
-      // Update chart data
-      const labels = data.map(item => new Date(item.timestamp).toLocaleDateString());
-      const consumptionData = data.map(item => item.consumption);
-      setChartData({
-        labels,
-        datasets: [{ label: 'Power Consumption (kWh)', data: consumptionData }],
-      });
-
-      // Update summary data
-      const totalConsumption = consumptionData.reduce((acc, value) => acc + value, 0);
-      setTodayUsage(consumptionData[consumptionData.length - 1] || 0);
-      setMonthlyUsage(totalConsumption);
-    } catch (error) {
-      alert("Error: Failed to fetch power data");
-      console.error("Error fetching power data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (loading) return <CircularProgress />;
 
   return (
-    <div className="general-div">
-      {loading ? (
-        <div className="loading">
-          <p>Loading...</p>
-        </div>
-      ) : (
-        <>
-   
-            <div className="chart">
-              <Bar
-                data={chartData}
-                options={{
-                  maintainAspectRatio: false,
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      title: {
-                        display: true,
-                        text: 'kW',
-                      },
-                    },
-                  },
-                }}
-              />
-            </div>
-       
+    <Container style={{ marginTop: 40 }}>
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Power Consumption Data
+          </Typography>
+          <TableContainer component={Paper}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell>Consumption</TableCell>
+                  <TableCell>Timestamp</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {data.map((row, idx) => (
+                  <TableRow key={row._id || idx}>
+                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell>{row.consumption}</TableCell>
+                    <TableCell>{new Date(row.timestamp).toLocaleString()}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </CardContent>
+      </Card>
+    </Container>
+  )
+}
 
-    
-        </>
-      )}
-    </div>
-  );
-};
-
-export default UsageTracking;
+export default UsageTracking

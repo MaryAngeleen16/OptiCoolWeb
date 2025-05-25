@@ -1,6 +1,6 @@
 .general-div {
-    padding: 4%;
-    max-width: 75%;    
+    padding: 1%;
+    min-width: 700px;    
     height: auto; /* Allow height to adjust based on content */
     display: flex; /* Enables flexbox */
     flex-direction: column; /* Ensures elements stack vertically */
@@ -22,7 +22,7 @@
 }
 
 .chart {
-  width: max-content;
+  width: 600px;
     height: 700px; /* Increase the height of the chart */
 }
 
@@ -35,7 +35,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px;
+  padding: 5px;
   background-color: #ffffff;
   border-radius: 8px;
   border: 1px solid #ddd;
