@@ -9,9 +9,9 @@ const HumidityStatus = () => {
   const [weatherCondition, setWeatherCondition] = useState(null);
   const [lastRequestTime, setLastRequestTime] = useState(null);
 
-  const AccuweatherbaseURL = "http://dataservice.accuweather.com";
-  const apiKey = "I8m0OklfM6lIEJGIAl7Sa96aZSGY6Enm";
-  const locationKey = "759349";
+const AccuweatherbaseURL = process.env.REACT_APP_ACCUWEATHER_BASE_URL;
+        const apiKey = process.env.REACT_APP_ACCUWEATHER_API_KEY;
+        const locationKey = process.env.REACT_APP_ACCUWEATHER_LOCATION_KEY; 
 
   useEffect(() => {
     const fetchWeatherData = async () => {

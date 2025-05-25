@@ -14,9 +14,9 @@ import { useNavigate } from "react-router-dom";
 
 function WeatherApp() {
   // AccuWeather API Constants
-  const AccuweatherbaseURL = "http://dataservice.accuweather.com";
-  const apiKey = "I8m0OklfM6lIEJGIAl7Sa96aZSGY6Enm";
-  const locationKey = "759349";
+const AccuweatherbaseURL = process.env.REACT_APP_ACCUWEATHER_BASE_URL;
+        const apiKey = process.env.REACT_APP_ACCUWEATHER_API_KEY;
+        const locationKey = process.env.REACT_APP_ACCUWEATHER_LOCATION_KEY; 
 
   // State Variables
   const [weatherData, setWeatherData] = useState(null);
