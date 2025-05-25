@@ -24,12 +24,3 @@ exports.getPowerConsumptionByDate = async (req, res) => {
   }
 };
 
-// Fetch all power consumption data (fetchpower)
-exports.fetchpower = async (req, res) => {
-  try {
-    const powerData = await PowerConsumption.find().sort({ timestamp: -1 });
-    res.status(200).json(powerData);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching power consumption data", error });
-  }
-};
