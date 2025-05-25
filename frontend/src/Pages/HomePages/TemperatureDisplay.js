@@ -1,42 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { FaThermometerHalf } from "react-icons/fa";
-import axios from "axios";
-import dmtUrl from "../../dmtURL";
+import dmtAPI from "../../dmtAPI";
 import "./TemperatureDisplay.css";
 
 const TemperatureDisplay = () => {
   const [indoorTemperature, setIndoorTemperature] = useState(null);
-  const [outdoorTemperature, setOutdoorTemperature] = useState(null); // Placeholder value
+  const [outdoorTemperature, setOutdoorTemperature] = useState(null);
 
   useEffect(() => {
     const fetchTemperatures = async () => {
       try {
-        const response = await axios.get(`${dmtUrl}/devices_data`, {
-          headers: { "Accept": "application/json" },
-        });
-
-        const contentType = response.headers['content-type'];
-        if (!contentType || !contentType.includes("application/json")) {
-          throw new Error("Received HTML instead of JSON. Ignoring response.");
-        }
-
-        const data = response.data; // Axios already parses JSON
-        console.log("Fetched JSON data:", data);
-
-        if (data) {
-          if (data.inside && data.inside.temperature !== undefined) {
-            setIndoorTemperature(data.inside.temperature);
-          } else {
-            console.warn("Invalid indoor temperature structure");
-          }
-
-          if (data.outside && data.outside.temperature !== undefined) {
-            setOutdoorTemperature(data.outside.temperature);
-          } else {
-            console.warn("Invalid outdoor temperature structure");
-          }
+        // Use the same logic as the dashboard: fetch from dmtAPI
+        const devicesData = await dmtAPI.getDevicesDataAPI();
+        if (devicesData && devicesData.inside && devicesData.inside.temperature !== undefined) {
+          setIndoorTemperature(devicesData.inside.temperature);
         } else {
-          throw new Error("Invalid JSON structure");
+          setIndoorTemperature(null);
+          console.warn("Invalid inside temperature structure");
+        }
+        if (devicesData && devicesData.outside && devicesData.outside.temperature !== undefined) {
+          setOutdoorTemperature(devicesData.outside.temperature);
+        } else {
+          setOutdoorTemperature(null);
+          console.warn("Invalid outside temperature structure");
         }
       } catch (err) {
         console.error("Error fetching temperatures:", err.message);

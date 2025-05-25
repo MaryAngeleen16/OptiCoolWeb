@@ -21,14 +21,10 @@ import EnergyStatus from "./EnergyStatus";
 import TemperatureDisplay from "./TemperatureDisplay";
 import HumidityStatus from "./HumidityStatus";
 import DashboardContainer from "./DashboardContainer";
-import { Tooltip, Menu, MenuItem } from "@mui/material"; // Import Tooltip, Menu, and MenuItem
+import { Tooltip, Menu, MenuItem } from "@mui/material";
+import dmtURL from "../../dmtURL";  // Import your dmtURL
 
 function Home() {
-  // AccuWeather API Constants
-  const AccuweatherbaseURL = "https://dataservice.accuweather.com";
-  const apiKey = "I8m0OklfM6lIEJGIAl7Sa96aZSGY6Enm";
-  const locationKey = "759349";
-
   // State Variables
   const [powerConsumption, setPowerConsumption] = useState(null);
   const [insideTemp, setInsideTemp] = useState(null);
@@ -43,6 +39,7 @@ function Home() {
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth); // Fetch user from Redux state
+const dmtUrl = 'https://notable-complete-garfish.ngrok-free.app';
 
   // Weather icon mapping
   const weatherIconMap = {
@@ -105,26 +102,12 @@ function Home() {
 
   // Fetch Weather Data
   const fetchWeatherData = async () => {
-    const currentTime = Date.now();
-    if (lastRequestTime && currentTime - lastRequestTime < 30 * 60 * 1000) {
-      console.log(
-        "API call frequency limit reached. Try again after 30 minutes."
-      );
-      return;
-    }
-
     try {
-      setIsRequesting(true);
-      const { data } = await axios.get(
-        `${AccuweatherbaseURL}/currentconditions/v1/${locationKey}`,
-        {
-          params: { apikey: apiKey, language: "en-us", details: true },
-        }
-      );
-
-      if (data && data.length > 0) {
-        setWeatherData(data[0]);
-        setLastRequestTime(currentTime);
+      // Call your backend endpoint that fetches weather data server-side
+      const { data } = await axios.get(`${dmtUrl}/weather_data`);
+      if (data) {
+        setWeatherData(data);
+        setLastRequestTime(Date.now());
       } else {
         console.error("No weather data returned.");
       }
