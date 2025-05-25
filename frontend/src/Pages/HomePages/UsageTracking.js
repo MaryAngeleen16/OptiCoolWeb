@@ -20,7 +20,7 @@ function UsageTracking() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API}/getpowerconsumption`)
+    axios.get('http://localhost:4000/api/v1/getpowerconsumption')
       .then(res => {
         setData(res.data);
         setLoading(false);
