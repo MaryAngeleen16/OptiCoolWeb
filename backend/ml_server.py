@@ -1,11 +1,12 @@
-from flask import Flask, jsonify, request
+from flask_cors import CORS
 import pandas as pd
+from flask import Flask, jsonify, request
 from sklearn.linear_model import LinearRegression
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 app = Flask(__name__)
-
+CORS(app)
 @app.route('/predictpower', methods=['POST'])
 def predict_power():
     data = request.json

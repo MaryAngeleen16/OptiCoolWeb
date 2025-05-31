@@ -57,7 +57,7 @@ useEffect(() => {
       setMonthlyData(grouped);
 
       // 🔗 Call Flask ML endpoint
-      return axios.post(`${process.env.REACT_APP_API}/predictpower`, sorted)
+      return axios.post(`${process.env.REACT_APP_PYTHON_SERVER_URL}/predictpower`, sorted)
         .then(predRes => {
           const preds = predRes.data.map(p => {
             const d = new Date(p.timestamp);
