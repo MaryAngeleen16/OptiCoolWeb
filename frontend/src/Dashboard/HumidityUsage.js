@@ -1,173 +1,89 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import axios from 'axios';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import dmtUrl from '../dmtURL';
+import { Line } from 'react-chartjs-2';
+import "chart.js/auto";
 import './StylesUsage.css';
 
-
-
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+// Helper function to sort data by timestamp ascending
+function sortByTimestamp(data) {
+  return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+}
 
 const HumidityUsage = () => {
-    const [chartData, setChartData] = useState({
-        labels: [],
-        datasets: []
-    });
-    const [error, setError] = useState(null);  // Add error state
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const checkServerStatus = async () => {
-            try {
-                await axios.get(`${dmtUrl}/ping`);  // Assuming you have a "ping" endpoint for health check
-                fetchData();  // Proceed with fetching the actual data if the server is online
-            } catch (error) {
-                setError('The Raspberry Pi is currently offline. Please check the connection.');
-            }
-        };
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API}/gethumidity`)
+      .then(res => {
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
-        const fetchData = async () => {
-            try {
-                const startDate = '2024-01-01';
-                const endDate = '2025-02-05';
+  if (loading) return <CircularProgress />;
 
-                // Fetch inside humidity data
-                const insideResponse = await axios.get(`${dmtUrl}/inside_humidity_data?start_date=${startDate}&end_date=${endDate}`);
-                const insideData = insideResponse.data;
-                const insideLabels = insideData.map(entry => entry.date);
-                const insideValues = insideData.map(entry => entry.humidity);
+  const sortedData = sortByTimestamp(data);
 
-                // Fetch outside humidity data
-                const outsideResponse = await axios.get(`${dmtUrl}/outside_humidity_data?start_date=${startDate}&end_date=${endDate}`);
-                const outsideData = outsideResponse.data;
-                const outsideValues = outsideData.map(entry => entry.humidity);
+  // Split data in half assuming half is inside and half is outside
+  const half = Math.floor(sortedData.length / 2);
+  const insideData = sortedData.slice(0, half);
+  const outsideData = sortedData.slice(half);
 
-                setChartData({
-                    labels: insideLabels,
-                    datasets: [
-                        {
-                            label: 'Inside Humidity (%)',
-                            data: insideValues,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgb(75, 192, 192)',
-                            borderWidth: 1,
-                        },
-                        {
-                            label: 'Outside Humidity (%)',
-                            data: outsideValues,
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderColor: 'rgb(255, 99, 132)',
-                            borderWidth: 1,
-                        }
-                    ]
-                });
-            } catch (error) {
-                console.error('Error fetching humidity data:', error);
-            }
-        };
+  const chartData = {
+    labels: insideData.map(row => new Date(row.timestamp).toLocaleString()), // assuming timestamps align
+    datasets: [
+      {
+        label: "Inside Humidity (%)",
+        data: insideData.map(row => row.humidity),
+        fill: false,
+        borderColor: "rgba(54, 162, 235, 1)",
+        backgroundColor: "rgba(54, 162, 235, 0.2)",
+        tension: 0.1,
+      },
+      {
+        label: "Outside Humidity (%)",
+        data: outsideData.map(row => row.humidity),
+        fill: false,
+        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        tension: 0.1,
+      },
+    ],
+  };
 
-        checkServerStatus();
-    }, []);
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: true, position: "top" },
+      title: { display: true, text: "Inside vs Outside Humidity Over Time" },
+    },
+    scales: {
+      x: { title: { display: true, text: "Timestamp" } },
+      y: { title: { display: true, text: "Humidity (%)" }, beginAtZero: true },
+    },
+  };
 
-    if (error) {
-        return <div>{error}</div>;  // Display the error message if there's an issue
-    }
-
-    return (
-        <div style={{marginTop: '5%'}} className="chart">
-            <h2 style={{textAlign: 'center'}}>Humidity Report</h2>
-            <Bar data={chartData} options={{ responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Inside vs Outside Humidity' } } }} />
-        </div>
-    );
+  return (
+    <Container style={{ marginTop: 40 }}>
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Humidity Data
+          </Typography>
+          <Line data={chartData} options={chartOptions} />
+        </CardContent>
+      </Card>
+    </Container>
+  );
 };
 
 export default HumidityUsage;
-
-
-
-
-
-
-
-
-
-
-// import React, { useEffect, useState } from 'react';
-// import { Bar } from 'react-chartjs-2';
-// import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-// import './StylesUsage.css';
-
-// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-// const HumidityUsage = () => {
-//     const [chartData, setChartData] = useState({
-//         labels: [],
-//         datasets: []
-//     });
-//     const [error, setError] = useState(null);  // Add error state
-
-//     useEffect(() => {
-//         const fetchData = async () => {
-//             try {
-//                 // Dummy data for inside humidity
-//                 const insideData = [
-//                     { date: '2024-01-01', humidity: 45 },
-//                     { date: '2024-01-02', humidity: 50 },
-//                     { date: '2024-01-03', humidity: 55 },
-//                     { date: '2024-01-04', humidity: 60 },
-//                     { date: '2024-01-05', humidity: 65 },
-//                 ];
-//                 const insideLabels = insideData.map(entry => entry.date);
-//                 const insideValues = insideData.map(entry => entry.humidity);
-
-//                 // Dummy data for outside humidity
-//                 const outsideData = [
-//                     { date: '2024-01-01', humidity: 40 },
-//                     { date: '2024-01-02', humidity: 42 },
-//                     { date: '2024-01-03', humidity: 44 },
-//                     { date: '2024-01-04', humidity: 46 },
-//                     { date: '2024-01-05', humidity: 48 },
-//                 ];
-//                 const outsideValues = outsideData.map(entry => entry.humidity);
-
-//                 setChartData({
-//                     labels: insideLabels,
-//                     datasets: [
-//                         {
-//                             label: 'Inside Humidity (%)',
-//                             data: insideValues,
-//                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
-//                             borderColor: 'rgb(75, 192, 192)',
-//                             borderWidth: 1,
-//                         },
-//                         {
-//                             label: 'Outside Humidity (%)',
-//                             data: outsideValues,
-//                             backgroundColor: 'rgba(255, 99, 132, 0.2)',
-//                             borderColor: 'rgb(255, 99, 132)',
-//                             borderWidth: 1,
-//                         }
-//                     ]
-//                 });
-//             } catch (error) {
-//                 console.error('Error fetching humidity data:', error);
-//                 setError('Error fetching humidity data');
-//             }
-//         };
-
-//         fetchData();
-//     }, []);
-
-//     if (error) {
-//         return <div>{error}</div>;  // Display the error message if there's an issue
-//     }
-
-//     return (
-//         <div style={{ marginTop: '5%' }} className="chart">
-//             <h2>Humidity Report</h2>
-//             <Bar data={chartData} options={{ responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Inside vs Outside Humidity' } } }} />
-//         </div>
-//     );
-// };
-
-// export default HumidityUsage;
