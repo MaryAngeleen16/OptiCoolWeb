@@ -2,6 +2,7 @@ const app = require('./app');
 const connectDatabase = require('./config/database');
 const cloudinary = require('cloudinary');
 const dotenv = require('dotenv');
+const cors = require("cors");
 
 dotenv.config({ path: './config/config.env' });
 
@@ -19,5 +20,3 @@ app.listen(PORT, () => {
   console.log(`Server started on port: ${PORT} in ${process.env.NODE_ENV} mode`);
 });
 
-
-const cors = require("cors");

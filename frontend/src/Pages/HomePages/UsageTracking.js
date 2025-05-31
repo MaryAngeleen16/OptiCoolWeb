@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react';
 import {
   Container,
   Card,
@@ -10,12 +10,10 @@ import axios from "axios";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 
-// Helper function to sort data by timestamp ascending
 function sortByTimestamp(data) {
   return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
-// Group data by month and get average consumption per month
 function groupByMonth(data) {
   const grouped = {};
   data.forEach(row => {
@@ -25,7 +23,6 @@ function groupByMonth(data) {
     grouped[key].push(row.consumption);
   });
 
-  // Sort months
   const sorted = Object.entries(grouped).sort(([a], [b]) => {
     const [aYear, aMonth] = a.split('-').map(Number);
     const [bYear, bMonth] = b.split('-').map(Number);
@@ -49,57 +46,59 @@ function UsageTracking() {
   const [loading, setLoading] = useState(true);
   const [predictionPoints, setPredictionPoints] = useState([]);
 
-useEffect(() => {
-  axios.get(`${process.env.REACT_APP_API}/getpowerconsumption`)
-    .then(res => {
-      const sorted = sortByTimestamp(res.data);
-      const grouped = groupByMonth(sorted);
-      setMonthlyData(grouped);
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API}/getpowerconsumption`)
+      .then(res => {
+        const sorted = sortByTimestamp(res.data);
+        const grouped = groupByMonth(sorted);
+        setMonthlyData(grouped);
 
-      // 🔗 Call Flask ML endpoint
-      return axios.post(`${process.env.REACT_APP_PYTHON_SERVER_URL}/predictpower`, sorted)
-        .then(predRes => {
-          const preds = predRes.data.map(p => {
-            const d = new Date(p.timestamp);
-            return {
-              label: d.toLocaleString("default", { month: "short", year: "numeric" }),
-              value: p.consumption,
-              timestamp: d
-            };
+        return axios.post(`${process.env.REACT_APP_API}/predictpower`, sorted)
+          .then(predRes => {
+            const preds = predRes.data.map(p => {
+              const d = new Date(p.timestamp);
+              return {
+                label: d.toLocaleString("default", { month: "short", year: "numeric" }),
+                value: p.consumption,
+                timestamp: d
+              };
+            });
+            setPredictionPoints(preds);
           });
-          setPredictionPoints(preds);
-        });
-    })
-    .catch(err => {
-      console.error("Error:", err);
-    })
-    .finally(() => setLoading(false));
-}, []);
-
+      })
+      .catch(err => {
+        console.error("Error:", err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   if (loading) return <CircularProgress />;
 
-  // Combine actual and prediction for chart
-  const allData = [...monthlyData, ...predictionPoints];
+  const combined = [...monthlyData, ...predictionPoints];
+  const uniqueLabels = Array.from(
+    new Set(combined.map(item => item.label))
+  );
+
+  const actualMap = Object.fromEntries(monthlyData.map(p => [p.label, p.value]));
+  const predictionMap = Object.fromEntries(predictionPoints.map(p => [p.label, p.value]));
+
+  const actualData = uniqueLabels.map(label => actualMap[label] ?? null);
+  const predictedData = uniqueLabels.map(label => predictionMap[label] ?? null);
 
   const chartData = {
-    labels: allData.map(row => row.label),
+    labels: uniqueLabels,
     datasets: [
       {
         label: "Monthly Avg Power Consumption",
-        data: monthlyData.map(row => row.value),
+        data: actualData,
         fill: false,
         borderColor: "rgba(54, 162, 235, 1)",
         backgroundColor: "rgba(54, 162, 235, 0.2)",
         tension: 0.1,
       },
       {
-        label: "Prediction (ML Monthly to July 2025)",
-        data: [
-          ...Array(monthlyData.length - 1).fill(null),
-          monthlyData.length > 0 ? monthlyData[monthlyData.length - 1].value : null,
-          ...predictionPoints.map(p => p.value)
-        ],
+        label: "Prediction (Next 6 Months)",
+        data: predictedData,
         fill: false,
         borderColor: "yellow",
         backgroundColor: "yellow",
@@ -114,7 +113,7 @@ useEffect(() => {
     responsive: true,
     plugins: {
       legend: { display: true, position: "top" },
-      title: { display: true, text: "Power Consumption (Monthly Avg & Prediction)" },
+      title: { display: true, text: "Power Consumption Forecast" },
     },
     scales: {
       x: { title: { display: true, text: "Month" } },
@@ -127,13 +126,13 @@ useEffect(() => {
       <Card>
         <CardContent>
           <Typography variant="h5" gutterBottom>
-            Power Consumption Data & Prediction
+            Power Consumption Data & 6-Month Forecast
           </Typography>
           <Line data={chartData} options={chartOptions} />
         </CardContent>
       </Card>
     </Container>
-  )
+  );
 }
 
-export default UsageTracking
+export default UsageTracking;
