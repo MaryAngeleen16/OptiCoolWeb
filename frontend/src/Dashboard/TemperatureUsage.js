@@ -37,18 +37,28 @@ const TemperatureUsage = () => {
 
   const sortedData = sortByTimestamp(data);
 
-  // For temperature, use the temperature field, not humidity
-  // If you want to split inside/outside, you must have a way to distinguish them in your data.
-  // For now, just show all as a single line chart.
+  // Split data into two halves: inside and outside
+  const half = Math.floor(sortedData.length / 2);
+  const insideData = sortedData.slice(0, half);
+  const outsideData = sortedData.slice(half);
+
   const chartData = {
-    labels: sortedData.map(row => new Date(row.timestamp).toLocaleString()),
+    labels: insideData.map(row => new Date(row.timestamp).toLocaleString()), // assuming same timestamps
     datasets: [
       {
-        label: "Temperature (°C)",
-        data: sortedData.map(row => row.temperature),
+        label: "Inside Temperature (°C)",
+        data: insideData.map(row => row.temperature),
         fill: false,
-        borderColor: "rgba(255, 140, 0, 1)",
-        backgroundColor: "rgba(255, 140, 0, 0.2)",
+        borderColor: "rgba(0, 123, 255, 1)",
+        backgroundColor: "rgba(0, 123, 255, 0.2)",
+        tension: 0.1,
+      },
+      {
+        label: "Outside Temperature (°C)",
+        data: outsideData.map(row => row.temperature),
+        fill: false,
+        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: "rgba(255, 99, 132, 0.2)",
         tension: 0.1,
       },
     ],
@@ -58,11 +68,20 @@ const TemperatureUsage = () => {
     responsive: true,
     plugins: {
       legend: { display: true, position: "top" },
-      title: { display: true, text: "Temperature Over Time" },
+      title: { display: true, text: "Inside vs Outside Temperature Over Time" },
     },
     scales: {
       x: { title: { display: true, text: "Timestamp" } },
-      y: { title: { display: true, text: "Temperature (°C)" }, beginAtZero: false },
+      y: {
+        title: { display: true, text: "Temperature (°C)" },
+        beginAtZero: true,
+        ticks: {
+          stepSize: 10, // increments by 10
+          callback: function(value) {
+            return value; // show the value as is
+          }
+        },
+      },
     },
   };
 
