@@ -39,11 +39,14 @@ function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      await axios.post(`${process.env.REACT_APP_API}/users/logout`);
-      dispatch(removeAuth());
-      navigate("/");
-    } catch (err) {
-      console.error("Failed to log out:", err);
+      const { data } = await axios.get(`${process.env.REACT_APP_API}/users/logout/${user._id}`);
+      if (data.success === true) {
+        dispatch(removeAuth());
+        navigate("/");
+        // Removed setDrawerOpen since it is not defined in this component
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
     }
   };
 

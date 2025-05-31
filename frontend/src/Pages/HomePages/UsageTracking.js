@@ -15,71 +15,90 @@ function sortByTimestamp(data) {
   return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
-// Simple prediction: linear extrapolation based on the last two points
-function getPredictionPoints(sortedData, numPredictions = 5) {
-  if (sortedData.length < 2) return [];
-  const last = sortedData[sortedData.length - 1];
-  const prev = sortedData[sortedData.length - 2];
-  const lastTime = new Date(last.timestamp).getTime();
-  const prevTime = new Date(prev.timestamp).getTime();
-  const interval = lastTime - prevTime || 24 * 60 * 60 * 1000; // default 1 day if same
-  const delta = last.consumption - prev.consumption;
+// Group data by month and get average consumption per month
+function groupByMonth(data) {
+  const grouped = {};
+  data.forEach(row => {
+    const d = new Date(row.timestamp);
+    const key = `${d.getFullYear()}-${d.getMonth()}`;
+    if (!grouped[key]) grouped[key] = [];
+    grouped[key].push(row.consumption);
+  });
 
-  const predictions = [];
-  let nextTime = lastTime;
-  let nextValue = last.consumption;
-  for (let i = 1; i <= numPredictions; i++) {
-    nextTime += interval;
-    nextValue += delta;
-    predictions.push({
-      timestamp: new Date(nextTime).toISOString(),
-      consumption: nextValue,
-    });
-  }
-  return predictions;
+  // Sort months
+  const sorted = Object.entries(grouped).sort(([a], [b]) => {
+    const [aYear, aMonth] = a.split('-').map(Number);
+    const [bYear, bMonth] = b.split('-').map(Number);
+    return aYear !== bYear ? aYear - bYear : aMonth - bMonth;
+  });
+
+  return sorted.map(([key, vals]) => {
+    const [year, monthIdx] = key.split("-");
+    const date = new Date(year, monthIdx);
+    const label = date.toLocaleString("default", { month: "short", year: "numeric" });
+    return {
+      label,
+      value: vals.reduce((a, b) => a + b, 0) / vals.length,
+      timestamp: date
+    };
+  });
 }
 
 function UsageTracking() {
-  const [data, setData] = useState([]);
+  const [monthlyData, setMonthlyData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [predictionPoints, setPredictionPoints] = useState([]);
 
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API}/getpowerconsumption`)
-      .then(res => {
-        setData(res.data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+useEffect(() => {
+  axios.get(`${process.env.REACT_APP_API}/getpowerconsumption`)
+    .then(res => {
+      const sorted = sortByTimestamp(res.data);
+      const grouped = groupByMonth(sorted);
+      setMonthlyData(grouped);
+
+      // 🔗 Call Flask ML endpoint
+      return axios.post(`${process.env.REACT_APP_API}/predictpower`, sorted)
+        .then(predRes => {
+          const preds = predRes.data.map(p => {
+            const d = new Date(p.timestamp);
+            return {
+              label: d.toLocaleString("default", { month: "short", year: "numeric" }),
+              value: p.consumption,
+              timestamp: d
+            };
+          });
+          setPredictionPoints(preds);
+        });
+    })
+    .catch(err => {
+      console.error("Error:", err);
+    })
+    .finally(() => setLoading(false));
+}, []);
+
 
   if (loading) return <CircularProgress />;
 
-  // Sort data by timestamp (oldest to latest)
-  const sortedData = sortByTimestamp(data);
-
-  // Generate prediction points
-  const predictionPoints = getPredictionPoints(sortedData, 5);
-
   // Combine actual and prediction for chart
-  const allData = [...sortedData, ...predictionPoints];
+  const allData = [...monthlyData, ...predictionPoints];
 
   const chartData = {
-    labels: allData.map(row => new Date(row.timestamp).toLocaleString()),
+    labels: allData.map(row => row.label),
     datasets: [
       {
-        label: "Power Consumption",
-        data: sortedData.map(row => row.consumption),
+        label: "Monthly Avg Power Consumption",
+        data: monthlyData.map(row => row.value),
         fill: false,
         borderColor: "rgba(54, 162, 235, 1)",
         backgroundColor: "rgba(54, 162, 235, 0.2)",
         tension: 0.1,
       },
       {
-        label: "Prediction",
+        label: "Prediction (ML Monthly to July 2025)",
         data: [
-          ...Array(sortedData.length - 1).fill(null),
-          sortedData.length > 0 ? sortedData[sortedData.length - 1].consumption : null,
-          ...predictionPoints.map(p => p.consumption)
+          ...Array(monthlyData.length - 1).fill(null),
+          monthlyData.length > 0 ? monthlyData[monthlyData.length - 1].value : null,
+          ...predictionPoints.map(p => p.value)
         ],
         fill: false,
         borderColor: "yellow",
@@ -95,10 +114,10 @@ function UsageTracking() {
     responsive: true,
     plugins: {
       legend: { display: true, position: "top" },
-      title: { display: true, text: "Power Consumption (Raw Data & Prediction)" },
+      title: { display: true, text: "Power Consumption (Monthly Avg & Prediction)" },
     },
     scales: {
-      x: { title: { display: true, text: "Timestamp" } },
+      x: { title: { display: true, text: "Month" } },
       y: { title: { display: true, text: "Consumption" }, beginAtZero: true },
     },
   };

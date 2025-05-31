@@ -39,7 +39,7 @@ function LandingPage() {
             >
               Sign Up
             </button>
-            <button className="action-button qr-button">Scan QR</button>
+            {/* <button className="action-button qr-button">Scan QR</button> */}
           </div>
         </div>
       </div>
