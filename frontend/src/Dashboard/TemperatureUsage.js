@@ -1,183 +1,83 @@
-// import React from 'react';
-// import { Bar } from 'react-chartjs-2';
-// import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-// import './StylesUsage.css';
-// ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
-
-// // Generate dummy temperature data
-// const generateDummyTemperatureData = () => {
-//     const dummyData = [];
-//     const totalDays = 7; // One week
-//     const hoursPerDay = 10; // 10 hours of data per day
-
-//     for (let day = 1; day <= totalDays; day++) {
-//         const hourlyTemperatureInside = [];
-//         const hourlyTemperatureOutside = [];
-//         for (let hour = 1; hour <= hoursPerDay; hour++) {
-//             hourlyTemperatureInside.push(Math.floor(Math.random() * (45 - 16) + 16)); // Inside temp between 16°C and 45°C
-//             hourlyTemperatureOutside.push(Math.floor(Math.random() * (45 - 16) + 16)); // Outside temp between 16°C and 45°C
-//         }
-//         dummyData.push({
-//             date: `Day ${day}`,
-//             hourlyTemperatureInside,
-//             hourlyTemperatureOutside,
-//         });
-//     }
-//     return dummyData;
-// };
-
-// const TemperatureUsage = () => {
-//     const data = generateDummyTemperatureData();
-//     const dailyTemperatureInside = data[0].hourlyTemperatureInside;
-//     const dailyTemperatureOutside = data[0].hourlyTemperatureOutside;
-
-//     // Prepare the bar chart data
-//     const barChartData = {
-//         labels: Array.from({ length: dailyTemperatureInside.length }, (_, i) => `H${i + 1}`),
-//         datasets: [
-//             {
-//                 label: 'Inside Temperature (°C)',
-//                 data: dailyTemperatureInside,
-//                 backgroundColor: 'rgba(75, 192, 192, 0.2)',
-//                 borderColor: 'rgb(75, 192, 126)',
-//                 borderWidth: 1,
-//             },
-//             {
-//                 label: 'Outside Temperature (°C)',
-//                 data: dailyTemperatureOutside,
-//                 backgroundColor: 'rgba(255, 99, 132, 0.2)',
-//                 borderColor: 'rgb(239, 124, 52)',
-//                 borderWidth: 1,
-//             },
-//         ],
-//     };
-
-//     const options = {
-//         responsive: true,
-//         maintainAspectRatio: false,
-//         plugins: {
-//             legend: {
-//                 position: 'top',
-//             },
-//             title: {
-//                 display: true,
-//                 text: 'Temperature Report',
-//             },
-//         },
-//         scales: {
-//             y: {
-//                 beginAtZero: true,
-//             },
-//         },
-//     };
-
-//     return (
-//         <div className="chart">
-//            <h4 style={{ textAlign: 'center', marginBottom: '5px' }}>Temperature Report</h4>
-          
-//             <Bar style={{paddingBottom: '40px' }}
-//             data={barChartData} options={options} />
-//         </div>
-//     );
-// };
-
-// export default TemperatureUsage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import axios from 'axios';
-import { Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
-import dmtUrl from '../dmtURL';
+import { Line } from 'react-chartjs-2';
+import "chart.js/auto";
 import './StylesUsage.css';
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+// Helper function to sort data by timestamp ascending
+function sortByTimestamp(data) {
+  return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+}
 
 const TemperatureUsage = () => {
-    const [chartData, setChartData] = useState({
-        labels: [],
-        datasets: []
-    });
-    const [error, setError] = useState(null);  // Add error state
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const checkServerStatus = async () => {
-            try {
-                await axios.get(`${dmtUrl}/ping`);  // Assuming you have a "ping" endpoint for health check
-                fetchData();  // Proceed with fetching the actual data if the server is online
-            } catch (error) {
-                setError('The Raspberry Pi is currently offline. Please check the connection.');
-            }
-        };
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API}/gettemperature`)
+      .then(res => {
+        console.log("Fetched temperature data:", res.data); // Debug: log the data
+        setData(res.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error fetching temperature data:", err);
+        setLoading(false);
+      });
+  }, []);
 
-        const fetchData = async () => {
-            try {
-                const startDate = '2024-01-01';
-                const endDate = '2025-02-05';
+  if (loading) return <CircularProgress />;
 
-                // Fetch inside temperature data
-                const insideResponse = await axios.get(`${dmtUrl}/inside_temperature_data?start_date=${startDate}&end_date=${endDate}`);
-                const insideData = insideResponse.data;
-                const insideLabels = insideData.map(entry => entry.date);
-                const insideValues = insideData.map(entry => entry.temperature);
+  const sortedData = sortByTimestamp(data);
 
-                // Fetch outside temperature data
-                const outsideResponse = await axios.get(`${dmtUrl}/outside_temperature_data?start_date=${startDate}&end_date=${endDate}`);
-                const outsideData = outsideResponse.data;
-                const outsideValues = outsideData.map(entry => entry.temperature);
+  // For temperature, use the temperature field, not humidity
+  // If you want to split inside/outside, you must have a way to distinguish them in your data.
+  // For now, just show all as a single line chart.
+  const chartData = {
+    labels: sortedData.map(row => new Date(row.timestamp).toLocaleString()),
+    datasets: [
+      {
+        label: "Temperature (°C)",
+        data: sortedData.map(row => row.temperature),
+        fill: false,
+        borderColor: "rgba(255, 140, 0, 1)",
+        backgroundColor: "rgba(255, 140, 0, 0.2)",
+        tension: 0.1,
+      },
+    ],
+  };
 
-                setChartData({
-                    labels: insideLabels,
-                    datasets: [
-                        {
-                            label: 'Inside Temperature (°C)',
-                            data: insideValues,
-                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                            borderColor: 'rgb(75, 192, 192)',
-                            borderWidth: 1,
-                        },
-                        {
-                            label: 'Outside Temperature (°C)',
-                            data: outsideValues,
-                            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                            borderColor: 'rgb(255, 99, 132)',
-                            borderWidth: 1,
-                        }
-                    ]
-                });
-            } catch (error) {
-                console.error('Error fetching temperature data:', error);
-                setError('Error fetching temperature data');
-            }
-        };
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { display: true, position: "top" },
+      title: { display: true, text: "Temperature Over Time" },
+    },
+    scales: {
+      x: { title: { display: true, text: "Timestamp" } },
+      y: { title: { display: true, text: "Temperature (°C)" }, beginAtZero: false },
+    },
+  };
 
-        checkServerStatus();
-    }, []);
-
-    if (error) {
-        return <div>{error}</div>;  // Display the error message if there's an issue
-    }
-
-    return (
-        <div style={{ marginTop: '5%' }} className="chart">
-            <h2 style={{ textAlign: 'center' }}>Temperature Report</h2>
-            <Bar data={chartData} options={{ responsive: true, plugins: { legend: { position: 'top' }, title: { display: true, text: 'Inside vs Outside Temperature' } } }} />
-        </div>
-    );
+  return (
+    <Container style={{ marginTop: 40 }}>
+      <Card>
+        <CardContent>
+          <Typography variant="h5" gutterBottom>
+            Temperature Data
+          </Typography>
+          <Line data={chartData} options={chartOptions} />
+        </CardContent>
+      </Card>
+    </Container>
+  );
 };
 
 export default TemperatureUsage;
-
