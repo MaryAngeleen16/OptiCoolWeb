@@ -23,4 +23,8 @@ app.use('/api/v1', logRoutes)
 app.use('/api/v1', powerConsumptionRoutes)
 app.use('/api/v1', humidityRoutes)
 app.use('/api/v1', temperatureRoutes) 
+
+const proxyRoutes = require('./routes/proxyRoutes');
+app.use('/api/v1', proxyRoutes);
+
 module.exports = app;

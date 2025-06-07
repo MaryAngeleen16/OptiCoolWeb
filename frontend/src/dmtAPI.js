@@ -32,24 +32,41 @@ const getSensorsStatusesAPI = async () => {
 // };
 
 
+// const getDevicesDataAPI = async () => {
+//     try {
+//       const response = await axios.get(`${dmtUrl}/devices_data`, {
+//         headers: { "Accept": "application/json" }
+//       });
+  
+//       const contentType = response.headers['content-type'];
+//       if (!contentType || !contentType.includes("application/json")) {
+//         throw new Error("Invalid response format: Expected JSON but received something else.");
+//       }
+  
+//       return response.data;
+//     } catch (error) {
+//       console.error("Error fetching devices data:", error);
+//       throw error;
+//     }
+//   };
+  
 const getDevicesDataAPI = async () => {
-    try {
-      const response = await axios.get(`${dmtUrl}/devices_data`, {
-        headers: { "Accept": "application/json" }
-      });
-  
-      const contentType = response.headers['content-type'];
-      if (!contentType || !contentType.includes("application/json")) {
-        throw new Error("Invalid response format: Expected JSON but received something else.");
-      }
-  
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching devices data:", error);
-      throw error;
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API}/api/v1/proxy/devices_data`, {
+      headers: { "Accept": "application/json" }
+    });
+
+    const contentType = response.headers['content-type'];
+    if (!contentType || !contentType.includes("application/json")) {
+      throw new Error("Invalid response format: Expected JSON but received something else.");
     }
-  };
-  
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching devices data:", error);
+    throw error;
+  }
+};
 
 
 
