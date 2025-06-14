@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaThermometerHalf } from "react-icons/fa";
 import dmtAPI from "../../dmtAPI";
 import "./TemperatureDisplay.css";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const TemperatureDisplay = () => {
   const [indoorTemperature, setIndoorTemperature] = useState(null);
@@ -40,7 +42,7 @@ const TemperatureDisplay = () => {
         }
       } catch (err) {
         console.error("Error fetching temperatures/humidity:", err.message);
-        alert("Failed to fetch temperatures/humidity.");
+        toast.error("Failed to fetch temperatures/humidity.");
       }
     };
 
@@ -49,6 +51,7 @@ const TemperatureDisplay = () => {
 
   return (
     <div>
+      <ToastContainer />
       <div className="temperature-container">
         {/* Indoor Temperature */}
         <div className="temperature-box">

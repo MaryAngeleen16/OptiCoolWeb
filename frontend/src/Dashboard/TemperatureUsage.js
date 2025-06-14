@@ -7,7 +7,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import axios from 'axios';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import "chart.js/auto";
 import './StylesUsage.css';
 
@@ -48,17 +48,17 @@ const TemperatureUsage = () => {
       {
         label: "Inside Temperature (°C)",
         data: insideData.map(row => row.temperature),
-        fill: false,
+        backgroundColor: "rgba(0, 123, 255, 0.8)", // more solid blue
         borderColor: "rgba(0, 123, 255, 1)",
-        backgroundColor: "rgba(0, 123, 255, 0.2)",
+        borderWidth: 2,
         tension: 0.1,
       },
       {
         label: "Outside Temperature (°C)",
         data: outsideData.map(row => row.temperature),
-        fill: false,
+        backgroundColor: "rgba(255, 99, 132, 0.8)", // more solid red
         borderColor: "rgba(255, 99, 132, 1)",
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        borderWidth: 2,
         tension: 0.1,
       },
     ],
@@ -92,7 +92,7 @@ const TemperatureUsage = () => {
           <Typography variant="h5" gutterBottom>
             Temperature Data
           </Typography>
-          <Line data={chartData} options={chartOptions} />
+          <Bar data={chartData} options={chartOptions} />
         </CardContent>
       </Card>
     </Container>

@@ -17,34 +17,27 @@ router.get('/proxy/*', async (req, res) => {
   }
 });
 
-// Generic POST proxy (optional, for temperature adjustment etc.)
+
+
+
+// Generic POST proxy
 router.post('/proxy/*', async (req, res) => {
-  const iotPath = req.params[0];
+  const iotPath = req.params[0]; // get the part after /proxy/
   try {
-    const response = await axios.post(`${IOT_BASE_URL}/${iotPath}`, req.body);
-    res.json(response.data);
-  } catch (error) {
-    console.error('Proxy POST Error:', error.message);
-    res.status(500).json({ error: 'Proxy failed to post data.' });
-  }
-});
-
-// Proxy endpoint
-router.get('/iot/inside_humidity_data', async (req, res) => {
-  try {
-    const { start_date, end_date } = req.query;
-
-    // Use IOT_BASE_URL instead of IOT_URL (fix variable name)
-    const response = await axios.get(`${IOT_BASE_URL}/inside_humidity_data`, {
-      params: { start_date, end_date },
-      headers: { Accept: 'application/json' },
+    const response = await axios.post(`${IOT_BASE_URL}/${iotPath}`, req.body, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
-
-    res.json(response.data);
+    res.status(response.status).json(response.data);
   } catch (error) {
-    console.error("Proxy error:", error.message);
-    res.status(500).json({ error: 'Failed to fetch data from IoT server' });
+    console.error('Proxy POST Error:', error.response?.data || error.message);
+    res.status(error.response?.status || 500).json({
+      error: 'Proxy POST failed',
+      details: error.response?.data || error.message,
+    });
   }
 });
+
 
 module.exports = router;
