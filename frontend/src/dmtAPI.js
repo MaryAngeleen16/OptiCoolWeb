@@ -3,56 +3,13 @@ import dmtUrl from "./dmtURL";
 
 
 const getSensorsStatusesAPI = async () => {
-
-    // Sample Data
-    // const data = {
-    //     "sensor1": "Offline",
-    //     "sensor2": "Offline",
-    //     "sensor3": "Offline",
-    //     "sensor4": "Offline",
-    //     "sensor5": "Offline"
-    // }
-
-    const { data } = await axios.get(`${dmtUrl}/sensor_status`)
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/sensor_status`);
     return data;
 };
 
-// const getDevicesDataAPI = async () => {
-
-//     // Sample Data
-//     // const data = {
-//     //     "inside": {
-//     //         "humidity": 0, "temperature": 0
-//     //     },
-//     //     "outside": { "humidity": 0, "temperature": 0 },
-//     //     "power_consumption": 0
-//     // }
-//     const { data } = await axios.get(`${dmtUrl}/devices_data`)
-//     return data;
-// };
-
-
-// const getDevicesDataAPI = async () => {
-//     try {
-//       const response = await axios.get(`${dmtUrl}/devices_data`, {
-//         headers: { "Accept": "application/json" }
-//       });
-  
-//       const contentType = response.headers['content-type'];
-//       if (!contentType || !contentType.includes("application/json")) {
-//         throw new Error("Invalid response format: Expected JSON but received something else.");
-//       }
-  
-//       return response.data;
-//     } catch (error) {
-//       console.error("Error fetching devices data:", error);
-//       throw error;
-//     }
-//   };
-  
 const getDevicesDataAPI = async () => {
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API}/api/v1/proxy/devices_data`, {
+    const response = await axios.get(`${process.env.REACT_APP_API}/proxy/devices_data`, {
       headers: { "Accept": "application/json" }
     });
 
@@ -68,26 +25,15 @@ const getDevicesDataAPI = async () => {
   }
 };
 
-
-
-
-
-
-
-
-
 const getCurrentACTempAPI = async () => {
-    // Sample Data
-    // const data = 20
-    const { data } = await axios.get(`${dmtUrl}/current_ac_temp`)
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/current_ac_temp`);
     return data;
 };
 
 const adjustACFunc = async (adjustType = 'up', adjustNumber) => {
     let acTemp = 0;
     for (let index = 0; index < adjustNumber; index++) {
-
-        const { data } = await axios.post(`${dmtUrl}/adjust_temperature`,
+        const { data } = await axios.post(`${process.env.REACT_APP_API}/proxy/adjust_temperature`,
             {
                 adjustment: adjustType
             }
@@ -98,7 +44,6 @@ const adjustACFunc = async (adjustType = 'up', adjustNumber) => {
 }
 
 const adjustACTempAPI = async (tempValue = 24) => {
-
     const currentTempAC = await getCurrentACTempAPI();
 
     if (tempValue == currentTempAC) {
@@ -130,47 +75,47 @@ const adjustACTempAPI = async (tempValue = 24) => {
 };
 
 const turnOffAllAC = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_off_all_ac`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_off_all_ac`);
     return data;
 }
 
 const turnOnAllAC = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_on_ac_all`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_on_ac_all`);
     return data;
 }
 
 const turnOffEFans = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_off_all_e_fans`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_off_all_e_fans`);
     return data;
 }
 
 const turnOnEFans = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_on_all_e_fans`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_on_all_e_fans`);
     return data;
 }
 
 const turnOffBlower = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_off_blower`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_off_blower`);
     return data;
 }
 
 const turnOnBlower = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_on_blower`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_on_blower`);
     return data;
 }
 
 const turnOffExhaust = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_off_exhaust`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_off_exhaust`);
     return data;
 }
 
 const turnOnExhaust = async () => {
-    const { data } = await axios.get(`${dmtUrl}/turn_on_exhaust`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/turn_on_exhaust`);
     return data;
 }
 
 const getComponentsStatusAPI = async () => {
-    const { data } = await axios.get(`${dmtUrl}/components_status`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/components_status`);
     return data;
 }
 
@@ -225,7 +170,6 @@ const turnOffDevice = async (device = "none", applianceStatus) => {
     return "no selected device"
 }
 
-
 // const getPowerConsumptionAPI = async (startDate, endDate) => {
 //     const { data } = await axios.get(`${dmtUrl}/power_consumption_data?start_date=${startDate}&end_date=${endDate}`);
 //     console.log(data)
@@ -237,7 +181,7 @@ const getPowerConsumptionAPI = async () => {
     const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
 
     try {
-        const { data } = await axios.get(`${dmtUrl}/power_consumption_data?start_date=${earliestDate}&end_date=${today}`);
+        const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/power_consumption_data?start_date=${earliestDate}&end_date=${today}`);
         console.log(data);
         return data;
     } catch (error) {
@@ -246,13 +190,9 @@ const getPowerConsumptionAPI = async () => {
     }
 };
 
-
-
-
-
 //try ko lang 
 const getInsideHumidityDataAPI = async (startDate, endDate) => {
-    const { data } = await axios.get(`${dmtUrl}/inside_humidity_data?start_date=${startDate}&end_date=${endDate}`);
+    const { data } = await axios.get(`${process.env.REACT_APP_API}/proxy/inside_humidity_data?start_date=${startDate}&end_date=${endDate}`);
     console.log(data);
     return data;
 };

@@ -2,10 +2,12 @@ import React, { useState, useEffect } from "react";
 import "./EnergyStatus.css";
 import { FaBolt } from "react-icons/fa";
 import axios from "axios";
+import dmtAPI from "../../dmtAPI";
 
 const EnergyStatus = ({ wattsUsed }) => {
   const [date, setDate] = useState("");
   const [temperature, setTemperature] = useState("--");
+  const [watts, setWatts] = useState("--");
 
   useEffect(() => {
     // Update date every day
@@ -39,7 +41,23 @@ const EnergyStatus = ({ wattsUsed }) => {
       }
     };
 
+    // Fetch power consumption using dmtAPI
+    const fetchPowerConsumption = async () => {
+      try {
+        const data = await dmtAPI.getDevicesDataAPI();
+        if (data && data.power_consumption) {
+          setWatts(data.power_consumption);
+        } else {
+          setWatts("--");
+        }
+      } catch (error) {
+        console.error("Error fetching power consumption:", error.message);
+        setWatts("--");
+      }
+    };
+
     fetchTemperature();
+    fetchPowerConsumption();
   }, []);
 
   return (
@@ -53,7 +71,7 @@ const EnergyStatus = ({ wattsUsed }) => {
       <div className="energy-stats">
         <div className="used">
           <FaBolt className="icon red" />
-          <span className="text">{wattsUsed} watt used</span>
+          <span className="text">{watts} kWh used</span>
         </div>
       </div>
     </div>

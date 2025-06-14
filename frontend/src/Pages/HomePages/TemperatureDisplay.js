@@ -6,9 +6,11 @@ import "./TemperatureDisplay.css";
 const TemperatureDisplay = () => {
   const [indoorTemperature, setIndoorTemperature] = useState(null);
   const [outdoorTemperature, setOutdoorTemperature] = useState(null);
+  const [indoorHumidity, setIndoorHumidity] = useState(null);
+  const [outdoorHumidity, setOutdoorHumidity] = useState(null);
 
   useEffect(() => {
-    const fetchTemperatures = async () => {
+    const fetchData = async () => {
       try {
         // Use the same logic as the dashboard: fetch from dmtAPI
         const devicesData = await dmtAPI.getDevicesDataAPI();
@@ -24,38 +26,74 @@ const TemperatureDisplay = () => {
           setOutdoorTemperature(null);
           console.warn("Invalid outside temperature structure");
         }
+        if (devicesData && devicesData.inside && devicesData.inside.humidity !== undefined) {
+          setIndoorHumidity(devicesData.inside.humidity);
+        } else {
+          setIndoorHumidity(null);
+          console.warn("Invalid inside humidity structure");
+        }
+        if (devicesData && devicesData.outside && devicesData.outside.humidity !== undefined) {
+          setOutdoorHumidity(devicesData.outside.humidity);
+        } else {
+          setOutdoorHumidity(null);
+          console.warn("Invalid outside humidity structure");
+        }
       } catch (err) {
-        console.error("Error fetching temperatures:", err.message);
-        alert("Failed to fetch temperatures.");
+        console.error("Error fetching temperatures/humidity:", err.message);
+        alert("Failed to fetch temperatures/humidity.");
       }
     };
 
-    fetchTemperatures();
+    fetchData();
   }, []);
 
   return (
-    <div className="temperature-container">
-      {/* Indoor Temperature */}
-      <div className="temperature-box">
-        <div className="temperature-content">
-          <div className="temp-info">
-            <span className="label">Indoor temperature</span>
-            <span className="temp">{indoorTemperature !== null ? `${indoorTemperature}°C` : "---°C"}</span>
+    <div>
+      <div className="temperature-container">
+        {/* Indoor Temperature */}
+        <div className="temperature-box">
+          <div className="temperature-content">
+            <div className="temp-info">
+              <span className="label">Indoor temperature</span>
+              <span className="temp">{indoorTemperature !== null ? `${indoorTemperature}°C` : "---°C"}</span>
+            </div>
           </div>
-          {/* <FaThermometerHalf className="icon" /> */}
+        </div>
+
+        <div className="divider"></div>
+
+        {/* Outdoor Temperature */}
+        <div className="temperature-box">
+          <div className="temperature-content">
+            <div className="temp-info">
+              <span className="label">Outdoor temperature</span>
+              <span className="temp">{outdoorTemperature !== null ? `${outdoorTemperature}°C` : "---°C"}</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div className="divider"></div>
-
-      {/* Outdoor Temperature */}
-      <div className="temperature-box">
-        <div className="temperature-content">
-          <div className="temp-info">
-            <span className="label">Outdoor temperature</span>
-            <span className="temp">{outdoorTemperature !== null ? `${outdoorTemperature}°C` : "---°C"}</span>
+      <div className="temperature-container" style={{ marginTop: 24 }}>
+        {/* Indoor Humidity */}
+        <div className="temperature-box">
+          <div className="temperature-content">
+            <div className="temp-info">
+              <span className="label">Indoor humidity</span>
+              <span className="temp">{indoorHumidity !== null ? `${indoorHumidity}%` : "---%"}</span>
+            </div>
           </div>
-          {/* <FaThermometerHalf className="icon" /> */}
+        </div>
+
+        <div className="divider"></div>
+
+        {/* Outdoor Humidity */}
+        <div className="temperature-box">
+          <div className="temperature-content">
+            <div className="temp-info">
+              <span className="label">Outdoor humidity</span>
+              <span className="temp">{outdoorHumidity !== null ? `${outdoorHumidity}%` : "---%"}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
