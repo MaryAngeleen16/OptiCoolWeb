@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Assuming you use Axios for API requests
-import Header from '../../Components/Layouts/Header';
-
+import axios from 'axios';
+import Sidebar from '../../Components/Layouts/Sidebar'; 
 const ActiveUsers = () => {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState(null);
@@ -9,7 +8,7 @@ const ActiveUsers = () => {
   useEffect(() => {
     const fetchActiveUsers = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API}/users/all`); // Corrected URL to use baseURL
+        const response = await axios.get(`${process.env.REACT_APP_API}/users/all`);
         setUsers(response.data.users);
       } catch (err) {
         console.error(err);
@@ -32,8 +31,8 @@ const ActiveUsers = () => {
 
   return (
     <div style={styles.container}>
-      <Header />
-      <h1 style={styles.title}>Active Users</h1>
+ 
+  <h1 style={styles.title}>Active Users</h1>
       <table style={styles.table}>
         <thead>
           <tr>
@@ -54,19 +53,21 @@ const ActiveUsers = () => {
           ))}
         </tbody>
       </table>
+           <Sidebar />
     </div>
   );
 };
 
 const styles = {
   container: {
-    padding: '20px',
     backgroundColor: '#f8f9fa',
   },
   title: {
     fontSize: '24px',
     fontWeight: 'bold',
     marginBottom: '20px',
+    paddingLeft: '10%',
+    paddingTop: '5%',
   },
   table: {
     width: '80%',

@@ -1,65 +1,59 @@
-import { useEffect, useState } from 'react';
-import {
-  Container,
-  Card,
-  CardContent,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
-import axios from 'axios';
-import { Bar } from 'react-chartjs-2';
+import { useEffect, useState } from "react";
+import { Container, Card, CardContent, Typography, CircularProgress } from "@mui/material";
+import axios from "axios";
+import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
-import './StylesUsage.css';
+import "./StylesUsage.css";
 
-// Helper function to sort data by timestamp ascending
 function sortByTimestamp(data) {
   return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
 const TemperatureUsage = () => {
-  const [data, setData] = useState([]);
+  const [insideData, setInsideData] = useState([]);
+  const [outsideData, setOutsideData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API}/gettemperature`)
-      .then(res => {
-        console.log("Fetched temperature data:", res.data); // Debug: log the data
-        setData(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
+    const fetchTemps = async () => {
+      try {
+        const [insideRes, outsideRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API}/insidetemperatures`),
+          axios.get(`${process.env.REACT_APP_API}/outsidetemperatures`)
+        ]);
+        setInsideData(sortByTimestamp(insideRes.data));
+        setOutsideData(sortByTimestamp(outsideRes.data));
+      } catch (err) {
         console.error("Error fetching temperature data:", err);
+      } finally {
         setLoading(false);
-      });
+      }
+    };
+    fetchTemps();
   }, []);
 
   if (loading) return <CircularProgress />;
 
-  const sortedData = sortByTimestamp(data);
-
-  // Split data into two halves: inside and outside
-  const half = Math.floor(sortedData.length / 2);
-  const insideData = sortedData.slice(0, half);
-  const outsideData = sortedData.slice(half);
+  // Use the shorter length for labels to avoid mismatch
+  const minLen = Math.min(insideData.length, outsideData.length);
+  const labels = insideData.slice(0, minLen).map(row => new Date(row.timestamp).toLocaleString());
 
   const chartData = {
-    labels: insideData.map(row => new Date(row.timestamp).toLocaleString()), // assuming same timestamps
+    labels,
     datasets: [
       {
         label: "Inside Temperature (°C)",
-        data: insideData.map(row => row.temperature),
-        backgroundColor: "rgba(0, 123, 255, 0.8)", // more solid blue
+        data: insideData.slice(0, minLen).map(row => row.temperature),
+        backgroundColor: "rgba(0, 123, 255, 0.8)",
         borderColor: "rgba(0, 123, 255, 1)",
         borderWidth: 2,
-        tension: 0.1,
       },
       {
         label: "Outside Temperature (°C)",
-        data: outsideData.map(row => row.temperature),
-        backgroundColor: "rgba(255, 99, 132, 0.8)", // more solid red
+        data: outsideData.slice(0, minLen).map(row => row.temperature),
+        backgroundColor: "rgba(255, 99, 132, 0.8)",
         borderColor: "rgba(255, 99, 132, 1)",
         borderWidth: 2,
-        tension: 0.1,
       },
     ],
   };
@@ -75,12 +69,6 @@ const TemperatureUsage = () => {
       y: {
         title: { display: true, text: "Temperature (°C)" },
         beginAtZero: true,
-        ticks: {
-          stepSize: 10, // increments by 10
-          callback: function(value) {
-            return value; // show the value as is
-          }
-        },
       },
     },
   };

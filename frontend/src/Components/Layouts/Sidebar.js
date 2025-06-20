@@ -52,7 +52,7 @@ function Sidebar() {
 
   const menuItems = [
     { icon: <HomeIcon style={{ fontSize: 25 }} />, route: "/home", label: "Home" },
-    { icon: <RoomIcon style={{ fontSize: 25 }} />, route: "/manageRoom", label: "Manage Room" },
+    // { icon: <RoomIcon style={{ fontSize: 25 }} />, route: "/manageRoom", label: "Manage Room" },
     { icon: <DashboardIcon style={{ fontSize: 25 }} />, route: "/dashboard", label: "Dashboard" },
     { icon: <AccountCircleIcon style={{ fontSize: 25 }} />, route: "/me", label: "Profile" },
   
