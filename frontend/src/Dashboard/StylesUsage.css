@@ -34,5 +34,22 @@
     border-radius: 8px;
 }
 
+.tempusage-dropdown {
+  min-width: 140px;
+  margin-bottom: 18px;
+  margin-right: 18px;
+}
+
+.tempusage-chart-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.tempusage-chart-scroll canvas {
+  min-width: 600px;
+  max-width: 100%;
+}
+
 
 

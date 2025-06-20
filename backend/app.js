@@ -30,4 +30,10 @@ app.use('/api/v1', proxyRoutes);
 
 const outsideTemperatureRoutes = require('./routes/outsideTemperatureRoutes');
 app.use('/api/v1', outsideTemperatureRoutes);
+
+
+const insideTemperatureRoutes = require('./routes/insideTemperatureRoutes');
+app.use('/api/v1', insideTemperatureRoutes);
+
+
 module.exports = app;
