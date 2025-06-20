@@ -36,4 +36,10 @@ const insideTemperatureRoutes = require('./routes/insideTemperatureRoutes');
 app.use('/api/v1', insideTemperatureRoutes);
 
 
+const insideHumidityRoutes = require('./routes/insideHumidityRoutes');
+const outsideHumidityRoutes = require('./routes/outsideHumidityRoutes');
+app.use('/api/v1', insideHumidityRoutes);
+app.use('/api/v1', outsideHumidityRoutes);
+
+
 module.exports = app;
