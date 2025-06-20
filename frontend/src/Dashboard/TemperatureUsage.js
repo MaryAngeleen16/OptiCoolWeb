@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import { Container, Card, CardContent, Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
-import axios from "axios";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 import "./StylesUsage.css";
@@ -59,27 +59,45 @@ function alignGroupedData(grouped1, grouped2) {
 }
 
 const TemperatureUsage = () => {
-  const [outsideData, setOutsideData] = useState([]);
-  const [insideData, setInsideData] = useState([]);
+  const [insideTemperature, setInsideTemperature] = useState([]);
+  const [outsideTemperature, setOutsideTemperature] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("daily"); // "daily" or "monthly"
 
   useEffect(() => {
-    const fetchTemps = async () => {
+    const fetchTemperatures = async () => {
       try {
-        const [outsideRes, insideRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API}/outsidetemperatures`),
-          axios.get(`${process.env.REACT_APP_API}/insidetemperatures`)
-        ]);
-        setOutsideData(sortByTimestamp(outsideRes.data));
-        setInsideData(sortByTimestamp(insideRes.data));
+        // Fetch inside temperatures
+        const insidePromise = axios.get(`${process.env.REACT_APP_API}/insidetemperatures`);
+        // Fetch outside temperatures
+        const outsidePromise = axios.get(`${process.env.REACT_APP_API}/outsidetemperatures`);
+        // Fetch gettemperature
+        const getTemperaturePromise = axios.get(`${process.env.REACT_APP_API}/gettemperature`);
+
+        Promise.all([insidePromise, outsidePromise, getTemperaturePromise])
+          .then(([insideRes, outsideRes, getTemperatureRes]) => {
+            const insideData = Array.isArray(insideRes.data) ? insideRes.data : [];
+            const outsideData = Array.isArray(outsideRes.data) ? outsideRes.data : [];
+            const getTemperatureData = Array.isArray(getTemperatureRes.data) ? getTemperatureRes.data : [];
+
+            // Split getTemperatureData into inside/outside by temperature value
+            const sorted = [...getTemperatureData].sort((a, b) => a.temperature - b.temperature);
+            const mid = Math.floor(sorted.length / 2);
+            const getTemperatureInside = sorted.slice(0, mid);
+            const getTemperatureOutside = sorted.slice(mid);
+
+            // Merge
+            setInsideTemperature([...insideData, ...getTemperatureInside]);
+            setOutsideTemperature([...outsideData, ...getTemperatureOutside]);
+          })
+          .catch(error => console.error('Error fetching temperature data:', error));
       } catch (err) {
         console.error("Error fetching temperature data:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchTemps();
+    fetchTemperatures();
   }, []);
 
   if (loading) return <CircularProgress />;
@@ -87,13 +105,13 @@ const TemperatureUsage = () => {
   // Group data based on view mode
   const groupedOutside =
     viewMode === "daily"
-      ? groupByDayAverage(outsideData)
-      : groupByMonthAverage(outsideData);
+      ? groupByDayAverage(outsideTemperature)
+      : groupByMonthAverage(outsideTemperature);
 
   const groupedInside =
     viewMode === "daily"
-      ? groupByDayAverage(insideData)
-      : groupByMonthAverage(insideData);
+      ? groupByDayAverage(insideTemperature)
+      : groupByMonthAverage(insideTemperature);
 
   // Align by key (date or month)
   const aligned = alignGroupedData(groupedOutside, groupedInside);
@@ -119,8 +137,8 @@ const TemperatureUsage = () => {
             ? "Daily Avg Inside Temperature (°C)"
             : "Monthly Avg Inside Temperature (°C)",
         data: aligned.map(row => row.avg2),
-        backgroundColor: "rgba(0, 123, 255, 0.8)",
-        borderColor: "rgba(0, 123, 255, 1)",
+        backgroundColor: "rgba(54, 162, 235, 0.8)",
+        borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 2,
       },
     ],
@@ -142,16 +160,16 @@ const TemperatureUsage = () => {
       x: { title: { display: true, text: viewMode === "daily" ? "Day" : "Month" } },
       y: {
         title: { display: true, text: "Temperature (°C)" },
-        beginAtZero: true,
+        beginAtZero: false,
       },
     },
   };
 
   return (
-    <Container style={{ marginTop: 40 }}>
+    <Container className="temperature-usage-container">
       <Card>
         <CardContent>
-          <Typography variant="h5" gutterBottom>
+          <Typography className="title" gutterBottom>
             {viewMode === "daily"
               ? "Daily Average Inside & Outside Temperature"
               : "Monthly Average Inside & Outside Temperature"}
@@ -168,7 +186,7 @@ const TemperatureUsage = () => {
               <MenuItem value="monthly">Monthly</MenuItem>
             </Select>
           </FormControl>
-          <div className="tempusage-chart-scroll">
+          <div className="chart-container tempusage-chart-scroll">
             <Bar data={chartData} options={chartOptions} />
           </div>
         </CardContent>
