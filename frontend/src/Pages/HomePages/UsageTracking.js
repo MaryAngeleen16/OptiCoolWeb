@@ -1,179 +1,84 @@
-import { useEffect, useState } from "react";
-import {
-  Container,
-  Card,
-  CardContent,
-  Typography,
-  CircularProgress,
-} from "@mui/material";
-import axios from "axios";
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { Container, Card, CardContent, Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
+import "./UsageTracking.css"; // Adjust the path as needed
 
 function sortByTimestamp(data) {
   return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
-function groupByMonth(data) {
-  const grouped = {};
-  data.forEach((row) => {
-    const d = new Date(row.timestamp);
-    const key = `${d.getFullYear()}-${d.getMonth()}`;
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(row.consumption);
+// Helper to group by day and calculate average
+function groupByDayAverage(data) {
+  const daily = {};
+  data.forEach(row => {
+    const date = new Date(row.timestamp);
+    const key = date.toISOString().slice(0, 10); // YYYY-MM-DD
+    if (!daily[key]) daily[key] = [];
+    daily[key].push(Number(row.powerConsumption));
   });
-
-  const sorted = Object.entries(grouped).sort(([a], [b]) => {
-    const [aYear, aMonth] = a.split("-").map(Number);
-    const [bYear, bMonth] = b.split("-").map(Number);
-    return aYear !== bYear ? aYear - bYear : aMonth - bMonth;
-  });
-
-  return sorted.map(([key, vals]) => {
-    const [year, monthIdx] = key.split("-");
-    const date = new Date(year, monthIdx);
-    const label = date.toLocaleString("default", {
-      month: "short",
-      year: "numeric",
+  return Object.entries(daily)
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .map(([key, vals]) => {
+      const label = new Date(key).toLocaleDateString("default", { month: "short", day: "numeric", year: "numeric" });
+      const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+      return { key, label, avg: Number(avg.toFixed(2)) };
     });
-    return {
-      label,
-      value: vals.reduce((a, b) => a + b, 0) / vals.length,
-      timestamp: date,
-    };
-  });
 }
 
-function UsageTracking() {
-  const [monthlyData, setMonthlyData] = useState([]);
+// Helper to group by month and calculate average
+function groupByMonthAverage(data) {
+  const monthly = {};
+  data.forEach(row => {
+    const date = new Date(row.timestamp);
+    const key = `${date.getFullYear()}-${date.getMonth() + 1}`; // e.g. "2025-6"
+    if (!monthly[key]) monthly[key] = [];
+    monthly[key].push(Number(row.powerConsumption));
+  });
+  return Object.entries(monthly)
+    .sort(([a], [b]) => new Date(a) - new Date(b))
+    .map(([key, vals]) => {
+      const [year, month] = key.split("-");
+      const label = `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
+      return { key, label, avg: Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2)) };
+    });
+}
+
+const PowerConsumptionUsage = () => {
+  const [powerData, setPowerData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [predictionPoints, setPredictionPoints] = useState([]);
+  const [viewMode, setViewMode] = useState("daily"); // "daily" or "monthly"
 
   useEffect(() => {
-    const dummyData = [];
-    const startYear = 2024;
-    const startMonth = 9; // October (0-based)
-    const endMonth = 4; // May (0-based, in 2025)
-
-    for (let m = startMonth; m <= 11; m++) {
-      const date = new Date(startYear, m, 1);
-      const consumption = 80 + Math.random() * 40;
-      dummyData.push({
-        timestamp: date.toISOString(),
-        consumption,
-      });
-    }
-
-    for (let m = 0; m <= endMonth; m++) {
-      const date = new Date(startYear + 1, m, 1);
-      const consumption = 80 + Math.random() * 40;
-      dummyData.push({
-        timestamp: date.toISOString(),
-        consumption,
-      });
-    }
-
-    const sorted = sortByTimestamp(dummyData);
-    const grouped = groupByMonth(sorted);
-    setMonthlyData(grouped);
-
-    axios
-      .post(`${process.env.REACT_APP_FLASK_API}/predictpower`, sorted)
-      .then((predRes) => {
-        const preds = predRes.data.map((p) => {
-          const d = new Date(p.timestamp);
-          return {
-            label: d.toLocaleString("default", {
-              month: "short",
-              year: "numeric",
-            }),
-            value: p.consumption,
-            yhat_lower: p.yhat_lower,
-            yhat_upper: p.yhat_upper,
-            timestamp: d,
-          };
-        });
-        setPredictionPoints(preds);
+    axios.get(`${process.env.REACT_APP_API}/powerconsumptions`)
+      .then(response => {
+        setPowerData(Array.isArray(response.data) ? sortByTimestamp(response.data) : []);
       })
-      .catch((err) => {
-        console.error("Error fetching prediction:", err);
-      })
+      .catch(error => console.error('Error fetching power consumption data:', error))
       .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <CircularProgress />;
 
-  const combined = [...monthlyData, ...predictionPoints];
-  const uniqueLabels = Array.from(new Set(combined.map((item) => item.label)));
+  const grouped =
+    viewMode === "daily"
+      ? groupByDayAverage(powerData)
+      : groupByMonthAverage(powerData);
 
-  const actualMap = Object.fromEntries(
-    monthlyData.map((p) => [p.label, p.value])
-  );
-  const predictionMap = Object.fromEntries(
-    predictionPoints.map((p) => [p.label, p.value])
-  );
-  const predictionLowerMap = Object.fromEntries(
-    predictionPoints.map((p) => [p.label, p.yhat_lower])
-  );
-  const predictionUpperMap = Object.fromEntries(
-    predictionPoints.map((p) => [p.label, p.yhat_upper])
-  );
-
-  const actualData = uniqueLabels.map((label) => actualMap[label] ?? null);
-  const predictedData = uniqueLabels.map((label) => predictionMap[label] ?? null);
-  const predictedLower = uniqueLabels.map(
-    (label) => predictionLowerMap[label] ?? null
-  );
-  const predictedUpper = uniqueLabels.map(
-    (label) => predictionUpperMap[label] ?? null
-  );
-
-  // We'll create a dataset for the uncertainty band (yhat_upper - yhat_lower)
-  // Chart.js doesn't support error bars natively but we can simulate an area by stacking two datasets:
-  // We'll create a "lower band" dataset that fills to the top with the "upper band" dataset.
-
-  // Data for the uncertainty band = upper - lower
-  const uncertaintyRange = predictedUpper.map((up, i) =>
-    up !== null && predictedLower[i] !== null ? up - predictedLower[i] : null
-  );
-
+  const labels = grouped.map(row => row.label);
   const chartData = {
-    labels: uniqueLabels,
+    labels,
     datasets: [
       {
-        label: "Monthly Avg Power Consumption",
-        data: actualData,
-        backgroundColor: "rgba(54, 162, 235, 0.7)",
-        borderColor: "rgba(54, 162, 235, 1)",
-        borderWidth: 1,
-        type: "bar",
-      },
-      {
-        label: "Prediction (Next 6 Months)",
-        data: predictedData,
-        backgroundColor: "rgba(255, 206, 86, 0.7)", // yellowish bars
-        borderColor: "rgba(255, 206, 86, 1)",
-        borderWidth: 1,
-        type: "bar",
-      },
-      {
-        label: "Prediction Lower Bound",
-        data: predictedLower,
-        backgroundColor: "transparent",
-        borderColor: "transparent",
-        stack: "stack1",
-        type: "bar",
-        order: 1,
-      },
-      {
-        label: "Prediction Uncertainty Range",
-        data: uncertaintyRange,
-        backgroundColor: "rgba(69, 62, 45, 0.3)", // lighter yellow
-        borderColor: "transparent",
-        stack: "stack1",
-        type: "bar",
-        order: 0,
-        // This will create a shaded area for uncertainty on top of lower bound
+        label:
+          viewMode === "daily"
+            ? "Daily Avg Power Consumption (kWh)"
+            : "Monthly Avg Power Consumption (kWh)",
+        data: grouped.map(row => row.avg),
+        backgroundColor: "rgba(255, 159, 64, 0.8)",
+        borderColor: "rgba(255, 159, 64, 1)",
+        borderWidth: 2,
       },
     ],
   };
@@ -182,26 +87,51 @@ function UsageTracking() {
     responsive: true,
     plugins: {
       legend: { display: true, position: "top" },
-      title: { display: true, text: "Power Consumption Forecast" },
+      title: {
+        display: true,
+        text:
+          viewMode === "daily"
+            ? "Daily Average Power Consumption"
+            : "Monthly Average Power Consumption",
+      },
     },
     scales: {
-      x: { title: { display: true, text: "Month" } },
-      y: { title: { display: true, text: "Consumption" }, beginAtZero: true },
+      x: { title: { display: true, text: viewMode === "daily" ? "Day" : "Month" } },
+      y: {
+        title: { display: true, text: "Power Consumption (kWh)" },
+        beginAtZero: false,
+      },
     },
   };
 
   return (
-    <Container style={{ marginTop: 40 }}>
+    <Container className="temperature-usage-container">
       <Card>
         <CardContent>
-          <Typography variant="h5" gutterBottom>
-            Power Consumption Data & 6-Month Forecast (Dummy Data Test)
+          <Typography className="title" gutterBottom>
+            {viewMode === "daily"
+              ? "Daily Average Power Consumption"
+              : "Monthly Average Power Consumption"}
           </Typography>
-          <Bar data={chartData} options={chartOptions} />
+          <FormControl className="tempusage-dropdown" size="small">
+            <InputLabel id="view-mode-label">View</InputLabel>
+            <Select
+              labelId="view-mode-label"
+              value={viewMode}
+              label="View"
+              onChange={e => setViewMode(e.target.value)}
+            >
+              <MenuItem value="daily">Daily</MenuItem>
+              <MenuItem value="monthly">Monthly</MenuItem>
+            </Select>
+          </FormControl>
+          <div className="chart-container tempusage-chart-scroll">
+            <Bar data={chartData} options={chartOptions} />
+          </div>
         </CardContent>
       </Card>
     </Container>
   );
-}
+};
 
-export default UsageTracking;
+export default PowerConsumptionUsage;

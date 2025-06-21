@@ -1,26 +1,24 @@
-const PowerConsumption = require("../models/PowerConsumption");
+const PowerConsumption = require('../models/PowerConsumption');
 
-// Fetch all power consumption data
+// GET /powerconsumptions - Get all power consumption records
 exports.getAllPowerConsumptions = async (req, res) => {
   try {
-    const powerData = await PowerConsumption.find().sort({ timestamp: -1 }); // Sort by latest
-    res.status(200).json(powerData);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching power consumption data", error });
+    const consumptions = await PowerConsumption.find().sort({ timestamp: 1 });
+    res.json(consumptions);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch power consumption data.' });
   }
 };
 
-// Fetch power consumption between specific dates
-exports.getPowerConsumptionByDate = async (req, res) => {
+// POST /powerconsumptions - Add a new power consumption record
+exports.addPowerConsumption = async (req, res) => {
   try {
-    const { start, end } = req.query; // Get dates from query params
-    const powerData = await PowerConsumption.find({
-      timestamp: { $gte: new Date(start), $lte: new Date(end) },
-    }).sort({ timestamp: 1 });
-
-    res.status(200).json(powerData);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching power data", error });
+    const { consumption, timestamp } = req.body;
+    const newConsumption = new PowerConsumption({ consumption, timestamp });
+    await newConsumption.save();
+    res.status(201).json(newConsumption);
+  } catch (err) {
+    res.status(400).json({ error: 'Failed to add power consumption data.' });
   }
 };
 
