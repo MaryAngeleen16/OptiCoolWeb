@@ -1,9 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { getAllPowerConsumptions, addPowerConsumption} = require("../controllers/powerConsumptionController");
-
-// Route to fetch all power consumption data
-router.get('/getpowerconsumption', getAllPowerConsumptions);
+const { getAllPowerConsumptions} = require("../controllers/powerConsumptionController");
 
 
 

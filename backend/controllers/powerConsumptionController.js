@@ -1,5 +1,4 @@
 const PowerConsumption = require('../models/PowerConsumption');
-
 // GET /powerconsumptions - Get all power consumption records
 exports.getAllPowerConsumptions = async (req, res) => {
   try {

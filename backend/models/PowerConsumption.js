@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
 
-const powerConsumptionSchema = new mongoose.Schema({
-  consumption: { type: Number, required: true }, // Power consumption value
-  timestamp: { type: Date, default: Date.now }, // Time of recording
+const powerconsumptionSchema = new mongoose.Schema({
+  consumption: { type: Number, required: true },
+  timestamp: { type: Date, required: true }
 });
 
-const PowerConsumption = mongoose.model("PowerConsumption", powerConsumptionSchema);
+const PowerConsumption = mongoose.model("PowerConsumption", powerconsumptionSchema);
 
 module.exports = PowerConsumption;

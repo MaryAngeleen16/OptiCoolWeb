@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Container, Card, CardContent, Typography, CircularProgress, FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
-import "./UsageTracking.css"; // Adjust the path as needed
+import "./UsageTracking.css";
 
 function sortByTimestamp(data) {
   return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
@@ -16,7 +16,7 @@ function groupByDayAverage(data) {
     const date = new Date(row.timestamp);
     const key = date.toISOString().slice(0, 10); // YYYY-MM-DD
     if (!daily[key]) daily[key] = [];
-    daily[key].push(Number(row.powerConsumption));
+    daily[key].push(Number(row.consumption));
   });
   return Object.entries(daily)
     .sort(([a], [b]) => new Date(a) - new Date(b))
@@ -34,7 +34,7 @@ function groupByMonthAverage(data) {
     const date = new Date(row.timestamp);
     const key = `${date.getFullYear()}-${date.getMonth() + 1}`; // e.g. "2025-6"
     if (!monthly[key]) monthly[key] = [];
-    monthly[key].push(Number(row.powerConsumption));
+    monthly[key].push(Number(row.consumption));
   });
   return Object.entries(monthly)
     .sort(([a], [b]) => new Date(a) - new Date(b))
@@ -53,7 +53,7 @@ const PowerConsumptionUsage = () => {
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API}/powerconsumptions`)
       .then(response => {
-        setPowerData(Array.isArray(response.data) ? sortByTimestamp(response.data) : []);
+        setPowerData(Array.isArray(response.data) ? response.data : []);
       })
       .catch(error => console.error('Error fetching power consumption data:', error))
       .finally(() => setLoading(false));
@@ -105,7 +105,7 @@ const PowerConsumptionUsage = () => {
   };
 
   return (
-    <Container className="temperature-usage-container">
+    <Container className="usage-tracking-container">
       <Card>
         <CardContent>
           <Typography className="title" gutterBottom>
