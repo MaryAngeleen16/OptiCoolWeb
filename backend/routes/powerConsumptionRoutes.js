@@ -7,7 +7,7 @@ router.get('/getpowerconsumption', getAllPowerConsumptions);
 
 
 
-router.get('/powerconsumptions', addPowerConsumption);
+router.get('/powerconsumptions', getAllPowerConsumptions);
 
 
 module.exports = router;
