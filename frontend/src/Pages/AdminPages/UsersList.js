@@ -89,13 +89,16 @@
 //         fetchAllUsers();
 //     }, []);
 
+//     // Sort users from newest to oldest before rendering
+//     const sortedUsers = [...tableData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
 //     return (
 //         <div>
 //             <Header />
 //             <Container sx={{ mt: 15 }}>
 //                 <DataTable
 //                     className="display"
-//                     data={tableData}
+//                     data={sortedUsers}
 //                     options={{}}
 //                     columns={[
 //                         { data: 'avatar.url' },
@@ -267,6 +270,9 @@ export default function UsersList() {
         fetchAllUsers();
     }, []);
 
+    // Sort users from newest to oldest before rendering
+    const sortedUsers = [...tableData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
     return (
         <div>
             <Header />
@@ -275,7 +281,7 @@ export default function UsersList() {
                 <h2>Users</h2>
                 <DataTable
                     className="display"
-                    data={tableData}
+                    data={sortedUsers}
                     options={{}}
                     columns={[
                         { data: 'avatar.url' },

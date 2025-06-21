@@ -5,6 +5,7 @@ import { FaUserCircle } from "react-icons/fa";
 import dmtAPI from "../../dmtAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSelector } from "react-redux";
 
 const DashboardContainer = () => {
   const [userList, setUserList] = useState([]);
@@ -12,6 +13,7 @@ const DashboardContainer = () => {
   const [deviceStatus, setDeviceStatus] = useState({}); // Track on/off status
   const [currentACTemp, setCurrentACTemp] = useState("--"); // Add state for AC temp
   const [acInputTemp, setAcInputTemp] = useState(""); // State for input field
+  const { user } = useSelector(state => state.auth);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -49,6 +51,23 @@ const DashboardContainer = () => {
     { name: "Blower", icon: "💨", color: "pink" },
   ];
 
+  // Log user action (copy from ManageRoom.js)
+  const logUserAction = async (action) => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API}/userlogs`, {
+        user: user._id ? user._id : "Missing ID",
+        action,
+        timestamp: new Date().toISOString(),
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      console.error('Error logging user action:', error);
+    }
+  };
+
   // Handler for turning device on/off
   const handleDeviceAction = async (deviceName, action) => {
     try {
@@ -66,6 +85,7 @@ const DashboardContainer = () => {
         [deviceName]: action === "on",
       }));
       toast.success(`${deviceName} turned ${action.toUpperCase()} successfully!`);
+      logUserAction(`Turned ${action === "on" ? "On" : "Off"} ${deviceName}`);
     } catch (err) {
       toast.error(`Failed to turn ${action} ${deviceName}`);
     }
