@@ -246,7 +246,7 @@ export default function UsagePDFButton() {
 
   return (
     <>
-      <div style={{ display: 'flex', marginLeft: '70%', margin: '24px 0 0 0' }}>
+      <div style={{ marginLeft: '70%', margin: '24px 0 0 0' }}>
         <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
           Export Usage PDF
         </Button>
@@ -306,8 +306,8 @@ export default function UsagePDFButton() {
                     <TableHead>
                       <TableRow>
                         <TableCell>Date</TableCell>
-                        <TableCell>Inside Temp (°C)</TableCell>
-                        <TableCell>Outside Temp (°C)</TableCell>
+                        <TableCell>Inside Temperature (°C)</TableCell>
+                        <TableCell>Outside Temprature (°C)</TableCell>
                         <TableCell>Inside Humidity (%)</TableCell>
                         <TableCell>Outside Humidity (%)</TableCell>
                         <TableCell>Power Consumption (kWh)</TableCell>
