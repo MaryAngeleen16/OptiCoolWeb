@@ -190,34 +190,28 @@ export default function UsagePDFButton() {
     },
   });
 
+  // Dynamically build table headers and rows based on selected usages
+  const tableHeaders = [
+    'Date',
+    ...(selectedUsages.tempHum ? ['Inside Temp (°C)', 'Outside Temp (°C)', 'Inside Humidity (%)', 'Outside Humidity (%)'] : []),
+    ...(selectedUsages.power ? ['Power Consumption (kWh)'] : [])
+  ];
+
+  const tableRows = mergedRows.map(row => [
+    row.date,
+    ...(selectedUsages.tempHum ? [row.insideTemp, row.outsideTemp, row.insideHum, row.outsideHum] : []),
+    ...(selectedUsages.power ? [row.power] : [])
+  ]);
+
   // PDF Export Handler
   const handleSavePDF = async () => {
     const pdf = new jsPDF('p', 'mm', 'a4');
     pdf.setFontSize(12);
     pdf.text('Usage Data Table', 10, 10);
 
-    // Prepare table headers and rows
-    const headers = [
-      'Date',
-      'Inside Temp (°C)',
-      'Outside Temp (°C)',
-      'Inside Humidity (%)',
-      'Outside Humidity (%)',
-      'Power Consumption (kWh)'
-    ];
-    const rows = mergedRows.map(row => [
-      row.date,
-      row.insideTemp,
-      row.outsideTemp,
-      row.insideHum,
-      row.outsideHum,
-      row.power
-    ]);
-
-    // Add table using autoTable
     autoTable(pdf, {
-      head: [headers],
-      body: rows,
+      head: [tableHeaders],
+      body: tableRows,
       startY: 16,
       styles: { fontSize: 10, cellPadding: 2 },
       headStyles: { fillColor: [33, 150, 243] }
@@ -306,22 +300,34 @@ export default function UsagePDFButton() {
                     <TableHead>
                       <TableRow>
                         <TableCell>Date</TableCell>
-                        <TableCell>Inside Temperature (°C)</TableCell>
-                        <TableCell>Outside Temprature (°C)</TableCell>
-                        <TableCell>Inside Humidity (%)</TableCell>
-                        <TableCell>Outside Humidity (%)</TableCell>
-                        <TableCell>Power Consumption (kWh)</TableCell>
+                        {selectedUsages.tempHum && (
+                          <>
+                            <TableCell>Inside Temperature (°C)</TableCell>
+                            <TableCell>Outside Temprature (°C)</TableCell>
+                            <TableCell>Inside Humidity (%)</TableCell>
+                            <TableCell>Outside Humidity (%)</TableCell>
+                          </>
+                        )}
+                        {selectedUsages.power && (
+                          <TableCell>Power Consumption (kWh)</TableCell>
+                        )}
                       </TableRow>
                     </TableHead>
                     <TableBody>
                       {mergedRows.map((row, idx) => (
                         <TableRow key={idx}>
                           <TableCell>{row.date}</TableCell>
-                          <TableCell>{row.insideTemp}</TableCell>
-                          <TableCell>{row.outsideTemp}</TableCell>
-                          <TableCell>{row.insideHum}</TableCell>
-                          <TableCell>{row.outsideHum}</TableCell>
-                          <TableCell>{row.power}</TableCell>
+                          {selectedUsages.tempHum && (
+                            <>
+                              <TableCell>{row.insideTemp}</TableCell>
+                              <TableCell>{row.outsideTemp}</TableCell>
+                              <TableCell>{row.insideHum}</TableCell>
+                              <TableCell>{row.outsideHum}</TableCell>
+                            </>
+                          )}
+                          {selectedUsages.power && (
+                            <TableCell>{row.power}</TableCell>
+                          )}
                         </TableRow>
                       ))}
                     </TableBody>
