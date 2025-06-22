@@ -18,6 +18,9 @@
     "datatables.net-dt": "^2.2.1",
     "datatables.net-react": "^1.0.0",
     "formik": "^2.4.6",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "mdbreact": "^5.2.0",
     "mime": "^4.0.6",
     "moment-timezone": "^0.5.47",
@@ -35,14 +38,12 @@
     "web-vitals": "^4.2.4",
     "yup": "^1.6.1"
   },
-  
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
-    },
-    
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -61,5 +62,4 @@
       "last 1 safari version"
     ]
   }
-
 }

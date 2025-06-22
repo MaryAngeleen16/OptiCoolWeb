@@ -6,6 +6,7 @@ import TemperatureUsage from "./TemperatureUsage";
 import UsageTracking from "../Pages/HomePages/UsageTracking";
 import "./StylesUsage.css";
 import Sidebar from "../Components/Layouts/Sidebar";
+import UsagePDF from "./UsagePDF";
 
 const Dashb = () => {
   return (
@@ -13,8 +14,8 @@ const Dashb = () => {
  
      <Sidebar /> 
       <div style={styles.content}>
-        Dashboard
         <div style={styles.chartContainer}>
+          <UsagePDF />
           <HumidityUsage />
           <TemperatureUsage />
           <UsageTracking />
