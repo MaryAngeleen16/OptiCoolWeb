@@ -1,7 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import "./Dashboard.css";
-import Header from "../Components/Layouts/Header";
 import HumidityUsage from "./HumidityUsage";
 import TemperatureUsage from "./TemperatureUsage";
 import UsageTracking from "../Pages/HomePages/UsageTracking";
@@ -11,8 +10,8 @@ import Sidebar from "../Components/Layouts/Sidebar";
 const Dashb = () => {
   return (
     <div style={styles.dashboardContainer}>
-      <Header />
-      {/* <Sidebar /> */}
+ 
+     <Sidebar /> 
       <div style={styles.content}>
         Dashboard
         <div style={styles.chartContainer}>
@@ -21,6 +20,7 @@ const Dashb = () => {
           <UsageTracking />
         </div>
       </div>
+      {/* <Sidebar /> */}
     </div>
   );
 };

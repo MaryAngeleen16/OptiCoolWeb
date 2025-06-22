@@ -15,12 +15,11 @@ import {
   Paper,
 } from "@mui/material";
 import axios from "axios";
-import Header from "../../Components/Layouts/Header";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 import "../../Dashboard/StylesUsage.css";
 import ReactPaginate from "react-paginate"; // Import ReactPaginate
-
+import Sidebar from "../../Components/Layouts/Sidebar"; // Import Sidebar component
 export default function EReport() {
   const [reports, setReports] = useState([]);
   const [users, setUsers] = useState([]);
@@ -129,8 +128,8 @@ export default function EReport() {
         marginTop: "20%",
       }}
     >
+          <Sidebar />
       <Container style={{ maxWidth: "75%", marginTop: "30%" }}>
-        <Header />
         <Card style={{ marginTop: "10%", width: "100%" }}>
           <CardContent>
             <Typography variant="h5" gutterBottom>
@@ -254,7 +253,9 @@ export default function EReport() {
             )} at ${latestReport.timeReported}`}
           />
         )}
+          
       </Container>
+   
     </div>
   );
 }

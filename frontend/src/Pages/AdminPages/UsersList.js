@@ -160,7 +160,6 @@
 
 
 import React, { useEffect, useState } from 'react';
-import Header from '../../Components/Layouts/Header';
 import { Avatar, Container, Menu, MenuItem, Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
@@ -169,6 +168,9 @@ import DT from 'datatables.net-dt';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Sidebar from '../../Components/Layouts/Sidebar';
+
+
 
 DataTable.use(DT);
 
@@ -274,8 +276,8 @@ export default function UsersList() {
     const sortedUsers = [...tableData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
     return (
-        <div>
-            <Header />
+        <div style={{ display: 'flex', marginTop: '-7%' }}> 
+            <Sidebar />
             <Container sx={{ mt: 15 }}>
                 <ToastContainer />
                 <h2>Users</h2>
@@ -370,13 +372,43 @@ export default function UsersList() {
                     </thead>
                 </DataTable>
 
-                <Menu
+                    <Menu
                     anchorEl={anchorEl}
                     open={Boolean(anchorEl)}
                     onClose={() => handleMenuClose(null)}
+                sx={{
+                marginLeft: '80%',
+                }}
+                >               
+                
+                <MenuItem
+                onClick={() => handleMenuClose('admin')}
+                sx={{
+                    fontSize: '0.95rem',
+                    padding: '10px 20px',
+                    '&:hover': {
+                    backgroundColor: '#2F80ED',
+                    color: '#FAFAFA',
+                    },
+                }}
                 >
-                    <MenuItem onClick={() => handleMenuClose('admin')}>Set as Admin</MenuItem>
-                    <MenuItem onClick={() => handleMenuClose('user')}>Set as User</MenuItem>
+                Set as Admin
+                </MenuItem>
+
+<MenuItem
+  onClick={() => handleMenuClose('user')}
+  sx={{
+    fontSize: '0.95rem',
+    padding: '10px 20px',
+    '&:hover': {
+      backgroundColor: '#2F80ED',
+      color: '#FAFAFA',
+    },
+  }}
+>
+  Set as User
+</MenuItem>
+
                 </Menu>
             </Container>
         </div>
