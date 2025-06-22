@@ -10,7 +10,8 @@ const allowedOrigins = [
   'https://notable-complete-garfish.ngrok-free.app',
   'https://opticoolweb-backend.onrender.com',
   'https://opticoolweb-backend.onrender.com/api/v1',
-  'https://opticoolprediction.onrender.com'
+  'https://opticoolprediction.onrender.com',
+  'https://opticool.vercel.app'
 ];
 
 // Middleware setup

@@ -6,6 +6,7 @@ import dmtAPI from "../../dmtAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
+import TemperatureControl from "./TemperatureControl"; // Import the new TemperatureControl component
 
 const DashboardContainer = () => {
   const [userList, setUserList] = useState([]);
@@ -117,38 +118,20 @@ const DashboardContainer = () => {
           <span>
             Current AC Temp: <span style={{ color: "#1976d2" }}>{currentACTemp}°C</span>
           </span>
-          <input
-            type="number"
-            min={16}
-            max={30}
-            placeholder="Set AC Temp"
-            value={acInputTemp}
-            onChange={e => setAcInputTemp(e.target.value)}
-            style={{ width: 80, padding: "2px 6px", borderRadius: 4, border: "1px solid #ccc" }}
-          />
-          <button
-            onClick={async () => {
-              if (!acInputTemp) return;
+          <TemperatureControl
+            initialTemp={Number(currentACTemp)}
+            minTemp={16}
+            maxTemp={30}
+            onTempChange={async (newTemp) => {
               try {
-                await dmtAPI.adjustACTempAPI(Number(acInputTemp));
-                setCurrentACTemp(acInputTemp);
-                alert(`AC temperature set to ${acInputTemp}°C`);
+                await dmtAPI.adjustACTempAPI(newTemp);
+                setCurrentACTemp(newTemp);
+                alert(`AC temperature set to ${newTemp}°C`);
               } catch (err) {
                 alert("Failed to adjust AC temperature");
               }
             }}
-            style={{
-              background: "#1976d2",
-              color: "#fff",
-              border: "none",
-              borderRadius: 4,
-              padding: "4px 12px",
-              cursor: "pointer",
-              fontWeight: "bold"
-            }}
-          >
-            Set Temp
-          </button>
+          />
         </div>
         {/* Add All On/Off Buttons */}
         <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>

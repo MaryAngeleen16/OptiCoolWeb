@@ -33,7 +33,7 @@ const getCurrentACTempAPI = async () => {
 const adjustACFunc = async (adjustType = 'up', adjustNumber) => {
     let acTemp = 0;
     for (let index = 0; index < adjustNumber; index++) {
-        const { data } = await axios.post(`${process.env.REACT_APP_API}/proxy/adjust_temperature`,
+        const { data } = await axios.post(`${process.env.REACT_APP_API}/adjust_temperature`,
             {
                 adjustment: adjustType
             }
