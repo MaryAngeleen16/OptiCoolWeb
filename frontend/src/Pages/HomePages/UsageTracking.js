@@ -92,7 +92,13 @@ const UsageTracking = () => {
             })
             .catch(error => {
               setPredictedData([]);
-              console.error('Error fetching prediction data:', error);
+              if (error.response) {
+                console.error("Backend error:", error.response.status, error.response.data);
+              } else if (error.request) {
+                console.error("No response received from backend (possible CORS issue or server down):", error.request);
+              } else {
+                console.error("Axios request setup error:", error.message);
+              }
             })
             .finally(() => setLoading(false));
         } else {
@@ -104,7 +110,7 @@ const UsageTracking = () => {
         setPowerData([]);
         setPredictedData([]);
         setLoading(false);
-        console.error('Error fetching power consumption data:', error);
+        console.error("💥 Error fetching power consumption data:", error);
       });
   }, []);
 
