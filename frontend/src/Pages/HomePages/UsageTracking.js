@@ -81,10 +81,15 @@ const UsageTracking = () => {
           consumption: item.consumption
         }));
 
+        // Choose prediction mode based on viewMode
+        const mode = viewMode === "daily" ? "daily" : "monthly";
+
         if (predictPayload.length > 0) {
-          axios.post(`${process.env.REACT_APP_FLASK_API}/predictpower`, predictPayload, {
-            headers: { 'Content-Type': 'application/json' }
-          })
+          axios.post(
+            `${process.env.REACT_APP_FLASK_API}/predictpower?mode=${mode}`,
+            predictPayload,
+            { headers: { 'Content-Type': 'application/json' } }
+          )
             .then(response => {
               if (Array.isArray(response.data)) {
                 setPredictedData(response.data);
@@ -112,7 +117,7 @@ const UsageTracking = () => {
         setLoading(false);
         console.error("💥 Error fetching power consumption data:", error);
       });
-  }, []);
+  }, [viewMode]); // <-- update prediction when viewMode changes
 
   if (loading) return <CircularProgress />;
 
