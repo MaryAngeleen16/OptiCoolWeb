@@ -9,9 +9,15 @@ import {
   FormControl,
   InputLabel,
   Select,
-  MenuItem
+  MenuItem,
+  Button,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  IconButton
 } from "@mui/material";
 import { Bar } from "react-chartjs-2";
+import CloseIcon from '@mui/icons-material/Close';
 import "chart.js/auto";
 import "./UsageTracking.css";
 
@@ -61,63 +67,49 @@ function groupByMonthAverage(data) {
 
 const UsageTracking = () => {
   const [powerData, setPowerData] = useState([]);
-  const [predictedData, setPredictedData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState("daily");
 
-  // Fetch power data first, then fetch prediction
+  // Prediction dialog state
+  const [openDialog, setOpenDialog] = useState(false);
+  const [prediction, setPrediction] = useState(null);
+  const [predictionLoading, setPredictionLoading] = useState(false);
+
+  // Fetch power data only
   useEffect(() => {
     setLoading(true);
     axios.get(`${process.env.REACT_APP_API}/powerconsumptions`)
       .then(response => {
         const data = Array.isArray(response.data) ? response.data : [];
         setPowerData(data);
-
-        // Preprocess for predictpower: flatten timestamp if needed
-        const predictPayload = data.map(item => ({
-          timestamp: typeof item.timestamp === 'object' && item.timestamp.$date
-            ? item.timestamp.$date
-            : item.timestamp,
-          consumption: item.consumption
-        }));
-
-        // Choose prediction mode based on viewMode
-        const mode = viewMode === "daily" ? "daily" : "monthly";
-
-        if (predictPayload.length > 0) {
-          axios.post(
-            `${process.env.REACT_APP_FLASK_API}/predictpower?mode=${mode}`,
-            predictPayload,
-            { headers: { 'Content-Type': 'application/json' } }
-          )
-            .then(response => {
-              if (Array.isArray(response.data)) {
-                setPredictedData(response.data);
-              }
-            })
-            .catch(error => {
-              setPredictedData([]);
-              if (error.response) {
-                console.error("Backend error:", error.response.status, error.response.data);
-              } else if (error.request) {
-                console.error("No response received from backend (possible CORS issue or server down):", error.request);
-              } else {
-                console.error("Axios request setup error:", error.message);
-              }
-            })
-            .finally(() => setLoading(false));
-        } else {
-          setPredictedData([]);
-          setLoading(false);
-        }
+        setLoading(false);
       })
       .catch(error => {
         setPowerData([]);
-        setPredictedData([]);
         setLoading(false);
-        console.error("💥 Error fetching power consumption data:", error);
+        console.error('Error fetching power consumption data:', error);
       });
-  }, [viewMode]); // <-- update prediction when viewMode changes
+  }, []);
+
+  // Fetch prediction when dialog opens
+  const handleOpenDialog = () => {
+    setOpenDialog(true);
+    setPredictionLoading(true);
+    axios.get('https://opticoolpredict.onrender.com/forecast')
+      .then(res => {
+        setPrediction(res.data);
+        setPredictionLoading(false);
+      })
+      .catch(() => {
+        setPrediction(null);
+        setPredictionLoading(false);
+      });
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setPrediction(null);
+  };
 
   if (loading) return <CircularProgress />;
 
@@ -126,50 +118,18 @@ const UsageTracking = () => {
     grouped = groupByDayAverage(powerData);
   } else {
     grouped = groupByMonthAverage(powerData);
-
-    if (predictedData.length > 0) {
-      const formattedPredictions = predictedData.map(entry => {
-        // entry: {timestamp: "...", consumption: ...}
-        const d = new Date(entry.timestamp || entry.month);
-        const label = d.toLocaleString("default", {
-          month: "short",
-          year: "numeric"
-        });
-        return {
-          label,
-          avg: Number(entry.consumption ? entry.consumption.toFixed(2) : entry.prediction.toFixed(2)),
-          predicted: true
-        };
-      });
-      grouped = [...grouped, ...formattedPredictions];
-    }
   }
-
-  const realData = grouped.filter(item => !item.predicted);
-  const predicted = grouped.filter(item => item.predicted);
 
   const chartData = {
     labels: grouped.map(row => row.label),
     datasets: [
       {
-        label: "Actual Avg Power Consumption (kWh)",
-        data: realData.map(row => row.avg),
+        label: "Avg Power Consumption (kWh)",
+        data: grouped.map(row => row.avg),
         backgroundColor: "rgba(255, 159, 64, 0.8)",
         borderColor: "rgba(255, 159, 64, 1)",
         borderWidth: 2,
-      },
-      ...(predicted.length > 0
-        ? [{
-            label: "Predicted Avg Power Consumption (kWh)",
-            data: [
-              ...Array(realData.length).fill(null),
-              ...predicted.map(row => row.avg)
-            ],
-            backgroundColor: "rgba(75, 192, 192, 0.6)",
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 2,
-          }]
-        : [])
+      }
     ],
   };
 
@@ -202,8 +162,68 @@ const UsageTracking = () => {
     },
   };
 
+  // Prediction chart data
+  const predDaily = prediction?.daily_forecast || [];
+  const predMonthly = prediction?.monthly_forecast || [];
+
+  const predDailyChart = {
+    labels: predDaily.map(row => row.timestamp),
+    datasets: [
+      {
+        label: "Predicted Daily Consumption (kWh)",
+        data: predDaily.map(row => row.predicted),
+        backgroundColor: "rgba(54, 162, 235, 0.7)",
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 2,
+      }
+    ],
+  };
+
+  const predMonthlyChart = {
+    labels: predMonthly.map(row => row.month),
+    datasets: [
+      {
+        label: "Predicted Monthly Avg (kWh)",
+        data: predMonthly.map(row => row.predicted_average),
+        backgroundColor: "rgba(75, 192, 192, 0.7)",
+        borderColor: "rgba(75, 192, 192, 1)",
+        borderWidth: 2,
+      }
+    ],
+  };
+
   return (
     <Container className="usage-tracking-container">
+
+
+      {/* Prediction Dialog */}
+      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
+        <DialogTitle>
+          Power Consumption Prediction
+          <IconButton
+            aria-label="close"
+            onClick={handleCloseDialog}
+            sx={{ position: 'absolute', right: 8, top: 8 }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          {predictionLoading ? (
+            <CircularProgress />
+          ) : prediction ? (
+            <>
+              <Typography variant="h6" gutterBottom>Daily Forecast</Typography>
+              <Bar data={predDailyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>Monthly Forecast</Typography>
+              <Bar data={predMonthlyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
+            </>
+          ) : (
+            <Typography color="error">Failed to load prediction.</Typography>
+          )}
+        </DialogContent>
+      </Dialog>
+
       <Card>
         <CardContent>
           <Typography className="title" gutterBottom>
@@ -211,26 +231,31 @@ const UsageTracking = () => {
               ? "Daily Average Power Consumption"
               : "Monthly Average Power Consumption"}
           </Typography>
-          <FormControl className="tempusage-dropdown" size="small">
-            <InputLabel id="view-mode-label">View</InputLabel>
-            <Select
-              labelId="view-mode-label"
-              value={viewMode}
-              label="View"
-              onChange={e => setViewMode(e.target.value)}
+          {/* Flex row for dropdown and prediction button */}
+          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+            <FormControl className="tempusage-dropdown" size="small">
+              <InputLabel id="view-mode-label">View</InputLabel>
+              <Select
+                labelId="view-mode-label"
+                value={viewMode}
+                label="View"
+                onChange={e => setViewMode(e.target.value)}
+              >
+                <MenuItem value="daily">Daily</MenuItem>
+                <MenuItem value="monthly">Monthly</MenuItem>
+              </Select>
+            </FormControl>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleOpenDialog}
             >
-              <MenuItem value="daily">Daily</MenuItem>
-              <MenuItem value="monthly">Monthly</MenuItem>
-            </Select>
-          </FormControl>
+              Show Prediction
+            </Button>
+          </div>
           <div className="chart-container tempusage-chart-scroll">
             <Bar data={chartData} options={chartOptions} />
           </div>
-          {viewMode === "monthly" && predicted.length > 0 && (
-            <Typography variant="body2" color="textSecondary" style={{ marginTop: "8px" }}>
-              *Predicted values for the next 3 months based on historical data
-            </Typography>
-          )}
         </CardContent>
       </Card>
     </Container>

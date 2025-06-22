@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import Header from '../../Components/Layouts/Header'
 import { useDispatch, useSelector } from 'react-redux'
 import { Avatar, Box, Button, Grid2, TextField } from '@mui/material';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
 import { setAuth } from '../../states/authSlice';
+import Sidebar from '../../Components/Layouts/Sidebar';
+
 
 export default function ViewProfile() {
 
@@ -74,7 +75,6 @@ export default function ViewProfile() {
     return (
         <div>
 
-            <Header />
 
             <div style={{ marginTop: 120, }} >
 
@@ -183,6 +183,8 @@ export default function ViewProfile() {
                 </Formik >
 
             </div >
+
+                    <Sidebar />
 
         </div >
     )

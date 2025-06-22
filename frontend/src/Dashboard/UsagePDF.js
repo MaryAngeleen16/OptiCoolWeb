@@ -246,7 +246,7 @@ export default function UsagePDFButton() {
 
   return (
     <>
-      <div style={{ marginLeft: '70%', margin: '24px 0 0 0' }}>
+      <div>
         <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
           Export Usage PDF
         </Button>

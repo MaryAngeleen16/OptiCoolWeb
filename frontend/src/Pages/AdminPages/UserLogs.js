@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Header from '../../Components/Layouts/Header';
 import { Container, Table, TableBody, TableCell, TableHead, TableRow, TableContainer, Paper } from '@mui/material';
 import axios from 'axios';
 import { useSelector } from 'react-redux'; // Import useSelector from react-redux
 import ReactPaginate from 'react-paginate';
+import Sidebar from '../../Components/Layouts/Sidebar';
+
 
 export default function UserLogs() {
     const [logs, setLogs] = useState([]);
@@ -58,7 +59,6 @@ export default function UserLogs() {
 
     return (
         <div>
-            <Header />
             <Container sx={{ mt: 15 }}>
                 <TableContainer component={Paper}>
                     <Table>
@@ -99,6 +99,7 @@ export default function UserLogs() {
                     activeClassName={"active"}
                 />
             </Container>
+            <Sidebar />
         </div>
     );
 }

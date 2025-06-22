@@ -11,17 +11,21 @@ import UsagePDF from "./UsagePDF";
 const Dashb = () => {
   return (
     <div style={styles.dashboardContainer}>
- 
+      
      <Sidebar /> 
       <div style={styles.content}>
+         <div style={{ display: "flex", justifyContent: "flex-end", marginRight: "20px" }}>
+           <UsagePDF />
+        </div>
         <div style={styles.chartContainer}>
-          <UsagePDF />
+            <h1 >Usage Dashboard</h1>
+
           <HumidityUsage />
           <TemperatureUsage />
           <UsageTracking />
         </div>
       </div>
-      {/* <Sidebar /> */}
+    
     </div>
   );
 };
