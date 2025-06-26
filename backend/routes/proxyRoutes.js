@@ -18,8 +18,10 @@ router.get('/proxy/*', async (req, res) => {
   try {
     const response = await axios.get(url, {
       headers: {
-        'User-Agent': req.headers['user-agent'] || 'proxy',
-        'Referer': req.headers['referer'] || ''
+        'User-Agent': 'insomnia/11.2.0', // Force Insomnia's user agent
+        'Referer': req.headers['referer'] || '',
+        'Accept': req.headers['accept'] || 'application/json',
+        'Origin': req.headers['origin'] || ''
       },
       timeout: 10000
     });

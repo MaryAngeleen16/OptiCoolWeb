@@ -6,15 +6,14 @@ import dmtAPI from "../../dmtAPI";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
-import TemperatureControl from "./TemperatureControl"; // Import the new TemperatureControl component
+import TemperatureControl from "./TemperatureControl";
 
 const DashboardContainer = () => {
   const [userList, setUserList] = useState([]);
-  const token = localStorage.getItem("token");
-  const [deviceStatus, setDeviceStatus] = useState({}); // Track on/off status
-  const [currentACTemp, setCurrentACTemp] = useState("--"); // Add state for AC temp
-  const [acInputTemp, setAcInputTemp] = useState(""); // State for input field
-  const { user } = useSelector(state => state.auth);
+  const [deviceStatus, setDeviceStatus] = useState({});
+  const [currentACTemp, setCurrentACTemp] = useState("--");
+  const [acInputTemp, setAcInputTemp] = useState("");
+  const { user, token } = useSelector(state => state.auth); // Get both user and token from Redux
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -24,7 +23,7 @@ const DashboardContainer = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        setUserList(data.users); // Set the user list from API response
+        setUserList(data.users);
       } catch (err) {
         console.error("Failed to fetch users:", err);
       }
@@ -43,7 +42,7 @@ const DashboardContainer = () => {
     };
 
     fetchACTemp();
-  }, []);
+  }, [token]);
 
   const devices = [
     { name: "Aircon", icon: "❄️", color: "pink" },
@@ -52,11 +51,11 @@ const DashboardContainer = () => {
     { name: "Blower", icon: "💨", color: "pink" },
   ];
 
-  // Log user action (copy from ManageRoom.js)
+  // Log user action with auth
   const logUserAction = async (action) => {
     try {
       await axios.post(`${process.env.REACT_APP_API}/userlogs`, {
-        user: user._id ? user._id : "Missing ID",
+        user: user?._id ? user._id : "Missing ID",
         action,
         timestamp: new Date().toISOString(),
       }, {
@@ -65,12 +64,13 @@ const DashboardContainer = () => {
         },
       });
     } catch (error) {
+      toast.error('Error logging user action');
       console.error('Error logging user action:', error);
     }
   };
 
-  // Handler for turning device on/off
   const handleDeviceAction = async (deviceName, action) => {
+    let success = false;
     try {
       if (deviceName === "Fan") {
         if (action === "on") {
@@ -78,17 +78,46 @@ const DashboardContainer = () => {
         } else {
           await dmtAPI.turnOffEFans();
         }
-      } else {
-        await dmtAPI.turnOffDevice(deviceName);
+      } else if (deviceName === "Aircon") {
+        if (action === "on") {
+          await dmtAPI.turnOnAllAC();
+        } else {
+          await dmtAPI.turnOffAllAC();
+        }
+      } else if (deviceName === "Blower") {
+        if (action === "on") {
+          await dmtAPI.turnOnBlower && dmtAPI.turnOnBlower();
+        } else {
+          await dmtAPI.turnOffBlower && dmtAPI.turnOffBlower();
+        }
+      } else if (deviceName === "Exhaust") {
+        if (action === "on") {
+          await dmtAPI.turnOnExhaust && dmtAPI.turnOnExhaust();
+        } else {
+          await dmtAPI.turnOffExhaust && dmtAPI.turnOffExhaust();
+        }
       }
       setDeviceStatus((prev) => ({
         ...prev,
         [deviceName]: action === "on",
       }));
       toast.success(`${deviceName} turned ${action.toUpperCase()} successfully!`);
-      logUserAction(`Turned ${action === "on" ? "On" : "Off"} ${deviceName}`);
+      success = true;
     } catch (err) {
-      toast.error(`Failed to turn ${action} ${deviceName}`);
+      if (
+        (err.response && err.response.status === 404) ||
+        err.message === "Network Error"
+      ) {
+        toast.error("System is not rendered properly please turn it on");
+      } else {
+        toast.error(`Failed to turn ${action} ${deviceName}`);
+      }
+      // console.error(err);
+    } finally {
+      // Always log the attempt, with success/failure info
+      logUserAction(
+        `Toggled ${deviceName} ${action.charAt(0).toUpperCase() + action.slice(1)} - ${success ? "Success" : "Failed"}`
+      );
     }
   };
 
@@ -113,7 +142,6 @@ const DashboardContainer = () => {
       {/* Devices Section */}
       <div className="card">
         <h2 className="section-title">My Devices</h2>
-        {/* Show current AC temp and adjustment */}
         <div style={{ marginBottom: 12, fontWeight: "bold", display: "flex", alignItems: "center", gap: 16 }}>
           <span>
             Current AC Temp: <span style={{ color: "#1976d2" }}>{currentACTemp}°C</span>
@@ -126,25 +154,44 @@ const DashboardContainer = () => {
               try {
                 await dmtAPI.adjustACTempAPI(newTemp);
                 setCurrentACTemp(newTemp);
-                alert(`AC temperature set to ${newTemp}°C`);
+                toast.success(`AC temperature set to ${newTemp}°C`);
+                logUserAction(`Changed Aircon Temperature to ${newTemp}°C`);
               } catch (err) {
-                alert("Failed to adjust AC temperature");
+                if (
+                  (err.response && err.response.status === 404) ||
+                  err.message === "Network Error"
+                ) {
+                  toast.error("System is not rendered properly please turn it on");
+                } else {
+                  toast.error("Failed to adjust AC temperature");
+                }
+                logUserAction(`Changed Aircon Temperature to ${newTemp}°C - Failed`);
               }
             }}
           />
         </div>
-        {/* Add All On/Off Buttons */}
         <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
           <button
             onClick={async () => {
+              let success = false;
               try {
                 await dmtAPI.turnOnAllAC();
                 await dmtAPI.turnOnEFans();
                 await dmtAPI.turnOnBlower && dmtAPI.turnOnBlower();
                 await dmtAPI.turnOnExhaust && dmtAPI.turnOnExhaust();
-                alert("All devices turned ON");
+                toast.success("All devices turned ON");
+                success = true;
               } catch (err) {
-                alert("Failed to turn all devices ON");
+                if (
+                  (err.response && err.response.status === 404) ||
+                  err.message === "Network Error"
+                ) {
+                  toast.error("System is not rendered properly please turn it on");
+                } else {
+                  toast.error("Failed to turn all devices ON");
+                }
+              } finally {
+                logUserAction(`Toggled All Devices On - ${success ? "Success" : "Failed"}`);
               }
             }}
             style={{
@@ -161,14 +208,25 @@ const DashboardContainer = () => {
           </button>
           <button
             onClick={async () => {
+              let success = false;
               try {
                 await dmtAPI.turnOffAllAC();
                 await dmtAPI.turnOffEFans();
                 await dmtAPI.turnOffBlower && dmtAPI.turnOffBlower();
                 await dmtAPI.turnOffExhaust && dmtAPI.turnOffExhaust();
-                alert("All devices turned OFF");
+                toast.success("All devices turned OFF");
+                success = true;
               } catch (err) {
-                alert("Failed to turn all devices OFF");
+                if (
+                  (err.response && err.response.status === 404) ||
+                  err.message === "Network Error"
+                ) {
+                  toast.error("System is not rendered properly please turn it on");
+                } else {
+                  toast.error("Failed to turn all devices OFF");
+                }
+              } finally {
+                logUserAction(`Toggled All Devices Off - ${success ? "Success" : "Failed"}`);
               }
             }}
             style={{
