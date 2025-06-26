@@ -18,11 +18,11 @@ export default function TemperatureControl({ minTemp = 16, maxTemp = 30 }) {
     fetchTemp();
   }, []);
 
-  const handleChangeTemp = async (newTemp) => {
+  const handleChangeTemp = async (direction) => {
     setLoading(true);
     try {
-      await dmtAPI.adjustACTempAPI(newTemp);
-      setAcTemp(newTemp);
+      await dmtAPI.adjustACTempAPI(direction);
+      setAcTemp(prev => direction === "up" ? prev + 1 : prev - 1);
     } catch (err) {
       console.error('Failed to adjust AC temp:', err);
     }
@@ -31,13 +31,13 @@ export default function TemperatureControl({ minTemp = 16, maxTemp = 30 }) {
 
   const handleIncrease = () => {
     if (acTemp < maxTemp) {
-      handleChangeTemp(acTemp + 1);
+      handleChangeTemp("up");
     }
   };
 
   const handleDecrease = () => {
     if (acTemp > minTemp) {
-      handleChangeTemp(acTemp - 1);
+      handleChangeTemp("down");
     }
   };
 

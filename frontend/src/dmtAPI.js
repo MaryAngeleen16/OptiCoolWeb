@@ -43,35 +43,8 @@ const adjustACFunc = async (adjustType = 'up', adjustNumber) => {
     return acTemp;
 }
 
-const adjustACTempAPI = async (tempValue = 24) => {
-    const currentTempAC = await getCurrentACTempAPI();
-
-    if (tempValue == currentTempAC) {
-        console.log("Same temp as current");
-        return;
-    }
-
-    if (tempValue <= 19) {
-        console.log("Should be set to 16 only");
-
-        return;
-    }
-
-    if (currentTempAC > tempValue) {
-        const reduceTemp = currentTempAC - tempValue;
-        console.log("Reduce Temp: " + reduceTemp);
-        return await adjustACFunc("down", reduceTemp);
-    }
-
-
-    if (currentTempAC < tempValue) {
-        const addedTemp = tempValue - currentTempAC;
-        console.log("Added Temp: " + addedTemp);
-        return await adjustACFunc("up", addedTemp);
-    }
-
-    window.alert("Setting AC Temp Error: Error occurred when setting AC temperature too low / high");
-    return currentTempAC;
+export const adjustACTempAPI = async (adjustment) => {
+  return axios.post(`${process.env.REACT_APP_API}/proxy/adjust_ac_temp`, { adjustment });
 };
 
 const turnOffAllAC = async () => {
