@@ -6,7 +6,6 @@ export default function TemperatureControl({ minTemp = 19, maxTemp = 25 }) {
   const [acTemp, setAcTemp] = useState(maxTemp);
   const [loading, setLoading] = useState(false);
 
-  // Fetch current AC temp on mount
   useEffect(() => {
     const fetchTemp = async () => {
       try {
@@ -21,17 +20,19 @@ export default function TemperatureControl({ minTemp = 19, maxTemp = 25 }) {
   }, [minTemp, maxTemp]);
 
   const handleChangeTemp = async (direction) => {
+    if (loading) return;
+
+    const nextTemp = direction === "up" ? acTemp + 1 : acTemp - 1;
+
+    if (nextTemp > maxTemp || nextTemp < minTemp) return;
+
     setLoading(true);
     try {
-      // Only adjust if within range
-      setAcTemp(prev => {
-        let next = direction === "up" ? prev + 1 : prev - 1;
-        next = Math.max(minTemp, Math.min(maxTemp, next));
-        return next;
-      });
-      await dmtAPI.adjustACTempAPI(direction);
+      await dmtAPI.adjustACFunc(direction, 1); // ✅ send "up" or "down"
+      setAcTemp(nextTemp); // optimistic update
     } catch (err) {
       console.error('Failed to adjust AC temp:', err);
+      toast.error("Failed to update temperature.");
     }
     setLoading(false);
   };
