@@ -195,6 +195,18 @@ const getInsideHumidityDataAPI = async (startDate, endDate) => {
     return data;
 };
 
+
+const stopPollingAPI = async () => {
+  try {
+    const { data } = await axios.post(`${process.env.REACT_APP_API}/proxy/stop`);
+    return data;
+  } catch (error) {
+    console.error("Error calling stopPollingAPI:", error);
+    throw error;
+  }
+};
+
+
 export default {
     getComponentsStatusAPI,
     getSensorsStatusesAPI,
@@ -220,5 +232,7 @@ export default {
     getPowerConsumptionAPI,
 
 
-    getInsideHumidityDataAPI
+    getInsideHumidityDataAPI,
+
+    stopPollingAPI
 }

@@ -13,7 +13,7 @@ const DashboardContainer = () => {
   const [deviceStatus, setDeviceStatus] = useState({});
   const [currentACTemp, setCurrentACTemp] = useState("--");
   const [acInputTemp, setAcInputTemp] = useState("");
-  const { user, token } = useSelector(state => state.auth); // Get both user and token from Redux
+  const { user, token } = useSelector(state => state.auth);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -31,7 +31,6 @@ const DashboardContainer = () => {
 
     fetchUsers();
 
-    // Fetch current AC temp
     const fetchACTemp = async () => {
       try {
         const temp = await dmtAPI.getCurrentACTempAPI();
@@ -44,30 +43,42 @@ const DashboardContainer = () => {
     fetchACTemp();
   }, [token]);
 
-  const devices = [
-    { name: "Aircon", icon: "❄️", color: "pink" },
-    { name: "Fan", icon: "🌀", color: "blue" },
-    { name: "Exhaust", icon: "🌫️", color: "blue" },
-    { name: "Blower", icon: "💨", color: "pink" },
-  ];
-
   const logUserAction = async (action) => {
-  try {
-    await axios.post(`${process.env.REACT_APP_API}/activity-log`, {
-      userId: user?._id ?? "Unknown",
-      action,
-      timestamp: new Date().toISOString(),
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-  } catch (error) {
-    toast.error('Error logging user action');
-    console.error('Error logging user action:', error);
-  }
-};
+    try {
+      await axios.post(`${process.env.REACT_APP_API}/activity-log`, {
+        userId: user?._id ?? "Unknown",
+        action,
+        timestamp: new Date().toISOString(),
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (error) {
+      toast.error('Error logging user action');
+      console.error('Error logging user action:', error);
+    }
+  };
 
+  const handleTurnOffSystem = async () => {
+    let success = false;
+    try {
+      await axios.post(`${process.env.REACT_APP_API}/proxy/stop`);
+      toast.success("System turned off successfully");
+      success = true;
+    } catch (err) {
+      if (
+        (err.response && err.response.status === 404) ||
+        err.message === "Network Error"
+      ) {
+        toast.error("System is not rendered properly, please turn it on first");
+      } else {
+        toast.error("Failed to turn off system");
+      }
+    } finally {
+      logUserAction(`Turned Off System - ${success ? "Success" : "Failed"}`);
+    }
+  };
 
   const handleDeviceAction = async (deviceName, action) => {
     let success = false;
@@ -112,18 +123,24 @@ const DashboardContainer = () => {
       } else {
         toast.error(`Failed to turn ${action} ${deviceName}`);
       }
-      // console.error(err);
     } finally {
-      // Always log the attempt, with success/failure info
       logUserAction(
         `Toggled ${deviceName} ${action.charAt(0).toUpperCase() + action.slice(1)} - ${success ? "Success" : "Failed"}`
       );
     }
   };
 
+  const devices = [
+    { name: "Aircon", icon: "❄️", color: "pink" },
+    { name: "Fan", icon: "🌀", color: "blue" },
+    { name: "Exhaust", icon: "🌫️", color: "blue" },
+    { name: "Blower", icon: "💨", color: "pink" },
+  ];
+
   return (
     <div className="dashboard-container">
       <ToastContainer />
+
       {/* User List Section */}
       <div className="card">
         <h2 className="section-title">Users</h2>
@@ -141,7 +158,23 @@ const DashboardContainer = () => {
 
       {/* Devices Section */}
       <div className="card">
-        <h2 className="section-title">My Devices</h2>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 className="section-title">My Devices</h2>
+          <button
+            onClick={handleTurnOffSystem}
+            style={{
+              background: "#000",
+              color: "#fff",
+              border: "none",
+              borderRadius: 4,
+              padding: "6px 12px",
+              fontWeight: "bold",
+              cursor: "pointer"
+            }}
+          >
+            TURN OFF SYSTEM
+          </button>
+        </div>
         <div style={{ marginBottom: 12, fontWeight: "bold", display: "flex", alignItems: "center", gap: 16 }}>
           <span>
             Current AC Temp: <span style={{ color: "#1976d2" }}>{currentACTemp}°C</span>
