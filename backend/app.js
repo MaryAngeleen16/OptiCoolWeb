@@ -49,7 +49,14 @@ app.use('/api/v1', logRoutes)
 app.use('/api/v1', powerConsumptionRoutes)
 app.use('/api/v1', humidityRoutes)
 app.use('/api/v1', temperatureRoutes) 
-app.use('/api/v1', activityLogRoutes);
+
+
+const activityLogRoutes = require('./routes/activityLogRoutes');
+app.use('/api/v1/activity-log', activityLogRoutes);
+
+
+
+
 const proxyRoutes = require('./routes/proxyRoutes');
 app.use('/api/v1', proxyRoutes);
 

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import moment from "moment-timezone";
-import "./ActivityLog.css"; // You can use CSS Modules too if preferred
-
+import "./ActivityLog.css"; 
+import Sidebar from "../../Components/Layouts/Sidebar"; 
 const ActivityLog = () => {
   const { user, token } = useSelector((state) => state.auth);
   const [logs, setLogs] = useState([]);
@@ -62,6 +62,7 @@ const ActivityLog = () => {
           </div>
         ))}
       </div>
+         <Sidebar />
     </div>
   );
 };
