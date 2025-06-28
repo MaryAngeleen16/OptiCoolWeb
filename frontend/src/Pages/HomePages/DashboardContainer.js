@@ -51,23 +51,23 @@ const DashboardContainer = () => {
     { name: "Blower", icon: "💨", color: "pink" },
   ];
 
-  // Log user action with auth
   const logUserAction = async (action) => {
-    try {
-      await axios.post(`${process.env.REACT_APP_API}/userlogs`, {
-        user: user?._id ? user._id : "Missing ID",
-        action,
-        timestamp: new Date().toISOString(),
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-    } catch (error) {
-      toast.error('Error logging user action');
-      console.error('Error logging user action:', error);
-    }
-  };
+  try {
+    await axios.post(`${process.env.REACT_APP_API}/activity-log`, {
+      userId: user?._id ?? "Unknown",
+      action,
+      timestamp: new Date().toISOString(),
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (error) {
+    toast.error('Error logging user action');
+    console.error('Error logging user action:', error);
+  }
+};
+
 
   const handleDeviceAction = async (deviceName, action) => {
     let success = false;

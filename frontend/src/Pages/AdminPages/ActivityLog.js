@@ -2,17 +2,36 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import moment from "moment-timezone";
-import "./ActivityLog.css"; 
-import Sidebar from "../../Components/Layouts/Sidebar"; 
+import ReactPaginate from "react-paginate";
+import Sidebar from "../../Components/Layouts/Sidebar";
+
+import {
+  Container,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableContainer,
+  Paper,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
+
+import "./ActivityLog.css";
+
+const ITEMS_PER_PAGE = 10;
+
 const ActivityLog = () => {
   const { user, token } = useSelector((state) => state.auth);
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(0);
 
   const fetchActivityLogs = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API}/activity-log?userId=${user._id}`,
+        `${process.env.REACT_APP_API}/activity-log`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -35,34 +54,77 @@ const ActivityLog = () => {
     fetchActivityLogs();
   }, []);
 
-  if (loading) {
-    return (
-      <div className="centered">
-        <div className="spinner"></div>
-        <p className="loading-text">Loading activity logs...</p>
-      </div>
-    );
-  }
+  // ✅ Sort logs from newest to oldest
+  const sortedLogs = [...logs].sort(
+    (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+  );
+
+  const pageCount = Math.ceil(sortedLogs.length / ITEMS_PER_PAGE);
+  const paginatedLogs = sortedLogs.slice(
+    currentPage * ITEMS_PER_PAGE,
+    (currentPage + 1) * ITEMS_PER_PAGE
+  );
+
+  const handlePageChange = ({ selected }) => {
+    setCurrentPage(selected);
+  };
 
   return (
-    <div className="log-container">
-      <h2 className="log-title">Activity Log</h2>
-      <div className="log-list">
-        {logs.map((item) => (
-          <div className="log-item" key={item._id}>
-            <div className="left-section">
-              <p className="username">{item.userId?.username || "Unknown User"}</p>
-              <p className="action">{item.action}</p>
-            </div>
-            <div className="right-section">
-              <p className="timestamp">
-                {moment(item.timestamp).tz("Asia/Manila").format("hh:mm A")}
-              </p>
-            </div>
+    <div style={{ marginTop: "-45%" }}>
+      <Sidebar />
+      <Container maxWidth="lg">
+        <Typography variant="h4" className="log-title" gutterBottom>
+          Activity Log
+        </Typography>
+
+        {loading ? (
+          <div className="centered">
+            <CircularProgress />
+            <p className="loading-text">Loading activity logs...</p>
           </div>
-        ))}
-      </div>
-         <Sidebar />
+        ) : (
+          <>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell><strong>Username</strong></TableCell>
+                    <TableCell><strong>Action</strong></TableCell>
+                    <TableCell><strong>Timestamp</strong></TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {paginatedLogs.map((log) => (
+                    <TableRow key={log._id}>
+                      <TableCell>{log.userId?.username || "Unknown User"}</TableCell>
+                      <TableCell>{log.action}</TableCell>
+                      <TableCell>
+                        {moment(log.timestamp)
+                          .tz("Asia/Manila")
+                          .format("YYYY-MM-DD hh:mm A")}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+
+            <div className="pagination-container">
+              <ReactPaginate
+                previousLabel={"← Prev"}
+                nextLabel={"Next →"}
+                breakLabel={"..."}
+                pageCount={pageCount}
+                onPageChange={handlePageChange}
+                containerClassName={"pagination"}
+                activeClassName={"active"}
+                pageRangeDisplayed={2}
+                marginPagesDisplayed={1}
+              />
+            </div>
+          </>
+        )}
+      </Container>
     </div>
   );
 };

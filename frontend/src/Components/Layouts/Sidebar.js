@@ -60,7 +60,7 @@ function Sidebar() {
       ? [
           {icon: <GroupIcon style={{ fontSize: 25 }} />, route: "/users", label: "Users" },
           {icon: <SummarizeIcon style={{ fontSize: 25 }} />, route: "/ereport", label: "Reports" },
-          {icon: <ManageSearchIcon style={{ fontSize: 25 }} />, route: "/loglist", label: "Logs" },
+          {icon: <ManageSearchIcon style={{ fontSize: 25 }} />, route: "/activitylog", label: "Logs" },
           {icon: <SupervisorAccountIcon style={{ fontSize: 25 }} />, route: "/active", label: "Active Users" },
         ]
       : []),
