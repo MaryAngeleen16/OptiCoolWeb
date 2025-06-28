@@ -49,7 +49,6 @@ router.get('/proxy/*', async (req, res) => {
   }
 });
 
-// === Generic POST Proxy ===
 router.post('/proxy/*', async (req, res) => {
   const iotPath = req.params[0];
   const url = buildCleanUrl(iotPath);
@@ -57,6 +56,7 @@ router.post('/proxy/*', async (req, res) => {
   try {
     const response = await axios.post(url, req.body, {
       headers: {
+        'Content-Type': req.headers['content-type'] || 'application/json',
         'User-Agent': 'insomnia/11.2.0', 
         'Referer': req.headers['referer'] || '',
         'Accept': req.headers['accept'] || 'application/json',
@@ -68,7 +68,7 @@ router.post('/proxy/*', async (req, res) => {
     return res.status(response.status).json(response.data);
 
   } catch (error) {
-    console.error(`❌ Proxy POST failed for /${iotPath}:`, error.message);
+    console.error(`Proxy POST failed for /${iotPath}:`, error.message);
 
     if (error.code === "ECONNABORTED") {
       return res.status(504).json({ error: "Request timed out. IoT server may be offline." });
@@ -87,5 +87,6 @@ router.post('/proxy/*', async (req, res) => {
     });
   }
 });
+
 
 module.exports = router;
