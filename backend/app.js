@@ -51,7 +51,6 @@ app.use('/api/v1', humidityRoutes)
 app.use('/api/v1', temperatureRoutes) 
 
 
-const activityLogRoutes = require('./routes/activityLogRoutes');
 app.use('/api/v1/activity-log', activityLogRoutes);
 
 
