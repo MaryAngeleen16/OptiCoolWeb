@@ -30,21 +30,46 @@ const getCurrentACTempAPI = async () => {
     return data;
 };
 
-const adjustACFunc = async (adjustType = 'up', adjustNumber) => {
-    let acTemp = 0;
-    for (let index = 0; index < adjustNumber; index++) {
-        const { data } = await axios.post(`${process.env.REACT_APP_API}/adjust_temperature`,
-            {
-                adjustment: adjustType
-            }
-        )
-        acTemp = data.temperature;
-    }
-    return acTemp;
-}
 
-export const adjustACTempAPI = async (adjustment) => {
-  return axios.post(`${process.env.REACT_APP_API}/proxy/adjust_ac_temp`, { adjustment });
+const adjustACFunc = async (adjustType = "up", adjustNumber) => {
+  let acTemp = 0;
+  for (let index = 0; index < adjustNumber; index++) {
+    const { data } = await axios.post(`${process.env.REACT_APP_API}/proxy/adjust_temperature`, {
+      adjustment: adjustType,
+    });
+    acTemp = data.temperature;
+  }
+  return acTemp;
+};
+
+const adjustACTempAPI = async (tempValue = 24) => {
+  const currentTempAC = await getCurrentACTempAPI();
+
+  if (tempValue == currentTempAC) {
+    console.log("Same temp as current");
+    return;
+  }
+
+  if (tempValue <= 19) {
+    console.log("Should be set to 19 only");
+
+    return;
+  }
+
+  if (currentTempAC > tempValue) {
+    const reduceTemp = currentTempAC - tempValue;
+    console.log("Reduce Temp: " + reduceTemp);
+    return await adjustACFunc("down", reduceTemp);
+  }
+
+  if (currentTempAC < tempValue) {
+    const addedTemp = tempValue - currentTempAC;
+    console.log("Added Temp: " + addedTemp);
+    return await adjustACFunc("up", addedTemp);
+  }
+
+
+  return currentTempAC;
 };
 
 const turnOffAllAC = async () => {
@@ -175,6 +200,7 @@ export default {
     getSensorsStatusesAPI,
     getDevicesDataAPI,
     getCurrentACTempAPI,
+    adjustACFunc,
     adjustACTempAPI,
 
     turnOffAllAC,

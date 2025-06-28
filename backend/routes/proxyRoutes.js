@@ -57,7 +57,7 @@ router.post('/proxy/*', async (req, res) => {
   try {
     const response = await axios.post(url, req.body, {
       headers: {
-        'User-Agent': 'insomnia/11.2.0', // Force Insomnia's user agent
+        'User-Agent': 'insomnia/11.2.0', 
         'Referer': req.headers['referer'] || '',
         'Accept': req.headers['accept'] || 'application/json',
         'Origin': req.headers['origin'] || ''
