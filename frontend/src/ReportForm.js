@@ -170,7 +170,7 @@ const ReportForm = () => {
 
         <button
           type="button"
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/home')}
           style={{ marginLeft: '10px' }}
         >
           Back to Dashboard

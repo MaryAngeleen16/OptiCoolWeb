@@ -7,6 +7,7 @@ import UsageTracking from "../Pages/HomePages/UsageTracking";
 import "./StylesUsage.css";
 import Sidebar from "../Components/Layouts/Sidebar";
 import UsagePDF from "./UsagePDF";
+import GroupedConsumption from "./GroupedConsumption";
 
 const Dashb = () => {
   return (
@@ -23,6 +24,7 @@ const Dashb = () => {
           <HumidityUsage />
           <TemperatureUsage />
           <UsageTracking />
+          <GroupedConsumption />
         </div>
       </div>
     
