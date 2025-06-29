@@ -15,7 +15,7 @@ router.get('/getsingle/:id', isAuthenticated, userController.getSingleUser);
 
 router.put('/update/:id', isAuthenticated, upload.single('avatar'), userController.updateUser);
 
-router.put('/change/password/:id', userController.updateUser);
+router.put('/change/password/:id', isAuthenticated, userController.changePassword);
 
 router.get('/sendcode/:id', userController.sendCode);
 

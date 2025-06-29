@@ -171,7 +171,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../../Components/Layouts/Sidebar';
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import RestoreIcon from '@mui/icons-material/Restore';
+import ReplayIcon from '@mui/icons-material/Replay';
 
 
 DataTable.use(DT);
@@ -241,68 +242,86 @@ export default function UsersList() {
         }
     };
 
+    // Helper for confirmation toast
+const showConfirmToast = (message, onConfirm) => {
+    toast.info(
+        <div>
+            {message}
+            <div style={{ marginTop: 8, textAlign: 'right' }}>
+                <Button size="small" color="primary" onClick={() => { toast.dismiss(); onConfirm(); }}>
+                    Confirm
+                </Button>
+            </div>
+        </div>,
+        { autoClose: false, closeOnClick: false, closeButton: true }
+    );
+};
+
     // Soft delete user
-    const softDeleteUser = async (userId) => {
-        if (!window.confirm("Are you sure you want to soft delete this user?")) return;
-        try {
-            const response = await axios.put(
-                `${process.env.REACT_APP_API}/users/soft-delete/${userId}`,
-                {},
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
+    const softDeleteUser = (userId) => {
+        showConfirmToast("Are you sure you want to soft delete this user?", async () => {
+            try {
+                const response = await axios.put(
+                    `${process.env.REACT_APP_API}/users/soft-delete/${userId}`,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        }
                     }
+                );
+                if (response.data.success) {
+                    toast.success("User soft-deleted successfully");
+                    fetchAllUsers();
                 }
-            );
-            if (response.data.success) {
-                toast.success("User soft-deleted successfully");
-                fetchAllUsers();
+            } catch (error) {
+                console.error("Soft delete failed:", error);
+                toast.error("Failed to soft delete user");
             }
-        } catch (error) {
-            console.error("Soft delete failed:", error);
-            toast.error("Failed to soft delete user");
-        }
+        });
     };
 
     // Restore user
-    const restoreUser = async (userId) => {
-        if (!window.confirm("Are you sure you want to restore this user?")) return;
-        try {
-            const response = await axios.put(
-                `${process.env.REACT_APP_API}/users/restore/${userId}`,
-                {},
-                {
+    const restoreUser = (userId) => {
+        showConfirmToast("Are you sure you want to restore this user?", async () => {
+            try {
+                const response = await axios.put(
+                    `${process.env.REACT_APP_API}/users/restore/${userId}`,
+                    {},
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        }
+                    }
+                );
+                if (response.data.success) {
+                    toast.success("User restored successfully");
+                    fetchAllUsers();
+                }
+            } catch (error) {
+                console.error("Restore failed:", error);
+                toast.error("Failed to restore user");
+            }
+        });
+    };
+
+    const deleteUser = (userId) => {
+        showConfirmToast("Are you sure you want to permanently delete this user?", async () => {
+            try {
+                const response = await axios.delete(`${process.env.REACT_APP_API}/users/delete/${userId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     }
+                });
+                if (response.data.success) {
+                    toast.success("User deleted successfully");
+                    fetchAllUsers();
                 }
-            );
-            if (response.data.success) {
-                toast.success("User restored successfully");
-                fetchAllUsers();
+            } catch (error) {
+                console.error("Delete failed:", error);
+                toast.error("Failed to delete user");
             }
-        } catch (error) {
-            console.error("Restore failed:", error);
-            toast.error("Failed to restore user");
-        }
-    };
-
-    const deleteUser = async (userId) => {
-        if (!window.confirm("Are you sure you want to delete this user?")) return;
-        try {
-            const response = await axios.delete(`${process.env.REACT_APP_API}/users/delete/${userId}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            });
-            if (response.data.success) {
-                toast.success("User deleted successfully");
-                fetchAllUsers();
-            }
-        } catch (error) {
-            console.error("Delete failed:", error);
-            toast.error("Failed to delete user");
-        }
+        });
     };
 
     const handleMenuClick = (event, userId) => {
@@ -364,25 +383,19 @@ export default function UsersList() {
                                     onClick={(event) => handleMenuClick(event, row._id)}
                                 />
                                 {row.isDeleted ? (
-                                    <Button
-                                        variant="contained"
+                                    <RestoreIcon
                                         color="success"
-                                        size="small"
-                                        sx={{ ml: 1 }}
+                                        sx={{ cursor: 'pointer', ml: 1 }}
+                                        fontSize="large"
                                         onClick={() => restoreUser(row._id)}
-                                    >
-                                        Restore
-                                    </Button>
+                                    />
                                 ) : (
-                                    <Button
-                                        variant="contained"
+                                    <ReplayIcon
                                         color="error"
-                                        size="small"
-                                        sx={{ ml: 1 }}
+                                        sx={{ cursor: 'pointer', ml: 1 }}
+                                        fontSize="large"
                                         onClick={() => softDeleteUser(row._id)}
-                                    >
-                                        Soft Delete
-                                    </Button>
+                                    />
                                 )}
                             </div>
                         ),
