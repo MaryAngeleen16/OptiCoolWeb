@@ -49,7 +49,19 @@ export default function EReport() {
           setUsers(usersData);
 
           const applianceCounts = reportsData.reduce((acc, report) => {
-            acc[report.appliance] = (acc[report.appliance] || 0) + 1;
+            let applianceKey = report.appliance.toLowerCase();
+            if (applianceKey.includes("ac")) {
+              applianceKey = "AC";
+            } else if (applianceKey.includes("fan") && !applianceKey.includes("exhaust")) {
+              applianceKey = "Fan";
+            } else if (applianceKey.includes("exhaust")) {
+              applianceKey = "Exhaust Fan";
+            } else if (applianceKey.includes("blower")) {
+              applianceKey = "Blower";
+            } else {
+              applianceKey = report.appliance;
+            }
+            acc[applianceKey] = (acc[applianceKey] || 0) + 1;
             return acc;
           }, {});
 
@@ -135,7 +147,7 @@ export default function EReport() {
         justifyContent: "center",
         alignItems: "center",
         backgroundColor: "#f9f9f9",
-        marginTop: "20%",
+        marginTop: "35%",
       }}
     >
       <Sidebar />
