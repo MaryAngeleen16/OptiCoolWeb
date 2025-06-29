@@ -470,3 +470,49 @@ exports.logout = async (req, res, next) => {
         });
     }
 };
+
+exports.softDeleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { isDeleted: true, deletedAt: Date.now() },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      success: true,
+      message: "User soft-deleted successfully",
+      user,
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to soft delete user" });
+  }
+};
+
+exports.restoreUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      {
+        isDeleted: false,
+        deletedAt: null,
+        isApproved: false, 
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({ success: true, message: "User restored successfully", user });
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Failed to restore user" });
+  }
+};

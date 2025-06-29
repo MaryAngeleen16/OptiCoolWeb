@@ -37,4 +37,8 @@ router.get('/logout/:id', userController.logout);
 
 router.put('/approve/:id', userController.approveUser);
 
-module.exports = router;    
+// Soft delete and restore user (admin only)
+router.put('/soft-delete/:id', isAuthenticated, isAdminRole, userController.softDeleteUser);
+router.put('/restore/:id', isAuthenticated, isAdminRole, userController.restoreUser);
+
+module.exports = router;

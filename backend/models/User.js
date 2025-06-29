@@ -38,19 +38,26 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'user'
     },
-
-    isActive: {
-        type: Boolean,
-        default: false, // Default to false so users are inactive until logged in
-    },
     isApproved: {
         type: Boolean,
-        default: false, // Default to false so users are not approved until admin approves
+        default: false
     },
     resetPasswordCode: String,
     resetPasswordCodeExpire: Date,
     resetPasswordToken: String,
     resetPasswordExpire: Date,
+    isActive: {
+        type: Boolean,
+        default: false
+    },
+    isDeleted: {
+        type: Boolean,
+        default: false
+    },
+    deletedAt: {
+        type: Date,
+        default: null
+    }
 }, { timestamps: true })
 
 userSchema.pre('save', async function (next) {
@@ -95,21 +102,6 @@ userSchema.methods.getResetPasswordCode = async function () {
     return code;
 }
 
-
-// Method to set user as active when they log in
-userSchema.methods.setActive = async function () {
-    this.isActive = true;
-    await this.save();
-}
-
-// Method to set user as inactive when they log out
-userSchema.methods.setInactive = async function () {
-    this.isActive = false;
-    await this.save();
-}
-
-
-
 userSchema.methods.sendResetPasswordCode = async function () {
     await sendEmail({
         email: this.email,
@@ -136,6 +128,21 @@ userSchema.methods.verifyCode = async function (inputtedCode) {
 
 }
 
+// Method to set user as active when they log in
+userSchema.methods.setActive = async function () {
+    this.isActive = true;
+    await this.save();
+};
 
+// Method to set user as inactive when they log out
+userSchema.methods.setInactive = async function () {
+    this.isActive = false;
+    await this.save();
+};
+
+userSchema.index({ deletedAt: 1 }, {
+    expireAfterSeconds: 60 * 60 * 24 * 30, // 30 days
+    partialFilterExpression: { isDeleted: true },
+});
 
 module.exports = mongoose.model('User', userSchema)
