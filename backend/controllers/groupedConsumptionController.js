@@ -56,7 +56,7 @@ exports.getGroupedConsumptions = async (req, res) => {
 
     const [powerRes, logsRes, reportRes] = await Promise.all([
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions"),
-      axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-logs"),
+      axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-log"),
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/getreport")
     ]);
 
