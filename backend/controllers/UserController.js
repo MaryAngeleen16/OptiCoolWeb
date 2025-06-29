@@ -34,6 +34,9 @@ exports.login = async function(req, res, next) {
         if (!user) {
             return res.status(400).json({ message: 'Invalid Email or Password' });
         }
+        if (user.isDeleted) {
+            return res.status(403).json({ message: 'Your account has been deleted or deactivated. Please contact support.' });
+        }
         const passwordMatched = await user.comparePassword(password);
         if (!passwordMatched) {
             return res.status(401).json({ message: 'Invalid Email or Password' });
@@ -292,6 +295,7 @@ exports.logout = async function(req, res, next) {
 
 exports.softDeleteUser = async function(req, res) {
   try {
+    // Find and update the user
     const user = await User.findByIdAndUpdate(
       req.params.id,
       { 
@@ -305,9 +309,11 @@ exports.softDeleteUser = async function(req, res) {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    // Clear the user's authentication cookie/token if present
+    res.clearCookie('token');
     res.json({
       success: true,
-      message: "User soft-deleted successfully",
+      message: "User soft-deleted successfully and logged out.",
       user,
     });
   } catch (error) {
