@@ -1,5 +1,5 @@
 import axios from 'axios';
-import store from './states/store';
+import { store } from './states/store';
 import { setAuth } from './states/authSlice';
 
 // Set up a global response interceptor

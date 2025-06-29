@@ -383,41 +383,38 @@ const showConfirmToast = (message, onConfirm) => {
                         0: (data) => <Avatar src={data} sx={{ width: 75, height: 75 }} />,
                         4: (data) => <div>{new Date(data).toLocaleDateString()}</div>,
                         5: (data, row) => (
-                            <div>
-                                {!row.isDeleted && (
-                                    <>
-                                        <ManageAccountsIcon
-                                            color="warning"
-                                            sx={{ cursor: 'pointer', marginRight: 2 }}
-                                            fontSize="large"
-                                            onClick={(event) => handleMenuClick(event, row._id)}
-                                        />
-                                        <DeleteIcon
-                                            color="error"
-                                            sx={{ cursor: 'pointer', ml: 1 }}
-                                            fontSize="large"
-                                            onClick={() => softDeleteUser(row._id)}
-                                        />
-                                    </>
-                                )}
-                                {row.isDeleted && (
-                                    <>
-                                        <RestoreIcon
-                                            color="success"
-                                            sx={{ cursor: 'pointer', ml: 1 }}
-                                            fontSize="large"
-                                            onClick={() => restoreUser(row._id)}
-                                        />
-                                    </>
-                                )}
-                                {/* Permanent delete is always available */}
-                                <DeleteIcon
-                                    color="error"
-                                    sx={{ cursor: 'pointer', ml: 1 }}
-                                    fontSize="large"
-                                    onClick={() => deleteUser(row._id)}
+                          <div>
+                            <ManageAccountsIcon
+                              color="warning"
+                              sx={{ cursor: 'pointer', marginRight: 2 }}
+                              fontSize="large"
+                              onClick={(event) => handleMenuClick(event, row._id)}
+                            />
+                            {!row.isDeleted && (
+                              <DeleteIcon
+                                color="error"
+                                sx={{ cursor: 'pointer', ml: 1 }}
+                                fontSize="large"
+                                onClick={() => softDeleteUser(row._id)}
+                              />
+                            )}
+                            {row.isDeleted && (
+                              <>
+                                <RestoreIcon
+                                  color="success"
+                                  sx={{ cursor: 'pointer', ml: 1 }}
+                                  fontSize="large"
+                                  onClick={() => restoreUser(row._id)}
                                 />
-                            </div>
+                                <DeleteIcon
+                                  color="error"
+                                  sx={{ cursor: 'pointer', ml: 1 }}
+                                  fontSize="large"
+                                  onClick={() => deleteUser(row._id)}
+                                />
+                              </>
+                            )}
+                          </div>
                         ),
                     }}
                 >
