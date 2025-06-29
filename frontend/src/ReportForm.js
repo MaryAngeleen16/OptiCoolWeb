@@ -4,12 +4,15 @@ import './ReportForm.css';
 import { useSelector } from 'react-redux'; 
 import moment from 'moment-timezone'; 
 
-const ReportForm = ({ device, onClose }) => {
-  const [selectedStatus, setSelectedStatus] = useState('');
-  const { user, token } = useSelector(state => state.auth); // Get user and token from Redux store
+const ReportForm = ({ onClose }) => {
+  const [appliance, setAppliance] = useState('');
+  const [unit, setUnit] = useState('');
+  const [status, setStatus] = useState('');
+  const [reason, setReason] = useState('');
+  const { user, token } = useSelector(state => state.auth);
   const [submitting, setSubmitting] = useState(false);
 
-  const statuses = [
+  const reasons = [
     "Overheating",
     "Producing Unusual Noises",
     "Weak Air",
@@ -18,14 +21,18 @@ const ReportForm = ({ device, onClose }) => {
     "Physical Damage"
   ];
 
-  const handleRadioChange = (status) => {
-    setSelectedStatus(status);
-  };
+  const applianceOptions = [
+    "Midea AC",
+    "Carrier AC",
+    "Fan 1", "Fan 2", "Fan 3", "Fan 4",
+    "Exhaust 1", "Exhaust 2",
+    "Blower"
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedStatus) {
-      alert("Please select a status.");
+    if (!appliance || !status || !reason) {
+      alert("Please fill out all fields.");
       return;
     }
 
@@ -37,26 +44,22 @@ const ReportForm = ({ device, onClose }) => {
 
       setSubmitting(true);
 
-      const timeReported = moment().tz("Asia/Manila").format("hh:mm:ss A"); 
+      const timeReported = moment().tz("Asia/Manila").format("hh:mm:ss A");
 
       const reportPayload = {
-        appliance: device,
-        status: selectedStatus,
-        reportDate: new Date(), // Set the report date
-        timeReported: timeReported, 
-        user: user._id ? user._id : "Missing ID"
+        appliance: appliance,
+        description: reason,
+        status: status,
+        reportDate: new Date(),
+        timeReported: timeReported,
+        user: user._id ?? "Missing ID"
       };
-
-      console.log("Final reportPayload:", JSON.stringify(reportPayload, null, 2)); // Log the final report payload
-      console.log("Token:", token); // Log the token
 
       const response = await axios.post(`${process.env.REACT_APP_API}/ereport`, reportPayload, {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
-      console.log("API Response:", response.data); // Log the response data
 
       if (response.data.success) {
         alert("Report submitted successfully.");
@@ -76,22 +79,54 @@ const ReportForm = ({ device, onClose }) => {
     <div className="modal">
       <div className="modal-content">
         <span className="close" onClick={onClose}>&times;</span>
-        <h2>Report Issue for {device}</h2>
+        <h2>Report an Appliance Issue</h2>
         <form onSubmit={handleSubmit}>
-          {statuses.map((status) => (
-            <div key={status}>
+          {/* Appliance Dropdown */}
+          <label htmlFor="appliance">Select Appliance:</label>
+          <select
+            id="appliance"
+            value={appliance}
+            onChange={(e) => setAppliance(e.target.value)}
+            required
+          >
+            <option value="">-- Select Appliance --</option>
+            {applianceOptions.map((a) => (
+              <option key={a} value={a}>{a}</option>
+            ))}
+          </select>
+
+          {/* Status Dropdown */}
+          <label htmlFor="status">Current Status:</label>
+          <select
+            id="status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            required
+          >
+            <option value="">-- Select Status --</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+
+          {/* Reason Radio Buttons */}
+          <label>Reason:</label>
+          {reasons.map((r) => (
+            <div key={r}>
               <input
                 type="radio"
-                id={status}
-                name="status"
-                value={status}
-                checked={selectedStatus === status}
-                onChange={() => handleRadioChange(status)}
+                id={r}
+                name="reason"
+                value={r}
+                checked={reason === r}
+                onChange={() => setReason(r)}
               />
-              <label htmlFor={status}>{status}</label>
+              <label htmlFor={r}>{r}</label>
             </div>
           ))}
-          <button type="submit" disabled={submitting}>Submit Report</button>
+
+          <button type="submit" disabled={submitting}>
+            {submitting ? "Submitting..." : "Submit Report"}
+          </button>
           <button type="button" onClick={onClose}>Cancel</button>
         </form>
       </div>

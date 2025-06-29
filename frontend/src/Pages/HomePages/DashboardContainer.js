@@ -7,6 +7,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import TemperatureControl from "./TemperatureControl";
+import ReportForm from "../../ReportForm"; 
 
 const DashboardContainer = () => {
   const [userList, setUserList] = useState([]);
@@ -14,6 +15,7 @@ const DashboardContainer = () => {
   const [currentACTemp, setCurrentACTemp] = useState("--");
   const [acInputTemp, setAcInputTemp] = useState("");
   const { user, token } = useSelector(state => state.auth);
+  const [showReportForm, setShowReportForm] = useState(false); // Modal visibility
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -160,21 +162,38 @@ const DashboardContainer = () => {
       <div className="card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <h2 className="section-title">My Devices</h2>
-          <button
-            onClick={handleTurnOffSystem}
-            style={{
-              background: "#000",
-              color: "#fff",
-              border: "none",
-              borderRadius: 4,
-              padding: "6px 12px",
-              fontWeight: "bold",
-              cursor: "pointer"
-            }}
-          >
-            TURN OFF SYSTEM
-          </button>
+          <div style={{ display: "flex", gap: 8 }}>
+            <button
+              onClick={() => setShowReportForm(true)}
+              style={{
+                background: "#1976d2",
+                color: "#fff",
+                border: "none",
+                borderRadius: 4,
+                padding: "6px 12px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Send Report
+            </button>
+            <button
+              onClick={handleTurnOffSystem}
+              style={{
+                background: "#000",
+                color: "#fff",
+                border: "none",
+                borderRadius: 4,
+                padding: "6px 12px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              TURN OFF SYSTEM
+            </button>
+          </div>
         </div>
+
         <div style={{ marginBottom: 12, fontWeight: "bold", display: "flex", alignItems: "center", gap: 16 }}>
           <span>
             Current AC Temp: <span style={{ color: "#1976d2" }}>{currentACTemp}°C</span>
@@ -203,6 +222,7 @@ const DashboardContainer = () => {
             }}
           />
         </div>
+
         <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
           <button
             onClick={async () => {
@@ -275,6 +295,7 @@ const DashboardContainer = () => {
             Turn All Off
           </button>
         </div>
+
         <div className="devices-grid">
           {devices.map((device, index) => (
             <div key={index} className={`device-card ${device.color}`}>
@@ -312,6 +333,11 @@ const DashboardContainer = () => {
           ))}
         </div>
       </div>
+
+      {/* Report Form Modal */}
+      {showReportForm && (
+        <ReportForm onClose={() => setShowReportForm(false)} />
+      )}
     </div>
   );
 };
