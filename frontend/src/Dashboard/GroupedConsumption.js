@@ -37,7 +37,7 @@ function getACName(label) {
   return null;
 }
 
-const useGroupedConsumption = () => {
+const GroupedConsumption = () => {
   const [grouped, setGrouped] = useState(null);
 
   useEffect(() => {
@@ -134,4 +134,4 @@ const useGroupedConsumption = () => {
   return grouped;
 };
 
-export default useGroupedConsumption;
+export default GroupedConsumption;
