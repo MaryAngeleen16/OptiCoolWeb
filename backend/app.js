@@ -76,6 +76,6 @@ app.use('/api/v1', outsideHumidityRoutes);
 const groupedConsumptionRoutes = require('./routes/groupedConsumptionRoutes');
 app.use('/api/v1', groupedConsumptionRoutes);
 
-app.use('/api/v1/application-logs', applianceLogsRoutes);
+app.use('/api/v1/appliances-logs', applianceLogsRoutes);
 
 module.exports = app;
