@@ -7,6 +7,7 @@ const AddHardwarePage = () => {
   const [appliance, setAppliance] = useState('');
   const [watts, setWatts] = useState('');
   const [type, setType] = useState('AC');
+  const [quantity, setQuantity] = useState(1);
   const [hardwareList, setHardwareList] = useState([]);
   const [editId, setEditId] = useState(null);
 
@@ -16,7 +17,7 @@ const AddHardwarePage = () => {
 
   const fetchHardware = async () => {
     try {
-      const res = await axios.get(API_URL); // You need to add GET endpoint in backend
+      const res = await axios.get(API_URL);
       setHardwareList(res.data);
     } catch (err) {
       setHardwareList([]);
@@ -27,13 +28,14 @@ const AddHardwarePage = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axios.put(`${API_URL}/${editId}`, { Appliance: appliance, Watts: watts, Type: type });
+        await axios.put(`${API_URL}/${editId}`, { Appliance: appliance, Watts: watts, Type: type, Quantity: quantity });
       } else {
-        await axios.post(API_URL, { Appliance: appliance, Watts: watts, Type: type });
+        await axios.post(API_URL, { Appliance: appliance, Watts: watts, Type: type, Quantity: quantity });
       }
       setAppliance('');
       setWatts('');
       setType('AC');
+      setQuantity(1);
       setEditId(null);
       fetchHardware();
     } catch (err) {
@@ -46,6 +48,7 @@ const AddHardwarePage = () => {
     setAppliance(hw.Appliance);
     setWatts(hw.Watts);
     setType(hw.Type);
+    setQuantity(hw.Quantity || 1);
   };
 
   const handleDelete = async (id) => {
@@ -84,14 +87,22 @@ const AddHardwarePage = () => {
           <option value="Lights">Lights</option>
           <option value="Others">Others</option>
         </select>
+        <input
+          type="number"
+          placeholder="Quantity"
+          value={quantity}
+          min={1}
+          onChange={e => setQuantity(Number(e.target.value))}
+          required
+        />
         <button type="submit">{editId ? 'Update' : 'Add'}</button>
-        {editId && <button type="button" onClick={() => { setEditId(null); setAppliance(''); setWatts(''); setType('AC'); }}>Cancel</button>}
+        {editId && <button type="button" onClick={() => { setEditId(null); setAppliance(''); setWatts(''); setType('AC'); setQuantity(1); }}>Cancel</button>}
       </form>
       <h3>Hardware List</h3>
       <ul>
         {hardwareList.map(hw => (
           <li key={hw._id}>
-            {hw.Appliance} - {hw.Watts}W - {hw.Type}
+            {hw.Appliance} - {hw.Watts}W - {hw.Type} - Qty: {hw.Quantity || 1}
             <button onClick={() => handleEdit(hw)}>Edit</button>
             <button onClick={() => handleDelete(hw._id)}>Delete</button>
           </li>

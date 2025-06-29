@@ -13,6 +13,11 @@ const addHardwareSchema = new mongoose.Schema({
     type: String,
     enum: ['AC', 'Fan', 'Exhaust', 'Blower', 'Lights', 'Others'],
     required: true
+  },
+  Quantity: {
+    type: Number,
+    required: true,
+    default: 1
   }
 });
 
