@@ -1,7 +1,6 @@
 const axios = require("axios");
 const moment = require("moment");
 
-// Appliance wattage reference
 const FULL_WATTAGE = {
   "AC 1": 1850,
   "AC 2": 1510,
@@ -44,24 +43,15 @@ function computeEnergy(watts, msDuration) {
 
 exports.getGroupedConsumptions = async (req, res) => {
   try {
-    const filter = req.query.filter;
-    let startDate;
-    if (filter === "daily") {
-      startDate = moment().startOf("day");
-    } else if (filter === "monthly") {
-      startDate = moment().startOf("month");
-    } else {
-      startDate = moment("2025-03-21");
-    }
-
     const [powerRes, logsRes, reportRes] = await Promise.all([
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions"),
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-log"),
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/getreport")
     ]);
 
-    const reportData = reportRes.data;
-    const brokenAppliances = new Set(reportData.map(r => r.appliance));
+    const brokenAppliances = new Set(
+      reportRes.data.reports.map(r => r.appliance)
+    );
 
     const WATTAGE = {};
     const GROUPS = {};
@@ -75,7 +65,7 @@ exports.getGroupedConsumptions = async (req, res) => {
     }
 
     const powerData = powerRes.data
-      .filter(p => new Date(p.timestamp) >= startDate.toDate())
+      .filter(p => new Date(p.timestamp) >= new Date("2025-03-21"))
       .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     const totalKwh = powerData.length > 1
@@ -83,7 +73,7 @@ exports.getGroupedConsumptions = async (req, res) => {
       : 0;
 
     const logs = logsRes.data
-      .filter(log => new Date(log.timestamp) >= startDate.toDate())
+      .filter(log => new Date(log.timestamp) >= new Date("2025-06-28"))
       .map(log => ({
         time: new Date(log.timestamp),
         type: parseAction(log.action),
@@ -138,7 +128,7 @@ exports.getGroupedConsumptions = async (req, res) => {
 
     res.json(output);
   } catch (err) {
-    console.error(err);
+    console.error("Failed to compute grouped consumptions:", err);
     res.status(500).json({ error: "Failed to compute grouped consumptions." });
   }
 };
