@@ -1,16 +1,19 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
-import './ReportForm.css'; 
-import { useSelector } from 'react-redux'; 
-import moment from 'moment-timezone'; 
+import './ReportForm.css';
+import { useSelector } from 'react-redux';
+import moment from 'moment-timezone';
+import { useNavigate } from 'react-router-dom';
 
-const ReportForm = ({ onClose }) => {
+const ReportForm = () => {
   const [appliance, setAppliance] = useState('');
-  const [unit, setUnit] = useState('');
+  const [fanCount, setFanCount] = useState(1);
+  const [exhaustCount, setExhaustCount] = useState(1);
   const [status, setStatus] = useState('');
   const [reason, setReason] = useState('');
   const { user, token } = useSelector(state => state.auth);
   const [submitting, setSubmitting] = useState(false);
+  const navigate = useNavigate();
 
   const reasons = [
     "Overheating",
@@ -24,8 +27,8 @@ const ReportForm = ({ onClose }) => {
   const applianceOptions = [
     "Midea AC",
     "Carrier AC",
-    "Fan 1", "Fan 2", "Fan 3", "Fan 4",
-    "Exhaust 1", "Exhaust 2",
+    "Fan",
+    "Exhaust Fan",
     "Blower"
   ];
 
@@ -46,8 +49,15 @@ const ReportForm = ({ onClose }) => {
 
       const timeReported = moment().tz("Asia/Manila").format("hh:mm:ss A");
 
+      let finalAppliance = appliance;
+      if (appliance === "Fan") {
+        finalAppliance = `${fanCount} Fan${fanCount > 1 ? 's' : ''}`;
+      } else if (appliance === "Exhaust Fan") {
+        finalAppliance = `${exhaustCount} Exhaust Fan${exhaustCount > 1 ? 's' : ''}`;
+      }
+
       const reportPayload = {
-        appliance: appliance,
+        appliance: finalAppliance,
         description: reason,
         status: status,
         reportDate: new Date(),
@@ -63,7 +73,7 @@ const ReportForm = ({ onClose }) => {
 
       if (response.data.success) {
         alert("Report submitted successfully.");
-        onClose();
+        navigate('/'); // Go back to dashboard
       } else {
         alert("Failed to submit report. Reason: " + response.data.message);
       }
@@ -76,60 +86,96 @@ const ReportForm = ({ onClose }) => {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content">
-        <span className="close" onClick={onClose}>&times;</span>
-        <h2>Report an Appliance Issue</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Appliance Dropdown */}
-          <label htmlFor="appliance">Select Appliance:</label>
-          <select
-            id="appliance"
-            value={appliance}
-            onChange={(e) => setAppliance(e.target.value)}
-            required
-          >
-            <option value="">-- Select Appliance --</option>
-            {applianceOptions.map((a) => (
-              <option key={a} value={a}>{a}</option>
-            ))}
-          </select>
-
-          {/* Status Dropdown */}
-          <label htmlFor="status">Current Status:</label>
-          <select
-            id="status"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            required
-          >
-            <option value="">-- Select Status --</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-
-          {/* Reason Radio Buttons */}
-          <label>Reason:</label>
-          {reasons.map((r) => (
-            <div key={r}>
-              <input
-                type="radio"
-                id={r}
-                name="reason"
-                value={r}
-                checked={reason === r}
-                onChange={() => setReason(r)}
-              />
-              <label htmlFor={r}>{r}</label>
-            </div>
+    <div className="report-form-container">
+      <h2>Report an Appliance Issue</h2>
+      <form onSubmit={handleSubmit} className="report-form">
+        {/* Appliance Dropdown */}
+        <label htmlFor="appliance">Select Appliance:</label>
+        <select
+          id="appliance"
+          value={appliance}
+          onChange={(e) => setAppliance(e.target.value)}
+          required
+        >
+          <option value="">-- Select Appliance --</option>
+          {applianceOptions.map((a) => (
+            <option key={a} value={a}>{a}</option>
           ))}
+        </select>
 
-          <button type="submit" disabled={submitting}>
-            {submitting ? "Submitting..." : "Submit Report"}
-          </button>
-          <button type="button" onClick={onClose}>Cancel</button>
-        </form>
-      </div>
+        {/* Fan Count */}
+        {appliance === "Fan" && (
+          <>
+            <label htmlFor="fanCount">Number of Fans Broken:</label>
+            <input
+              type="number"
+              id="fanCount"
+              min="1"
+              max="4"
+              value={fanCount}
+              onChange={(e) => setFanCount(Number(e.target.value))}
+              required
+            />
+          </>
+        )}
+
+        {/* Exhaust Fan Count */}
+        {appliance === "Exhaust Fan" && (
+          <>
+            <label htmlFor="exhaustCount">Number of Exhaust Fans Broken:</label>
+            <input
+              type="number"
+              id="exhaustCount"
+              min="1"
+              max="2"
+              value={exhaustCount}
+              onChange={(e) => setExhaustCount(Number(e.target.value))}
+              required
+            />
+          </>
+        )}
+
+        {/* Status Dropdown */}
+        <label htmlFor="status">Current Status:</label>
+        <select
+          id="status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          required
+        >
+          <option value="">-- Select Status --</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+
+        {/* Reason */}
+        <label>Reason:</label>
+        {reasons.map((r) => (
+          <div key={r}>
+            <input
+              type="radio"
+              id={r}
+              name="reason"
+              value={r}
+              checked={reason === r}
+              onChange={() => setReason(r)}
+            />
+            <label htmlFor={r}>{r}</label>
+          </div>
+        ))}
+
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Submitting..." : "Submit Report"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          style={{ marginLeft: '10px' }}
+        >
+          Back to Dashboard
+        </button>
+      </form>
     </div>
   );
 };
