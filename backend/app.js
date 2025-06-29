@@ -42,7 +42,6 @@ const powerConsumptionRoutes = require('./routes/powerConsumptionRoutes')
 const humidityRoutes = require('./routes/humidityRoutes')
 const temperatureRoutes = require('./routes/temperatureRoutes')
 const activityLogRoutes = require('./routes/activityLogRoutes');
-const calculateRoutes = require('./routes/calculateRoute') ;
 // Use the imported routes modules
 app.use('/api/v1/users', userRoutes)
 app.use('/api/v1', ereportRoutes)
@@ -53,7 +52,6 @@ app.use('/api/v1', temperatureRoutes)
 
 
 app.use('/api/v1/activity-log', activityLogRoutes);
-app.use('/api/v1', calculateRoutes);
 
 
 
