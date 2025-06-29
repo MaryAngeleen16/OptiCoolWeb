@@ -64,6 +64,16 @@
 .yellow {
     color: #ffeb3b;
 }
+
+.green-button
+{
+    background-color: #4caf50;
+}
+
+.red-button
+{
+    background-color: #f44336;
+}
   
 /* Devices Section */
 .devices-grid {
@@ -87,6 +97,10 @@
   
 .device-card.blue {
     background-color: #2196f3;
+}
+
+.device-card.yellow {
+    background-color: #e7d63c;
 }
   
 .device-icon {

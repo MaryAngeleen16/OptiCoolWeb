@@ -122,10 +122,10 @@ const DashboardContainer = () => {
   };
 
   const devices = [
-    { name: "Aircon", icon: "❄️", color: "pink" },
+    { name: "Aircon", icon: "❄️", color: "yellow"},
     { name: "Fan", icon: "🌀", color: "blue" },
     { name: "Exhaust", icon: "🌫️", color: "blue" },
-    { name: "Blower", icon: "💨", color: "pink" },
+    { name: "Blower", icon: "💨", color: "yellow" },
   ];
 
   return (
@@ -141,6 +141,22 @@ const DashboardContainer = () => {
           ))}
         </div>
       </div>
+
+            <button
+        onClick={() => navigate("/reportpage")}
+        style={{
+          background: "#1976d2",
+          color: "#fff",
+          border: "none",
+          borderRadius: 4,
+          padding: "10px 18px",
+          fontWeight: "bold",
+          marginTop: "20px",
+          cursor: "pointer",
+        }}
+      >
+        Send Report
+      </button>
 
       <div className="card">
         <div className="section-title-container">
@@ -172,7 +188,7 @@ const DashboardContainer = () => {
           />
         </div>
 
-        <div className="device-buttons">
+        <div className="device-buttons" style={{ marginBottom: "20px", marginTop: "10px" }}>
           <button
             className="green-button"
             onClick={async () => {
@@ -240,21 +256,6 @@ const DashboardContainer = () => {
         </div>
       </div>
 
-      <button
-        onClick={() => navigate("/reportpage")}
-        style={{
-          background: "#1976d2",
-          color: "#fff",
-          border: "none",
-          borderRadius: 4,
-          padding: "10px 18px",
-          fontWeight: "bold",
-          marginTop: "20px",
-          cursor: "pointer",
-        }}
-      >
-        Send Report
-      </button>
 
       <ToastContainer />
     </div>
