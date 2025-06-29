@@ -8,7 +8,7 @@ const { generateCode, sendEmail } = require('../utils/mailer');
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        require: [true, 'Please provide your name'],
+        required: [true, 'Please provide your name'],
         maxLength: [30, 'Your name should not be longer than 30 characters'],
         minLength: [5, 'Your name must have more than 5 characters']
     },
