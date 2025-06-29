@@ -44,10 +44,20 @@ function computeEnergy(watts, msDuration) {
 
 exports.getGroupedConsumptions = async (req, res) => {
   try {
+    const filter = req.query.filter;
+    let startDate;
+    if (filter === "daily") {
+      startDate = moment().startOf("day");
+    } else if (filter === "monthly") {
+      startDate = moment().startOf("month");
+    } else {
+      startDate = moment("2025-03-21");
+    }
+
     const [powerRes, logsRes, reportRes] = await Promise.all([
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions"),
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-logs"),
-      axios.get("https://opticoolweb-backend.onrender.com/api/v1/getreport") 
+      axios.get("https://opticoolweb-backend.onrender.com/api/v1/getreport")
     ]);
 
     const reportData = reportRes.data;
@@ -56,7 +66,7 @@ exports.getGroupedConsumptions = async (req, res) => {
     const WATTAGE = {};
     const GROUPS = {};
     for (const [device, watt] of Object.entries(FULL_WATTAGE)) {
-      if (!brokenAppliances.has(device.split(" ")[0])) { 
+      if (!brokenAppliances.has(device.split(" ")[0])) {
         WATTAGE[device] = watt;
         const group = GROUP_MAP[device];
         if (!GROUPS[group]) GROUPS[group] = [];
@@ -65,7 +75,7 @@ exports.getGroupedConsumptions = async (req, res) => {
     }
 
     const powerData = powerRes.data
-      .filter(p => new Date(p.timestamp) >= new Date("2025-03-21"))
+      .filter(p => new Date(p.timestamp) >= startDate.toDate())
       .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     const totalKwh = powerData.length > 1
@@ -73,7 +83,7 @@ exports.getGroupedConsumptions = async (req, res) => {
       : 0;
 
     const logs = logsRes.data
-      .filter(log => new Date(log.timestamp) >= new Date("2025-06-28"))
+      .filter(log => new Date(log.timestamp) >= startDate.toDate())
       .map(log => ({
         time: new Date(log.timestamp),
         type: parseAction(log.action),

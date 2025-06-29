@@ -19,7 +19,7 @@ import EReport from './Pages/AdminPages/EReport.js';
 import ActiveUsers from './Pages/AdminPages/ActiveUsers.js';
 import UserLogs from './Pages/AdminPages/UserLogs.js';
 import ActivityLog from './Pages/AdminPages/ActivityLog.js';
-
+import GroupedConsumptionViewer from './Dashboard/GroupedConsumption.js';
 function App() {
 
   const { user, isLogin } = useSelector(state => state.auth);
@@ -45,6 +45,8 @@ function App() {
 
         <Route path="/loglist" element={<UserLogs />} />
         <Route path="/activitylog" element={<ActivityLog />} />
+
+        <Route path="/grouped-consumption" element={<GroupedConsumptionViewer />} />
 
         {/* Redirect to home if not logged in */}
 
