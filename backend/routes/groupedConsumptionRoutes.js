@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
-const { getGroupedConsumptions } = require("../controllers/groupedConsumptionController");
+const controller = require("../controllers/groupedConsumptionController");
 
-router.get("/grouped-consumptions", getGroupedConsumptions);
+router.get("/grouped-raw", controller.getGroupedConsumptionRawData);
 
 module.exports = router;
