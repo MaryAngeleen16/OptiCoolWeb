@@ -13,7 +13,7 @@ export default function ApplianceConsumption() {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API}/calculate-consumption`)
+    axios.get(`${process.env.REACT_APP_API}/appliance-consumption`)
       .then(res => setData(res.data))
       .catch(err => console.error("Failed to fetch consumption data:", err));
   }, []);
