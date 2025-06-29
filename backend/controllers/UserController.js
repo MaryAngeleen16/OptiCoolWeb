@@ -294,7 +294,12 @@ exports.softDeleteUser = async function(req, res) {
   try {
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { isDeleted: true, deletedAt: Date.now() },
+      { 
+        isDeleted: true, 
+        deletedAt: Date.now(), 
+        isActive: false, // log out user
+        isApproved: false // prevent login until restored
+      },
       { new: true, runValidators: true }
     );
     if (!user) {
@@ -319,7 +324,7 @@ exports.restoreUser = async function(req, res) {
       {
         isDeleted: false,
         deletedAt: null,
-        isApproved: false, 
+        isApproved: true, // set approved to true on restore
       },
       { new: true }
     );
