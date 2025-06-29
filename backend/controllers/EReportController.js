@@ -122,3 +122,30 @@ exports.getAllReports = async (req, res, next) => {
         });
     }
 };
+
+exports.markReportResolved = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updated = await Report.findByIdAndUpdate(
+      id,
+      { isResolved: "yes" },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Report not found." });
+    }
+
+    return res.status(200).json({
+      message: "Report marked as resolved.",
+      report: updated,
+    });
+  } catch (err) {
+    console.error("Error updating report:", err);
+    return res.status(500).json({
+      message: "Failed to mark report as resolved.",
+      error: err.message,
+    });
+  }
+};

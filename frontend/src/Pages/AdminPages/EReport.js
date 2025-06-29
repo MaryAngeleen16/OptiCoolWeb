@@ -13,13 +13,15 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Button,
 } from "@mui/material";
 import axios from "axios";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 import "../../Dashboard/StylesUsage.css";
-import ReactPaginate from "react-paginate"; // Import ReactPaginate
-import Sidebar from "../../Components/Layouts/Sidebar"; // Import Sidebar component
+import ReactPaginate from "react-paginate";
+import Sidebar from "../../Components/Layouts/Sidebar";
+
 export default function EReport() {
   const [reports, setReports] = useState([]);
   const [users, setUsers] = useState([]);
@@ -27,9 +29,9 @@ export default function EReport() {
   const [latestReport, setLatestReport] = useState(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [sortedAppliances, setSortedAppliances] = useState([]);
-  const [pageCount, setPageCount] = useState(0); // State to store page count
-  const [currentPage, setCurrentPage] = useState(0); // State to store current page
-  const reportsPerPage = 10; // Number of reports per page
+  const [pageCount, setPageCount] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const reportsPerPage = 10;
 
   useEffect(() => {
     const fetchReportsAndUsers = async () => {
@@ -46,27 +48,25 @@ export default function EReport() {
           setReports(reportsData);
           setUsers(usersData);
 
-          // Aggregate data for the chart
           const applianceCounts = reportsData.reduce((acc, report) => {
             acc[report.appliance] = (acc[report.appliance] || 0) + 1;
             return acc;
           }, {});
 
           setChartData({
-            labels: Object.keys(applianceCounts), // X-axis labels (appliance names)
+            labels: Object.keys(applianceCounts),
             datasets: [
               {
                 label: "Reports Count",
-                data: Object.values(applianceCounts), // Y-axis values (counts)
-                backgroundColor: "rgba(54, 162, 235, 0.6)", // Bar color
-                borderColor: "rgba(54, 162, 235, 1)", // Bar border color
+                data: Object.values(applianceCounts),
+                backgroundColor: "rgba(54, 162, 235, 0.6)",
+                borderColor: "rgba(54, 162, 235, 1)",
                 borderWidth: 1,
-                barThickness: 50, // Adjust bar thickness
+                barThickness: 50,
               },
             ],
           });
 
-          // Sort appliances by count in descending order
           const sorted = Object.entries(applianceCounts).sort(
             (a, b) => b[1] - a[1]
           );
@@ -80,7 +80,6 @@ export default function EReport() {
             setOpenSnackbar(true);
           }
 
-          // Set the page count for pagination
           setPageCount(Math.ceil(reportsData.length / reportsPerPage));
         }
       } catch (error) {
@@ -99,7 +98,6 @@ export default function EReport() {
 
   const getUserInfo = (userId) => {
     const user = users.find((user) => user._id === userId);
-    console.log(user);
     return user
       ? { email: user.email, username: user.username }
       : { email: "N/A", username: "N/A" };
@@ -110,7 +108,19 @@ export default function EReport() {
     setCurrentPage(selectedPage);
   };
 
-  // Calculate the reports to display on the current page
+  const markAsResolved = async (reportId) => {
+    try {
+      await axios.patch(`${process.env.REACT_APP_API}/ereport/${reportId}/resolve`);
+      setReports((prevReports) =>
+        prevReports.map((r) =>
+          r._id === reportId ? { ...r, isResolved: "yes" } : r
+        )
+      );
+    } catch (err) {
+      console.error("Failed to mark as resolved:", err);
+    }
+  };
+
   const offset = currentPage * reportsPerPage;
   const sortedReports = [...reports].sort(
     (a, b) => new Date(b.reportDate) - new Date(a.reportDate)
@@ -128,7 +138,7 @@ export default function EReport() {
         marginTop: "20%",
       }}
     >
-          <Sidebar />
+      <Sidebar />
       <Container style={{ maxWidth: "75%", marginTop: "30%" }}>
         <Card style={{ marginTop: "10%", width: "100%" }}>
           <CardContent>
@@ -140,20 +150,14 @@ export default function EReport() {
                 <Bar
                   data={chartData}
                   options={{
-                    indexAxis: "x", // Change to 'x' for horizontal bars, 'y' for vertical bars
+                    indexAxis: "x",
                     responsive: true,
                     plugins: {
-                      legend: {
-                        position: "top",
-                      },
+                      legend: { position: "top" },
                     },
                     scales: {
-                      x: {
-                        beginAtZero: true, // Ensure the x-axis starts from 0
-                      },
-                      y: {
-                        beginAtZero: true, // Ensure the y-axis starts from 0
-                      },
+                      x: { beginAtZero: true },
+                      y: { beginAtZero: true },
                     },
                   }}
                 />
@@ -203,24 +207,39 @@ export default function EReport() {
                   <TableRow>
                     <TableCell>Appliance</TableCell>
                     <TableCell>Status</TableCell>
+                    <TableCell>Description</TableCell>
                     <TableCell>Report Date</TableCell>
                     <TableCell>Report Time</TableCell>
-                    <TableCell>Reported By (Email)</TableCell>
                     <TableCell>Reported By (Username)</TableCell>
+                    <TableCell>Resolved?</TableCell>
+                    <TableCell>Action</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {currentReports.map((report, index) => {
                     const userInfo = getUserInfo(report.user?._id);
-                    
+                    const description = report.description || report.status;
                     return (
                       <TableRow key={index}>
                         <TableCell>{report.appliance}</TableCell>
                         <TableCell>{report.status}</TableCell>
+                        <TableCell>{description}</TableCell>
                         <TableCell>{formatDate(report.reportDate)}</TableCell>
                         <TableCell>{report.timeReported}</TableCell>
-                        <TableCell>{userInfo.email}</TableCell>
                         <TableCell>{userInfo.username}</TableCell>
+                        <TableCell>{report.isResolved}</TableCell>
+                        <TableCell>
+                          {report.isResolved !== "yes" && (
+                            <Button
+                              variant="contained"
+                              color="success"
+                              size="small"
+                              onClick={() => markAsResolved(report._id)}
+                            >
+                              Mark as Resolved
+                            </Button>
+                          )}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
@@ -253,10 +272,7 @@ export default function EReport() {
             )} at ${latestReport.timeReported}`}
           />
         )}
-          
       </Container>
-   
     </div>
   );
 }
-
