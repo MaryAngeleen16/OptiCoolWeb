@@ -38,11 +38,18 @@ function getACName(label) {
 
 exports.getGroupedConsumptions = async (req, res) => {
   try {
+    console.log("🔁 Fetching data from powerconsumptions, getreport, and appliances...");
+
     const [powerRes, reportRes, applianceLogRes] = await Promise.all([
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions"),
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/getreport"),
       axios.get("https://opticoolweb-backend.onrender.com/api/v1/appliances"),
     ]);
+
+    console.log("✅ All data fetched.");
+    console.log("📊 Total power logs:", powerRes.data.length);
+    console.log("📝 Total reports:", reportRes.data.reports.length);
+    console.log("📋 Total appliance logs:", applianceLogRes.data.length);
 
     const powerData = powerRes.data
       .filter((p) => new Date(p.timestamp) >= new Date("2025-03-21"))
@@ -53,7 +60,8 @@ exports.getGroupedConsumptions = async (req, res) => {
         ? powerData[powerData.length - 1].consumption - powerData[0].consumption
         : 0;
 
-    // Identify broken ACs from unresolved inactive reports
+    console.log("⚡ Total kWh consumption:", totalKwh.toFixed(2));
+
     const brokenSet = new Set();
     for (const report of reportRes.data.reports) {
       const ac = getACName(report.appliance);
@@ -62,7 +70,8 @@ exports.getGroupedConsumptions = async (req, res) => {
       }
     }
 
-    // Appliance log processing
+    console.log("🚫 Broken appliances:", Array.from(brokenSet));
+
     const applianceLogs = applianceLogRes.data
       .filter((log) => new Date(log.timestamp) >= new Date("2025-06-28"))
       .map((log) => ({
@@ -71,7 +80,8 @@ exports.getGroupedConsumptions = async (req, res) => {
         timestamp: new Date(log.timestamp),
       }));
 
-    // Filter devices to exclude broken ones
+    console.log("🧾 Filtered appliance logs after 2025-06-28:", applianceLogs.length);
+
     const WATTAGE = {};
     const GROUPS = {};
     for (const [device, watt] of Object.entries(FULL_WATTAGE)) {
@@ -83,7 +93,9 @@ exports.getGroupedConsumptions = async (req, res) => {
       }
     }
 
-    // Build on/off session map per group
+    console.log("✅ Wattage map (excluding broken):", WATTAGE);
+    console.log("📦 Group map:", GROUPS);
+
     const groupDurations = {};
     for (const group of Object.keys(GROUPS)) {
       groupDurations[group] = [];
@@ -102,7 +114,8 @@ exports.getGroupedConsumptions = async (req, res) => {
       }
     }
 
-    // Compute energy per group
+    console.log("🕒 Computed group durations:", groupDurations);
+
     const groupTotals = {};
     for (const [group, devices] of Object.entries(GROUPS)) {
       let groupKwh = 0;
@@ -115,6 +128,8 @@ exports.getGroupedConsumptions = async (req, res) => {
       groupTotals[group] = Number(groupKwh.toFixed(2));
     }
 
+    console.log("📈 Grouped kWh totals:", groupTotals);
+
     const knownSum = Object.values(groupTotals).reduce((a, b) => a + b, 0);
     const others = Number((totalKwh - knownSum).toFixed(2));
 
@@ -124,9 +139,11 @@ exports.getGroupedConsumptions = async (req, res) => {
       Total: Number(totalKwh.toFixed(2)),
     };
 
+    console.log("✅ Final grouped output:", output);
     res.json(output);
   } catch (err) {
-    console.error("Failed to compute grouped consumptions:", err);
+    console.error("❌ Failed to compute grouped consumptions:", err.message);
+    console.error(err.stack); // full error stack trace
     res.status(500).json({ error: "Failed to compute grouped consumptions." });
   }
 };

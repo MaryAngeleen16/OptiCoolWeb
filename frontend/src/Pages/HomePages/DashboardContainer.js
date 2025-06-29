@@ -57,6 +57,18 @@ const DashboardContainer = () => {
     }
   };
 
+  const logApplianceAction = async (appliance, action) => {
+    try {
+      await axios.post(`${process.env.REACT_APP_API}/appliances`, {
+        appliance,
+        action,
+        user: user?._id,
+      });
+    } catch (err) {
+      console.error("Failed to log appliance action:", err);
+    }
+  };
+
   const handleTurnOffSystem = async () => {
     let success = false;
     try {
@@ -102,6 +114,10 @@ const DashboardContainer = () => {
           success ? "Success" : "Failed"
         }`
       );
+
+      if (success) {
+        await logApplianceAction(deviceName, action);
+      }
     }
   };
 
