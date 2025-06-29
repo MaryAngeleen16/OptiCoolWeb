@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = '/api/v1/add-hardware';
+const API_URL = `${process.env.REACT_APP_API}/add-hardware`;
 
 const AddHardwarePage = () => {
   const [appliance, setAppliance] = useState('');
@@ -28,9 +28,9 @@ const AddHardwarePage = () => {
     e.preventDefault();
     try {
       if (editId) {
-        await axios.put(`${API_URL}/${editId}`, { Appliance: appliance, Watts: watts, Type: type, Quantity: quantity });
+        await axios.put(`${process.env.REACT_APP_API}/add-hardware/${editId}`, { Appliance: appliance, Watts: watts, Type: type, Quantity: quantity });
       } else {
-        await axios.post(API_URL, { Appliance: appliance, Watts: watts, Type: type, Quantity: quantity });
+        await axios.post(`${process.env.REACT_APP_API}/add-hardware`, { Appliance: appliance, Watts: watts, Type: type, Quantity: quantity });
       }
       setAppliance('');
       setWatts('');

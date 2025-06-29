@@ -51,6 +51,7 @@ const getACName = (label) => {
 const GroupedConsumption = () => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [customHardware, setCustomHardware] = useState([]);
 
   useEffect(() => {
     const fetch = async () => {
@@ -135,9 +136,26 @@ const GroupedConsumption = () => {
           }
         }
 
+        // Fetch custom hardware
+        const customHardwareRes = await axios.get("/api/v1/add-hardware");
+        const customHardwareList = Array.isArray(customHardwareRes.data) ? customHardwareRes.data : [];
+        setCustomHardware(customHardwareList);
+        // Build dynamic BASE_WATTAGE
+        const dynamicBaseWattage = JSON.parse(JSON.stringify(BASE_WATTAGE));
+        for (const hw of customHardwareList) {
+          if (hw.Type && dynamicBaseWattage[hw.Type]) {
+            // Add to group if matches
+            dynamicBaseWattage[hw.Type][hw.Appliance] = hw.Watts * (hw.Quantity || 1);
+          } else {
+            // Add to Lights and Others
+            if (!dynamicBaseWattage.Lights) dynamicBaseWattage.Lights = {};
+            dynamicBaseWattage.Lights[hw.Appliance] = hw.Watts * (hw.Quantity || 1);
+          }
+        }
+
         // Calculate total group wattage (ignoring broken status, since handled per day)
         const WATTAGE = {};
-        for (const [groupKey, deviceGroup] of Object.entries(BASE_WATTAGE)) {
+        for (const [groupKey, deviceGroup] of Object.entries(dynamicBaseWattage)) {
           WATTAGE[groupKey] = Object.values(deviceGroup).reduce((sum, w) => sum + w, 0);
         }
 
@@ -155,7 +173,7 @@ const GroupedConsumption = () => {
 
         // Only keep the grouped/fallback loop after powerByDay is computed
         for (const [groupLabel, groupKey] of Object.entries(GROUPS)) {
-          const appliancesInGroup = Object.keys(BASE_WATTAGE[groupKey]);
+          const appliancesInGroup = Object.keys(dynamicBaseWattage[groupKey] || {});
           Object.keys(powerByDay).forEach(day => {
             // Use brokenByDay for this day
             const brokenSet = brokenByDay[day] || new Set();
@@ -180,7 +198,7 @@ const GroupedConsumption = () => {
                 if (log.action === "on") {
                   onTime = log.timestamp;
                 } else if (log.action === "off" && onTime) {
-                  const applianceWattage = BASE_WATTAGE[groupKey][applianceName];
+                  const applianceWattage = dynamicBaseWattage[groupKey][applianceName];
                   const energy = computeEnergy(applianceWattage, log.timestamp - onTime); // Wh
                   logBasedValue += energy;
                   onTime = null;
@@ -188,7 +206,7 @@ const GroupedConsumption = () => {
               }
               if (onTime) {
                 const endOfDay = moment(day).endOf("day").toDate();
-                const applianceWattage = BASE_WATTAGE[groupKey][applianceName];
+                const applianceWattage = dynamicBaseWattage[groupKey][applianceName];
                 const energy = computeEnergy(applianceWattage, endOfDay - onTime); // Wh
                 logBasedValue += energy;
               }
@@ -197,7 +215,7 @@ const GroupedConsumption = () => {
             let fallbackValue = 0;
             for (const applianceName of appliancesInGroup) {
               if (brokenSet.has(applianceName)) continue;
-              const applianceWattage = BASE_WATTAGE[groupKey][applianceName];
+              const applianceWattage = dynamicBaseWattage[groupKey][applianceName];
               let ms = 0;
               if (groupLabel === "ACs" || groupLabel === "Fans") {
                 ms = 8 * 3600000; // 8 hours
@@ -212,6 +230,51 @@ const GroupedConsumption = () => {
             sessionsByDate[day][groupLabel] = Math.max(logBasedValue, fallbackValue);
           });
         }
+
+        // For Lights and Others
+        Object.keys(powerByDay).forEach(day => {
+          const appliancesInGroup = Object.keys(dynamicBaseWattage.Lights || {});
+          let logBasedValue = 0;
+          let hasLogsForDay = false;
+          let groupLogs = [];
+          for (const applianceName of appliancesInGroup) {
+            const logsForAppliance = applianceLogs.filter(log => {
+              const logDay = moment(log.timestamp).format("YYYY-MM-DD");
+              return logDay === day && log.appliance.toLowerCase().includes(applianceName.toLowerCase());
+            });
+            if (logsForAppliance.length > 0) hasLogsForDay = true;
+            groupLogs.push({ applianceName, logsForAppliance });
+          }
+          for (const { applianceName, logsForAppliance } of groupLogs) {
+            let onTime = null;
+            for (let i = 0; i < logsForAppliance.length; i++) {
+              const log = logsForAppliance[i];
+              if (log.action === "on") {
+                onTime = log.timestamp;
+              } else if (log.action === "off" && onTime) {
+                const applianceWattage = dynamicBaseWattage.Lights[applianceName];
+                const energy = computeEnergy(applianceWattage, log.timestamp - onTime);
+                logBasedValue += energy;
+                onTime = null;
+              }
+            }
+            if (onTime) {
+              const endOfDay = moment(day).endOf("day").toDate();
+              const applianceWattage = dynamicBaseWattage.Lights[applianceName];
+              const energy = computeEnergy(applianceWattage, endOfDay - onTime);
+              logBasedValue += energy;
+            }
+          }
+          let fallbackValue = 0;
+          for (const applianceName of appliancesInGroup) {
+            const applianceWattage = dynamicBaseWattage.Lights[applianceName];
+            let ms = 4 * 3600000; // 4 hours fallback for others
+            fallbackValue += computeEnergy(applianceWattage, ms);
+          }
+          if (!sessionsByDate[day]) sessionsByDate[day] = {};
+          if (!sessionsByDate[day]["Lights and Others"]) sessionsByDate[day]["Lights and Others"] = 0;
+          sessionsByDate[day]["Lights and Others"] += Math.max(logBasedValue, fallbackValue);
+        });
 
         const chartArray = Object.keys(powerByDay).map(date => {
           const breakdown = sessionsByDate[date] || {};
