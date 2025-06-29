@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {getAllReports, reportSent} = require('../controllers/EReportController');
+const {getAllReports, reportSent, markReportResolved} = require('../controllers/EReportController');
 const { isAuthenticated } = require('../middlewares/auth');
 
 // router.post('/ereport', sendReport);  
