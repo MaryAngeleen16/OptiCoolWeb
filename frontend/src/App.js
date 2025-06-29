@@ -19,7 +19,7 @@ import EReport from './Pages/AdminPages/EReport.js';
 import ActiveUsers from './Pages/AdminPages/ActiveUsers.js';
 import UserLogs from './Pages/AdminPages/UserLogs.js';
 import ActivityLog from './Pages/AdminPages/ActivityLog.js';
-
+import ApplianceConsumption from './Dashboard/ApplianceConsumption.js';
 
 function App() {
 
@@ -46,6 +46,9 @@ function App() {
 
         <Route path="/loglist" element={<UserLogs />} />
         <Route path="/activitylog" element={<ActivityLog />} />
+        <Route path="/appliance-consumption" element={<ApplianceConsumption />} />
+
+        {/* Redirect to home if not logged in */}
 
       </Routes>
     </Router>
