@@ -272,7 +272,14 @@ const showConfirmToast = (message, onConfirm) => {
                 );
                 if (response.data.success) {
                     toast.success("User soft-deleted successfully");
-                    fetchAllUsers();
+                    // If the deleted user is the current user, log them out
+                    if (userId === user._id) {
+                        localStorage.removeItem('token');
+                        // Optionally clear redux state if you use it
+                        window.location.href = '/login'; // or use navigate('/login')
+                    } else {
+                        fetchAllUsers();
+                    }
                 }
             } catch (error) {
                 console.error("Soft delete failed:", error);
