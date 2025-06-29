@@ -1,5 +1,5 @@
-import axios from "axios";
-import ApplianceConsumption from "../models/ApplianceConsumption.js";
+const ApplianceConsumption = require("../models/ApplianceConsumption");
+const axios = require("axios");
 
 const wattage = {
   "AC 1": 1850,
@@ -42,7 +42,7 @@ function getUsageSessions(logs) {
     } else if (state === "OFF") {
       const lastSession = sessions[appliance].reverse().find(s => !s.end);
       if (lastSession) lastSession.end = new Date(log.timestamp);
-      sessions[appliance].reverse(); // restore order
+      sessions[appliance].reverse();
     }
   });
 
@@ -66,7 +66,7 @@ function estimateConsumption(sessions, wattage) {
 
     result.push({
       appliance,
-      totalMinutes,
+      totalDurationMinutes: totalMinutes,
       estimatedConsumptionKWh: kwh
     });
   }
@@ -74,27 +74,46 @@ function estimateConsumption(sessions, wattage) {
   return result;
 }
 
-export const calculateApplianceConsumption = async (req, res) => {
+exports.createApplianceConsumption = async (req, res) => {
   try {
     const { data: logRes } = await axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-log");
     const logs = logRes.logs;
 
     const sessions = getUsageSessions(logs);
-    const result = estimateConsumption(sessions, wattage);
+    const estimations = estimateConsumption(sessions, wattage);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    for (const r of result) {
-      await ApplianceConsumption.create({
-        date: today,
-        ...r
-      });
-    }
+    const saved = await Promise.all(
+      estimations.map(async (entry) => {
+        const log = new ApplianceConsumption({
+          appliance: entry.appliance,
+          totalDurationMinutes: entry.totalDurationMinutes,
+          estimatedConsumptionKWh: entry.estimatedConsumptionKWh,
+          date: today
+        });
+        return await log.save();
+      })
+    );
 
-    res.status(200).json(result);
-  } catch (error) {
-    console.error("Estimation error:", error);
-    res.status(500).json({ error: "Failed to calculate." });
+    res.status(201).json({ success: true, records: saved });
+  } catch (err) {
+    console.error("Create Consumption Error:", err);
+    res.status(500).json({ success: false, message: "Failed to calculate consumption" });
+  }
+};
+
+exports.getApplianceConsumption = async (req, res) => {
+  try {
+    const { appliance } = req.query;
+    const filter = appliance ? { appliance } : {};
+
+    const records = await ApplianceConsumption.find(filter).sort({ date: -1 });
+
+    res.status(200).json({ success: true, records });
+  } catch (err) {
+    console.error("Fetch Consumption Error:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch consumption records" });
   }
 };

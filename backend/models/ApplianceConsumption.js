@@ -1,13 +1,23 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
 const applianceConsumptionSchema = new mongoose.Schema({
   date: {
     type: Date,
-    required: true
+    default: Date.now,
+    required: true,
   },
-  appliance: String,
-  totalDurationMinutes: Number,
-  estimatedConsumptionKWh: Number,
+  appliance: {
+    type: String,
+    required: true,
+  },
+  totalDurationMinutes: {
+    type: Number,
+    required: true,
+  },
+  estimatedConsumptionKWh: {
+    type: Number,
+    required: true,
+  },
 });
 
-export default mongoose.model("ApplianceConsumption", applianceConsumptionSchema);
+module.exports = mongoose.model("ApplianceConsumption", applianceConsumptionSchema);

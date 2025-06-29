@@ -1,8 +1,12 @@
-import express from "express";
-import { calculateApplianceConsumption } from "../controllers/calculateConsumption.js";
-
+const express = require("express");
 const router = express.Router();
 
-router.get("/calculate-consumption", calculateApplianceConsumption);
+const {
+  createApplianceConsumption,
+  getApplianceConsumption
+} = require("../controllers/calculateConsumptionController.js");
 
-export default router;
+router.post("/appliance-consumption", createApplianceConsumption);
+router.get("/appliance-consumption", getApplianceConsumption);
+
+module.exports = router;
