@@ -21,6 +21,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 import MenuIcon from "@mui/icons-material/Menu";
+import HardwareIcon from '@mui/icons-material/Hardware';
 import "./Sidebar.css"; // Import the CSS file
 
 
@@ -50,21 +51,23 @@ function Sidebar() {
     }
   };
 
-  const menuItems = [
+  if (!isLogin) return null;
+
+  const baseMenuItems = [
     { icon: <HomeIcon style={{ fontSize: 25 }} />, route: "/home", label: "Home" },
-    // { icon: <RoomIcon style={{ fontSize: 25 }} />, route: "/manageRoom", label: "Manage Room" },
     { icon: <DashboardIcon style={{ fontSize: 25 }} />, route: "/dashboard", label: "Dashboard" },
     { icon: <AccountCircleIcon style={{ fontSize: 25 }} />, route: "/me", label: "Profile" },
-  
-    ...(user?.role === "admin"
-      ? [
-          {icon: <GroupIcon style={{ fontSize: 25 }} />, route: "/users", label: "Users" },
-          {icon: <SummarizeIcon style={{ fontSize: 25 }} />, route: "/ereport", label: "Reports" },
-          {icon: <ManageSearchIcon style={{ fontSize: 25 }} />, route: "/activitylog", label: "Logs" },
-          {icon: <SupervisorAccountIcon style={{ fontSize: 25 }} />, route: "/active", label: "Active Users" },
-        ]
-      : []),
   ];
+
+  const adminMenuItems = [
+    { icon: <GroupIcon style={{ fontSize: 25 }} />, route: "/users", label: "Users" },
+    { icon: <SummarizeIcon style={{ fontSize: 25 }} />, route: "/ereport", label: "Reports" },
+    { icon: <ManageSearchIcon style={{ fontSize: 25 }} />, route: "/activitylog", label: "Logs" },
+    { icon: <SupervisorAccountIcon style={{ fontSize: 25 }} />, route: "/active", label: "Active Users" },
+    { icon: <HardwareIcon style={{ fontSize: 25 }} />, route: "/add-hardware", label: "Add Hardware" }
+  ];
+
+  const menuItems = user?.role === "admin" ? [...baseMenuItems, ...adminMenuItems] : baseMenuItems;
 
   return (
     <div className="sidebar-container">

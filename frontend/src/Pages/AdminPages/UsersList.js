@@ -169,12 +169,16 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../../Components/Layouts/Sidebar';
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 
 
 DataTable.use(DT);
 
 export default function UsersList() {
+    const navigate = useNavigate();
+    const { user } = useSelector(state => state.auth);
     const [tableData, setTableData] = useState([]);
     const [pendingUsers, setPendingUsers] = useState([]);
     const [anchorEl, setAnchorEl] = useState(null);
@@ -271,6 +275,15 @@ export default function UsersList() {
     useEffect(() => {
         fetchAllUsers();
     }, []);
+
+    // Redirect non-admins to /home
+    useEffect(() => {
+        if (!user || user.role !== "admin") {
+            navigate("/home", { replace: true });
+        }
+    }, [user, navigate]);
+
+    if (!user || user.role !== "admin") return null;
 
     // Sort users from newest to oldest before rendering
     const sortedUsers = [...tableData].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));

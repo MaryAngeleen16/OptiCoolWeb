@@ -21,8 +21,12 @@ import "chart.js/auto";
 import "../../Dashboard/StylesUsage.css";
 import ReactPaginate from "react-paginate";
 import Sidebar from "../../Components/Layouts/Sidebar";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 export default function EReport() {
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
   const [reports, setReports] = useState([]);
   const [users, setUsers] = useState([]);
   const [chartData, setChartData] = useState(null);
@@ -31,6 +35,7 @@ export default function EReport() {
   const [sortedAppliances, setSortedAppliances] = useState([]);
   const [pageCount, setPageCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
+  const [showPendingOnly, setShowPendingOnly] = useState(false);
   const reportsPerPage = 10;
 
   useEffect(() => {
@@ -52,7 +57,10 @@ export default function EReport() {
             let applianceKey = report.appliance.toLowerCase();
             if (applianceKey.includes("ac")) {
               applianceKey = "AC";
-            } else if (applianceKey.includes("fan") && !applianceKey.includes("exhaust")) {
+            } else if (
+              applianceKey.includes("fan") &&
+              !applianceKey.includes("exhaust")
+            ) {
               applianceKey = "Fan";
             } else if (applianceKey.includes("exhaust")) {
               applianceKey = "Exhaust Fan";
@@ -102,6 +110,13 @@ export default function EReport() {
     fetchReportsAndUsers();
   }, []);
 
+  useEffect(() => {
+    if (!user || user.role !== "admin") {
+      navigate("/home", { replace: true });
+    }
+  }, [user, navigate]);
+  if (!user || user.role !== "admin") return null;
+
   const formatDate = (date) =>
     new Date(date).toLocaleDateString(undefined, {
       month: "short",
@@ -122,7 +137,9 @@ export default function EReport() {
 
   const markAsResolved = async (reportId) => {
     try {
-      await axios.patch(`${process.env.REACT_APP_API}/ereport/${reportId}/resolve`);
+      await axios.patch(
+        `${process.env.REACT_APP_API}/ereport/${reportId}/resolve`
+      );
       setReports((prevReports) =>
         prevReports.map((r) =>
           r._id === reportId ? { ...r, isResolved: "yes" } : r
@@ -133,10 +150,14 @@ export default function EReport() {
     }
   };
 
-  const offset = currentPage * reportsPerPage;
-  const sortedReports = [...reports].sort(
+  // Filter and sort reports
+  const filteredReports = showPendingOnly
+    ? reports.filter((r) => r.isResolved === "no")
+    : reports;
+  const sortedReports = [...filteredReports].sort(
     (a, b) => new Date(b.reportDate) - new Date(a.reportDate)
   );
+  const offset = currentPage * reportsPerPage;
   const currentReports = sortedReports.slice(offset, offset + reportsPerPage);
 
   return (
@@ -213,6 +234,25 @@ export default function EReport() {
             <Typography variant="h6" gutterBottom>
               All Reports
             </Typography>
+            <Button
+              variant="contained"
+              color={showPendingOnly ? "primary" : "success"}
+              style={{
+                marginBottom: 12,
+                color: showPendingOnly ? "#fff" : undefined,
+                background: showPendingOnly ? "#ffa726" : undefined,
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.color = "#fff")}
+              onMouseOut={(e) =>
+                (e.currentTarget.style.color = showPendingOnly ? "#fff" : "")
+              }
+              onClick={() => {
+                setShowPendingOnly((v) => !v);
+                setCurrentPage(0);
+              }}
+            >
+              {showPendingOnly ? "Show All Reports" : "Show Only Pending"}
+            </Button>
             <TableContainer component={Paper}>
               <Table>
                 <TableHead>
@@ -259,17 +299,17 @@ export default function EReport() {
               </Table>
             </TableContainer>
             <ReactPaginate
-              previousLabel={"previous"}
-              nextLabel={"next"}
-              breakLabel={"..."}
-              breakClassName={"break-me"}
+              previousLabel={"← Previous"}
+              nextLabel={"Next →"}
               pageCount={pageCount}
-              marginPagesDisplayed={2}
-              pageRangeDisplayed={5}
               onPageChange={handlePageClick}
+              forcePage={currentPage}
               containerClassName={"pagination"}
-              subContainerClassName={"pages pagination"}
               activeClassName={"active"}
+              pageRangeDisplayed={2}
+              marginPagesDisplayed={1}
+              breakLabel={"..."}
+              renderOnZeroPageCount={null}
             />
           </CardContent>
         </Card>

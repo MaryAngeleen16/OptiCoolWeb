@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import './ReportForm.css';
 import { useSelector } from 'react-redux';
 import moment from 'moment-timezone';
 import { useNavigate } from 'react-router-dom';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const ReportForm = () => {
   const [appliance, setAppliance] = useState('');
@@ -11,9 +13,11 @@ const ReportForm = () => {
   const [exhaustCount, setExhaustCount] = useState(1);
   const [status, setStatus] = useState('');
   const [reason, setReason] = useState('');
+  const [otherReason, setOtherReason] = useState("");
   const { user, token } = useSelector(state => state.auth);
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const [hardwareOptions, setHardwareOptions] = useState([]);
 
   const reasons = [
     "Overheating",
@@ -21,7 +25,8 @@ const ReportForm = () => {
     "Weak Air",
     "Turning Off Unexpectedly",
     "Not Responding to Commands",
-    "Physical Damage"
+    "Physical Damage",
+    "Others"
   ];
 
   const applianceOptions = [
@@ -32,16 +37,34 @@ const ReportForm = () => {
     "Blower"
   ];
 
+  useEffect(() => {
+    // Fetch custom hardware from backend
+    const fetchHardware = async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API}/add-hardware`);
+        setHardwareOptions(res.data || []);
+      } catch (err) {
+        setHardwareOptions([]);
+      }
+    };
+    fetchHardware();
+  }, []);
+
+  const allApplianceOptions = [
+    ...applianceOptions,
+    ...hardwareOptions.map(hw => hw.Appliance)
+  ];
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!appliance || !status || !reason) {
-      alert("Please fill out all fields.");
+    if (!appliance || !status || !reason || (reason === "Others" && !otherReason.trim())) {
+      toast.error("Please fill out all fields.");
       return;
     }
 
     try {
       if (!user) {
-        alert("User information is missing. Please log in again.");
+        toast.error("User information is missing. Please log in again.");
         return;
       }
 
@@ -58,7 +81,7 @@ const ReportForm = () => {
 
       const reportPayload = {
         appliance: finalAppliance,
-        description: reason,
+        description: reason === "Others" ? otherReason : reason,
         status: status,
         reportDate: new Date(),
         timeReported: timeReported,
@@ -72,14 +95,14 @@ const ReportForm = () => {
       });
 
       if (response.data.success) {
-        alert("Report submitted successfully.");
-        navigate('/'); // Go back to dashboard
+        toast.success("Report submitted successfully.");
+        navigate('/home'); // Go back to home
       } else {
-        alert("Failed to submit report. Reason: " + response.data.message);
+        toast.error("Failed to submit report. Reason: " + response.data.message);
       }
     } catch (error) {
       console.error("Error submitting report:", error);
-      alert("Failed to submit report. Error: " + error.message);
+      toast.error("Failed to submit report. Error: " + error.message);
     } finally {
       setSubmitting(false);
     }
@@ -87,6 +110,7 @@ const ReportForm = () => {
 
   return (
     <div className="report-form-container">
+      <ToastContainer />
       <h2>Report an Appliance Issue</h2>
       <form onSubmit={handleSubmit} className="report-form">
         {/* Appliance Dropdown */}
@@ -98,7 +122,7 @@ const ReportForm = () => {
           required
         >
           <option value="">-- Select Appliance --</option>
-          {applianceOptions.map((a) => (
+          {allApplianceOptions.map((a) => (
             <option key={a} value={a}>{a}</option>
           ))}
         </select>
@@ -150,19 +174,31 @@ const ReportForm = () => {
 
         {/* Reason */}
         <label>Reason:</label>
-        {reasons.map((r) => (
-          <div key={r}>
-            <input
-              type="radio"
-              id={r}
-              name="reason"
-              value={r}
-              checked={reason === r}
-              onChange={() => setReason(r)}
-            />
-            <label htmlFor={r}>{r}</label>
-          </div>
-        ))}
+        <div>
+          {reasons.map((r) => (
+            <div key={r} style={{ marginBottom: 4 }}>
+              <input
+                type="radio"
+                id={r}
+                name="reason"
+                value={r}
+                checked={reason === r}
+                onChange={() => setReason(r)}
+              />
+              <label htmlFor={r}>{r}</label>
+              {r === "Others" && reason === "Others" && (
+                <input
+                  type="text"
+                  placeholder="Please specify..."
+                  value={otherReason}
+                  onChange={e => setOtherReason(e.target.value)}
+                  style={{ marginLeft: 10 }}
+                  required
+                />
+              )}
+            </div>
+          ))}
+        </div>
 
         <button type="submit" disabled={submitting}>
           {submitting ? "Submitting..." : "Submit Report"}

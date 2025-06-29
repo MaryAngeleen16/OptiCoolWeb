@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import moment from "moment-timezone";
 import ReactPaginate from "react-paginate";
 import Sidebar from "../../Components/Layouts/Sidebar";
@@ -24,6 +25,7 @@ const ITEMS_PER_PAGE = 10;
 
 const ActivityLog = () => {
   const { user, token } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
@@ -51,6 +53,12 @@ const ActivityLog = () => {
   };
 
   useEffect(() => {
+    if (!user || user.role !== "admin") {
+      navigate("/home", { replace: true });
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
     fetchActivityLogs();
   }, []);
 
@@ -68,6 +76,8 @@ const ActivityLog = () => {
   const handlePageChange = ({ selected }) => {
     setCurrentPage(selected);
   };
+
+  if (!user || user.role !== "admin") return null;
 
   return (
     <div style={{ marginTop: "-45%" }}>

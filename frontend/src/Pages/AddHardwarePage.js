@@ -1,15 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import ReactPaginate from 'react-paginate';
+import './AddHarwarePage.css';
+import Sidebar from '../Components/Layouts/Sidebar'; 
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const API_URL = `${process.env.REACT_APP_API}/add-hardware`;
 
 const AddHardwarePage = () => {
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
   const [appliance, setAppliance] = useState('');
   const [watts, setWatts] = useState('');
   const [type, setType] = useState('AC');
   const [quantity, setQuantity] = useState(1);
   const [hardwareList, setHardwareList] = useState([]);
   const [editId, setEditId] = useState(null);
+  const [search, setSearch] = useState('');
+  const [currentPage, setCurrentPage] = useState(0);
+  const itemsPerPage = 5;
+
+  useEffect(() => {
+    if (!user || user.role !== "admin") {
+      navigate("/home", { replace: true });
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     fetchHardware();
@@ -61,10 +78,30 @@ const AddHardwarePage = () => {
     }
   };
 
+  // Filtered and paginated hardware
+  const filteredHardware = hardwareList.filter(hw =>
+    hw.Appliance.toLowerCase().includes(search.toLowerCase()) ||
+    hw.Type.toLowerCase().includes(search.toLowerCase())
+  );
+  const pageCount = Math.ceil(filteredHardware.length / itemsPerPage);
+  const offset = currentPage * itemsPerPage;
+  const currentItems = filteredHardware.slice(offset, offset + itemsPerPage);
+
+  const handlePageClick = ({ selected }) => {
+    setCurrentPage(selected);
+  };
+
+  if (!user || user.role !== "admin") return null;
+
   return (
-    <div style={{ maxWidth: 500, margin: 'auto' }}>
-      <h2>Add / Edit Hardware</h2>
-      <form onSubmit={handleSubmit}>
+<div className="add-hardware-page">
+    <Sidebar />
+
+     <div className="add-hardware-container">
+    
+      <h2>Add New Hardware</h2>
+       
+      <form className="add-hardware-form" onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Appliance"
@@ -99,16 +136,60 @@ const AddHardwarePage = () => {
         {editId && <button type="button" onClick={() => { setEditId(null); setAppliance(''); setWatts(''); setType('AC'); setQuantity(1); }}>Cancel</button>}
       </form>
       <h3>Hardware List</h3>
-      <ul>
-        {hardwareList.map(hw => (
-          <li key={hw._id}>
-            {hw.Appliance} - {hw.Watts}W - {hw.Type} - Qty: {hw.Quantity || 1}
-            <button onClick={() => handleEdit(hw)}>Edit</button>
-            <button onClick={() => handleDelete(hw._id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      <input
+        className="add-hardware-search"
+        type="text"
+        placeholder="Search by appliance or type..."
+        value={search}
+        onChange={e => { setSearch(e.target.value); setCurrentPage(0); }}
+      />
+      <table className="add-hardware-table">
+        <thead>
+          <tr>
+            <th>Appliance</th>
+            <th>Watts</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentItems.length === 0 ? (
+            <tr><td colSpan={5} style={{ textAlign: 'center' }}>No hardware found.</td></tr>
+          ) : (
+            currentItems.map(hw => (
+              <tr key={hw._id}>
+                <td>{hw.Appliance}</td>
+                <td>{hw.Watts}</td>
+                <td>{hw.Type}</td>
+                <td>{hw.Quantity || 1}</td>
+                <td>
+                  <button onClick={() => handleEdit(hw)}>Edit</button>
+                  <button onClick={() => handleDelete(hw._id)}>Delete</button>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+      <ReactPaginate
+        previousLabel={"← Previous"}
+        nextLabel={"Next →"}
+        pageCount={pageCount}
+        onPageChange={handlePageClick}
+        forcePage={currentPage}
+        containerClassName={"pagination"}
+        activeClassName={"active"}
+        pageRangeDisplayed={2}
+        marginPagesDisplayed={1}
+        breakLabel={"..."}
+        renderOnZeroPageCount={null}
+      />
+       
     </div>
+</div>
+
+   
   );
 };
 
