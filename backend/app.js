@@ -72,5 +72,6 @@ const outsideHumidityRoutes = require('./routes/outsideHumidityRoutes');
 app.use('/api/v1', insideHumidityRoutes);
 app.use('/api/v1', outsideHumidityRoutes);
 
-
+const groupedConsumptionRoutes = require('./routes/groupedConsumptionRoutes');
+app.use('/api/v1', groupedConsumptionRoutes);
 module.exports = app;
