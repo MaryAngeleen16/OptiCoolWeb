@@ -169,16 +169,17 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Sidebar from '../../Components/Layouts/Sidebar';
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import RestoreIcon from '@mui/icons-material/Restore';
 import ReplayIcon from '@mui/icons-material/Replay';
-
+import { setAuth } from "../../states/authSlice";
 
 DataTable.use(DT);
 
 export default function UsersList() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { user } = useSelector(state => state.auth);
     const [tableData, setTableData] = useState([]);
     const [pendingUsers, setPendingUsers] = useState([]);
@@ -275,8 +276,8 @@ const showConfirmToast = (message, onConfirm) => {
                     // If the deleted user is the current user, log them out
                     if (userId === user._id) {
                         localStorage.removeItem('token');
-                        // Optionally clear redux state if you use it
-                        window.location.href = '/login'; // or use navigate('/login')
+                        dispatch(setAuth(null)); // clear redux state
+                        window.location.href = '/login';
                     } else {
                         fetchAllUsers();
                     }
@@ -383,27 +384,39 @@ const showConfirmToast = (message, onConfirm) => {
                         4: (data) => <div>{new Date(data).toLocaleDateString()}</div>,
                         5: (data, row) => (
                             <div>
-                                <ManageAccountsIcon
-                                    color="warning"
-                                    sx={{ cursor: 'pointer', marginRight: 2 }}
-                                    fontSize="large"
-                                    onClick={(event) => handleMenuClick(event, row._id)}
-                                />
-                                {row.isDeleted ? (
-                                    <RestoreIcon
-                                        color="success"
-                                        sx={{ cursor: 'pointer', ml: 1 }}
-                                        fontSize="large"
-                                        onClick={() => restoreUser(row._id)}
-                                    />
-                                ) : (
-                                    <ReplayIcon
-                                        color="error"
-                                        sx={{ cursor: 'pointer', ml: 1 }}
-                                        fontSize="large"
-                                        onClick={() => softDeleteUser(row._id)}
-                                    />
+                                {!row.isDeleted && (
+                                    <>
+                                        <ManageAccountsIcon
+                                            color="warning"
+                                            sx={{ cursor: 'pointer', marginRight: 2 }}
+                                            fontSize="large"
+                                            onClick={(event) => handleMenuClick(event, row._id)}
+                                        />
+                                        <DeleteIcon
+                                            color="error"
+                                            sx={{ cursor: 'pointer', ml: 1 }}
+                                            fontSize="large"
+                                            onClick={() => softDeleteUser(row._id)}
+                                        />
+                                    </>
                                 )}
+                                {row.isDeleted && (
+                                    <>
+                                        <RestoreIcon
+                                            color="success"
+                                            sx={{ cursor: 'pointer', ml: 1 }}
+                                            fontSize="large"
+                                            onClick={() => restoreUser(row._id)}
+                                        />
+                                    </>
+                                )}
+                                {/* Permanent delete is always available */}
+                                <DeleteIcon
+                                    color="error"
+                                    sx={{ cursor: 'pointer', ml: 1 }}
+                                    fontSize="large"
+                                    onClick={() => deleteUser(row._id)}
+                                />
                             </div>
                         ),
                     }}
