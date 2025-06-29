@@ -76,15 +76,64 @@ function estimateConsumption(sessions, wattage) {
 
 exports.createApplianceConsumption = async (req, res) => {
   try {
-    const { data: logRes } = await axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-log");
-    const logs = logRes.logs;
+    const [logRes, powerRes] = await Promise.all([
+      axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-log"),
+      axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions")
+    ]);
 
-    const sessions = getUsageSessions(logs);
-    const estimations = estimateConsumption(sessions, wattage);
+    const logs = logRes.data.logs;
+    const powerLogs = powerRes.data.powerConsumptionLogs || [];
 
+    // 1. Filter only today's total power consumption
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayLogs = powerLogs.filter(log => new Date(log.timestamp) >= today);
 
+    // 2. Compute total power used today (excluding lights)
+    const totalKWhToday = todayLogs.reduce((sum, entry) => {
+      return sum + (entry.totalPowerConsumption ?? 0);
+    }, 0);
+
+    // Optional: Subtract estimated light usage here if needed
+    const estimatedLightUsage = 0; // adjust if needed
+    const adjustedKWh = totalKWhToday - estimatedLightUsage;
+
+    // 3. Find ON appliances (based on logs and sessions)
+    const sessions = getUsageSessions(logs); // Already using parseAction()
+
+    // 4. Flatten session durations in minutes
+    const activeDurations = {};
+    for (const [appliance, periods] of Object.entries(sessions)) {
+      let totalMinutes = 0;
+      periods.forEach(({ start, end }) => {
+        if (!end) return;
+        totalMinutes += (end - start) / 60000;
+      });
+      if (totalMinutes > 0) {
+        activeDurations[appliance] = totalMinutes;
+      }
+    }
+
+    // 5. Total ON wattage-time
+    let totalWattMinutes = 0;
+    for (const [appliance, minutes] of Object.entries(activeDurations)) {
+      totalWattMinutes += (wattage[appliance] || 0) * minutes;
+    }
+
+    // 6. Estimate each appliance's contribution
+    const estimations = [];
+    for (const [appliance, minutes] of Object.entries(activeDurations)) {
+      const watt = wattage[appliance] || 0;
+      const kWh = (watt * minutes / totalWattMinutes) * adjustedKWh;
+
+      estimations.push({
+        appliance,
+        totalDurationMinutes: minutes,
+        estimatedConsumptionKWh: parseFloat(kWh.toFixed(4))
+      });
+    }
+
+    // 7. Save results
     const saved = await Promise.all(
       estimations.map(async (entry) => {
         const log = new ApplianceConsumption({
@@ -104,10 +153,14 @@ exports.createApplianceConsumption = async (req, res) => {
   }
 };
 
+
 exports.getApplianceConsumption = async (req, res) => {
   try {
-    const { appliance } = req.query;
-    const filter = appliance ? { appliance } : {};
+    const { appliance, fromDate } = req.query;
+    const filter = {};
+
+    if (appliance) filter.appliance = appliance;
+    if (fromDate) filter.date = { $gte: new Date(fromDate) };
 
     const records = await ApplianceConsumption.find(filter).sort({ date: -1 });
 
@@ -117,3 +170,4 @@ exports.getApplianceConsumption = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch consumption records" });
   }
 };
+

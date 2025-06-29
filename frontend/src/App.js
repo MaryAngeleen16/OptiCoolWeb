@@ -46,7 +46,7 @@ function App() {
 
         <Route path="/loglist" element={<UserLogs />} />
         <Route path="/activitylog" element={<ActivityLog />} />
-        <Route path="/appliance-consumption" element={<ApplianceConsumption />} />
+        <Route path="/appliances" element={<ApplianceConsumption />} />
 
         {/* Redirect to home if not logged in */}
 

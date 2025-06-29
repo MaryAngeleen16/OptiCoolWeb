@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer
+} from "recharts";
 
 const APPLIANCE_GROUPS = {
   ACs: ["AC 1", "AC 2"],
@@ -12,11 +21,19 @@ const APPLIANCE_GROUPS = {
 export default function ApplianceConsumption() {
   const [data, setData] = useState([]);
 
-  useEffect(() => {
-    axios.get(`${process.env.REACT_APP_API}/appliance-consumption`)
-      .then(res => setData(res.data))
-      .catch(err => console.error("Failed to fetch consumption data:", err));
-  }, []);
+useEffect(() => {
+  axios
+    .get(`${process.env.REACT_APP_API}/appliance-consumption`, {
+      params: { fromDate: "2025-03-21" },
+    })
+    .then(res => {
+      console.log("Fetched:", res.data);
+      setData(res.data.records || []);
+    })
+    .catch(err => console.error("Failed to fetch consumption data:", err));
+}, []);
+
+
 
   const groupData = (keys, label) => {
     const filtered = data.filter(d => keys.includes(d.appliance));
