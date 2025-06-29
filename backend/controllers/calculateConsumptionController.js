@@ -14,160 +14,81 @@ const wattage = {
 };
 
 function parseAction(action) {
-  const lower = action.toLowerCase();
-  if (lower.includes("toggled")) {
-    const match = action.match(/Toggled (.*?) (On|Off)/i);
-    if (match) {
-      return {
-        appliance: match[1].trim(),
-        state: match[2].toUpperCase()
-      };
-    }
-  }
-  return null;
-}
-
-function getUsageSessions(logs) {
-  const sessions = {}; // appliance => [{start, end}]
-
-  logs.forEach(log => {
-    const parsed = parseAction(log.action);
-    if (!parsed) return;
-
-    const { appliance, state } = parsed;
-    if (!sessions[appliance]) sessions[appliance] = [];
-
-    if (state === "ON") {
-      sessions[appliance].push({ start: new Date(log.timestamp), end: null });
-    } else if (state === "OFF") {
-      const lastSession = sessions[appliance].reverse().find(s => !s.end);
-      if (lastSession) lastSession.end = new Date(log.timestamp);
-      sessions[appliance].reverse();
-    }
-  });
-
-  return sessions;
-}
-
-function estimateConsumption(sessions, wattage) {
-  const result = [];
-
-  for (const [appliance, periods] of Object.entries(sessions)) {
-    const power = wattage[appliance] || 0;
-    let totalMinutes = 0;
-
-    periods.forEach(({ start, end }) => {
-      if (!end) return;
-      const durationMin = (end - start) / 60000;
-      totalMinutes += durationMin;
-    });
-
-    const kwh = (power * totalMinutes) / 60 / 1000;
-
-    result.push({
-      appliance,
-      totalDurationMinutes: totalMinutes,
-      estimatedConsumptionKWh: kwh
-    });
-  }
-
-  return result;
+  const match = action.match(/Toggled (.*?) (On|Off)/i);
+  if (!match) return null;
+  return {
+    appliance: match[1].trim(),
+    state: match[2].toUpperCase()
+  };
 }
 
 exports.createApplianceConsumption = async (req, res) => {
   try {
-    const [logRes, powerRes] = await Promise.all([
-      axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-log"),
-      axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions")
+    const { date } = req.query; // e.g. 2025-03-21
+    if (!date) return res.status(400).json({ success: false, message: "Missing date" });
+
+    const dayStart = new Date(date);
+    dayStart.setHours(0, 0, 0, 0);
+    const dayEnd = new Date(dayStart);
+    dayEnd.setDate(dayEnd.getDate() + 1);
+
+    const [powerRes, logRes] = await Promise.all([
+      axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions"),
+      axios.get("https://opticoolweb-backend.onrender.com/api/v1/activity-log")
     ]);
 
-    const logs = logRes.data.logs;
-    const powerLogs = powerRes.data.powerConsumptionLogs || [];
+    // === Step 1: Filter power logs and subtract light usage ===
+    const powerLogs = powerRes.data.powerConsumptionLogs.filter(log => {
+      const ts = new Date(log.timestamp);
+      return ts >= dayStart && ts < dayEnd;
+    });
 
-    // 1. Filter only today's total power consumption
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayLogs = powerLogs.filter(log => new Date(log.timestamp) >= today);
+    const LIGHT_USAGE_KWH = 0.5;
+    const totalPowerKWh = powerLogs.reduce((sum, p) => sum + (p.totalPowerConsumption || 0), 0);
+    const adjustedKWh = totalPowerKWh - LIGHT_USAGE_KWH;
 
-    // 2. Compute total power used today (excluding lights)
-    const totalKWhToday = todayLogs.reduce((sum, entry) => {
-      return sum + (entry.totalPowerConsumption ?? 0);
-    }, 0);
+    // === Step 2: Parse appliance ON/OFF from logs ===
+    const logs = logRes.data.logs.filter(log => {
+      const ts = new Date(log.timestamp);
+      return ts >= dayStart && ts < dayEnd;
+    });
 
-    // Optional: Subtract estimated light usage here if needed
-    const estimatedLightUsage = 0; // adjust if needed
-    const adjustedKWh = totalKWhToday - estimatedLightUsage;
+    const stateMap = {}; // appliance => ON/OFF
 
-    // 3. Find ON appliances (based on logs and sessions)
-    const sessions = getUsageSessions(logs); // Already using parseAction()
+    logs.forEach((log) => {
+      const parsed = parseAction(log.action);
+      if (!parsed) return;
+      stateMap[parsed.appliance] = parsed.state;
+    });
 
-    // 4. Flatten session durations in minutes
-    const activeDurations = {};
-    for (const [appliance, periods] of Object.entries(sessions)) {
-      let totalMinutes = 0;
-      periods.forEach(({ start, end }) => {
-        if (!end) return;
-        totalMinutes += (end - start) / 60000;
-      });
-      if (totalMinutes > 0) {
-        activeDurations[appliance] = totalMinutes;
-      }
+    const onAppliances = Object.entries(stateMap)
+      .filter(([_, state]) => state === "ON")
+      .map(([appliance]) => appliance);
+
+    if (onAppliances.length === 0) {
+      return res.status(200).json({ success: true, message: "No appliances were ON" });
     }
 
-    // 5. Total ON wattage-time
-    let totalWattMinutes = 0;
-    for (const [appliance, minutes] of Object.entries(activeDurations)) {
-      totalWattMinutes += (wattage[appliance] || 0) * minutes;
-    }
+    const totalWattage = onAppliances.reduce((sum, a) => sum + (wattage[a] || 0), 0);
 
-    // 6. Estimate each appliance's contribution
-    const estimations = [];
-    for (const [appliance, minutes] of Object.entries(activeDurations)) {
-      const watt = wattage[appliance] || 0;
-      const kWh = (watt * minutes / totalWattMinutes) * adjustedKWh;
+    const todayDate = new Date(dayStart); // use midnight version
 
-      estimations.push({
-        appliance,
-        totalDurationMinutes: minutes,
-        estimatedConsumptionKWh: parseFloat(kWh.toFixed(4))
-      });
-    }
-
-    // 7. Save results
-    const saved = await Promise.all(
-      estimations.map(async (entry) => {
+    const estimations = await Promise.all(
+      onAppliances.map(async (appliance) => {
+        const share = (wattage[appliance] / totalWattage) * adjustedKWh;
         const log = new ApplianceConsumption({
-          appliance: entry.appliance,
-          totalDurationMinutes: entry.totalDurationMinutes,
-          estimatedConsumptionKWh: entry.estimatedConsumptionKWh,
-          date: today
+          appliance,
+          totalDurationMinutes: null,
+          estimatedConsumptionKWh: parseFloat(share.toFixed(4)),
+          date: todayDate
         });
         return await log.save();
       })
     );
 
-    res.status(201).json({ success: true, records: saved });
+    res.status(201).json({ success: true, saved: estimations });
   } catch (err) {
     console.error("Create Consumption Error:", err);
-    res.status(500).json({ success: false, message: "Failed to calculate consumption" });
+    res.status(500).json({ success: false, message: "Error calculating consumption" });
   }
 };
-
-
-exports.getApplianceConsumption = async (req, res) => {
-  try {
-    const { appliance, fromDate } = req.query;
-    const filter = {};
-
-    if (appliance) filter.appliance = appliance;
-    if (fromDate) filter.date = { $gte: new Date(fromDate) };
-
-    const records = await ApplianceConsumption.find(filter).sort({ date: -1 });
-
-    res.status(200).json({ success: true, records });
-  } catch (err) {
-    console.error("Fetch Consumption Error:", err);
-    res.status(500).json({ success: false, message: "Failed to fetch consumption records" });
-  }
-};
-
