@@ -16,6 +16,9 @@ const DashboardContainer = () => {
   const { user, token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
+  // Cooldown state for device buttons
+  const [cooldown, setCooldown] = useState({});
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -83,6 +86,20 @@ const DashboardContainer = () => {
       );
     } finally {
       logUserAction(`Turned Off System - ${success ? "Success" : "Failed"}`);
+      // Log to activity log
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_API}/activity-log`,
+          {
+            userId: user?._id ?? "Unknown",
+            action: `Turned Off System - ${success ? "Success" : "Failed"}`,
+            timestamp: new Date().toISOString(),
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (error) {
+        // Optionally handle error
+      }
     }
   };
 
@@ -100,10 +117,31 @@ const DashboardContainer = () => {
       );
     } finally {
       logUserAction(`Turned On System - ${success ? "Success" : "Failed"}`);
+      // Log to activity log
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_API}/activity-log`,
+          {
+            userId: user?._id ?? "Unknown",
+            action: `Turned On System - ${success ? "Success" : "Failed"}`,
+            timestamp: new Date().toISOString(),
+          },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+      } catch (error) {
+        // Optionally handle error
+      }
     }
   };
 
   const handleDeviceAction = async (deviceName, action) => {
+    // Prevent spamming: if cooldown is active, do nothing
+    if (cooldown[`${deviceName}_${action}`]) return;
+    setCooldown((prev) => ({ ...prev, [`${deviceName}_${action}`]: true }));
+    setTimeout(() => {
+      setCooldown((prev) => ({ ...prev, [`${deviceName}_${action}`]: false }));
+    }, 10000); // 10 seconds cooldown
+
     let success = false;
     try {
       if (deviceName === "Fan") {
@@ -261,12 +299,14 @@ const DashboardContainer = () => {
                 <button
                   className="green-button"
                   onClick={() => handleDeviceAction(device.name, "on")}
+                  disabled={!!cooldown[`${device.name}_on`]}
                 >
                   Turn On
                 </button>
                 <button
                   className="red-button"
                   onClick={() => handleDeviceAction(device.name, "off")}
+                  disabled={!!cooldown[`${device.name}_off`]}
                 >
                   Turn Off
                 </button>
