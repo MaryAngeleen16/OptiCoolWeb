@@ -86,6 +86,23 @@ const DashboardContainer = () => {
     }
   };
 
+  const handleTurnOnSystem = async () => {
+    let success = false;
+    try {
+      await axios.post('https://opticoolweb-backend.onrender.com/api/v1/proxy/start');
+      toast.success("System turned on successfully");
+      success = true;
+    } catch (err) {
+      toast.error(
+        err?.response?.status === 404 || err.message === "Network Error"
+          ? "System is not rendered properly, please try again later"
+          : "Failed to turn on system"
+      );
+    } finally {
+      logUserAction(`Turned On System - ${success ? "Success" : "Failed"}`);
+    }
+  };
+
   const handleDeviceAction = async (deviceName, action) => {
     let success = false;
     try {
@@ -161,7 +178,10 @@ const DashboardContainer = () => {
       <div className="card">
         <div className="section-title-container">
           <h2 className="section-title">My Devices</h2>
-          <button onClick={handleTurnOffSystem} className="black-button">
+          <button onClick={handleTurnOnSystem} className="green-button">
+            TURN ON SYSTEM
+          </button>
+          <button onClick={handleTurnOffSystem} className="red-button" style={{ marginLeft: 10 }}>
             TURN OFF SYSTEM
           </button>
         </div>
