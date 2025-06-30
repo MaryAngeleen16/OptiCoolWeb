@@ -299,14 +299,24 @@ const DashboardContainer = () => {
                 <button
                   className="green-button"
                   onClick={() => handleDeviceAction(device.name, "on")}
-                  disabled={!!cooldown[`${device.name}_on`]}
+                  disabled={!!cooldown[`${device.name}_on`] || deviceStatus[device.name] === true}
+                  style={{
+                    backgroundColor: deviceStatus[device.name] === true ? '#ccc' : '',
+                    color: deviceStatus[device.name] === true ? '#666' : '',
+                    cursor: deviceStatus[device.name] === true ? 'not-allowed' : '',
+                  }}
                 >
                   Turn On
                 </button>
                 <button
                   className="red-button"
                   onClick={() => handleDeviceAction(device.name, "off")}
-                  disabled={!!cooldown[`${device.name}_off`]}
+                  disabled={!!cooldown[`${device.name}_off`] || deviceStatus[device.name] === false}
+                  style={{
+                    backgroundColor: deviceStatus[device.name] === false ? '#ccc' : '',
+                    color: deviceStatus[device.name] === false ? '#666' : '',
+                    cursor: deviceStatus[device.name] === false ? 'not-allowed' : '',
+                  }}
                 >
                   Turn Off
                 </button>
