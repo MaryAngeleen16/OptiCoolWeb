@@ -22,8 +22,7 @@ import ActivityLog from './Pages/AdminPages/ActivityLog.js';
 import GroupedConsumption from './Dashboard/GroupedConsumption.js';
 import ReportFormPage from './Pages/ReportFormPage.js';
 import AddHardwarePage from './Pages/AddHardwarePage';
-
-
+import ConsumptionCalculator from './Pages/ConsumptionCalculator.js';
 
 function App() {
 
@@ -54,6 +53,7 @@ function App() {
         <Route path="/grouped-consumption" element={<GroupedConsumption />} />
         <Route path="/reportpage" element={<ReportFormPage />} />
         <Route path="/add-hardware" element={<AddHardwarePage />} />
+        <Route path="/consumption-calculator" element={<ConsumptionCalculator />} />
 
 
         {/* Redirect to home if not logged in */}

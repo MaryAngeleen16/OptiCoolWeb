@@ -23,7 +23,7 @@ import ManageSearchIcon from "@mui/icons-material/ManageSearch";
 import MenuIcon from "@mui/icons-material/Menu";
 import HardwareIcon from '@mui/icons-material/Hardware';
 import "./Sidebar.css"; // Import the CSS file
-
+import CalculateIcon from '@mui/icons-material/Calculate';
 
 
 
@@ -64,7 +64,8 @@ function Sidebar() {
     { icon: <SummarizeIcon style={{ fontSize: 25 }} />, route: "/ereport", label: "Reports" },
     { icon: <ManageSearchIcon style={{ fontSize: 25 }} />, route: "/activitylog", label: "Logs" },
     { icon: <SupervisorAccountIcon style={{ fontSize: 25 }} />, route: "/active", label: "Active Users" },
-    { icon: <HardwareIcon style={{ fontSize: 25 }} />, route: "/add-hardware", label: "Add Hardware" }
+    { icon: <HardwareIcon style={{ fontSize: 25 }} />, route: "/add-hardware", label: "Add Hardware" },
+    { icon: <CalculateIcon style={{ fontSize: 25 }} />, route: "/consumption-calculator", label: "Consumption Calculator" },
   ];
 
   const menuItems = user?.role === "admin" ? [...baseMenuItems, ...adminMenuItems] : baseMenuItems;

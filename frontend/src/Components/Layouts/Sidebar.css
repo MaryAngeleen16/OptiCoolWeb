@@ -1,12 +1,15 @@
 /* Sidebar Container */
 .sidebar-container {
   display: flex;
-  height: 100vh; /* Ensure full height */
+  height: 100vh; 
   justify-content: flex-start; /* Align sidebar to the left */
   margin: 0;
-  overflow: hidden; /* Prevent any unwanted overflow */
+  overflow: hidden; 
   width: 80px; /* Set initial width */
-  transition: width 0.3s ease-in-out; /* Smooth transition for width */
+  transition: width 0.3s ease-in-out; 
+    position: relative;
+  z-index: 2;
+  background: #2F80ED;
 }
 
 .sidebar-container:hover {

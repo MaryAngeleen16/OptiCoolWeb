@@ -57,12 +57,19 @@ function groupByMonthAverage(data) {
   return Object.entries(monthly)
     .sort(([a], [b]) => new Date(a) - new Date(b))
     .map(([key, vals]) => {
-      const [year, month] = key.split("-");
-      const label = `${new Date(year, month - 1).toLocaleString("default", {
-        month: "short"
-      })} ${year}`;
+      let [year, month] = key.split("-");
+      month = Number(month); // force to number
+      const label = !isNaN(month)
+        ? getMonthLabel(year, month)
+        : key;
       return { key, label, avg: Number((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(2)) };
     });
+}
+
+// Add this helper function near the top (after imports)
+function getMonthLabel(year, month) {
+  // month: 1-based (1 = Jan)
+  return `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
 }
 
 const UsageTracking = () => {
@@ -211,26 +218,40 @@ const UsageTracking = () => {
     actualMonthlyMap[key].push(Number(row.consumption));
   });
   const actualMonthly = Object.entries(actualMonthlyMap).map(([key, vals]) => {
-    const [year, month] = key.split("-");
-    const label = `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
+    let [year, month] = key.split("-");
+    month = Number(month); // force to number
+    const label = !isNaN(month)
+      ? getMonthLabel(year, month)
+      : key;
     return { key, label, avg: vals.reduce((a, b) => a + b, 0) / vals.length };
   });
 
   const allMonthlyLabels = Array.from(new Set([
     ...predMonthly.map(row => {
-      // Format prediction month to match actual label (e.g., "Jul 2025")
-      const [year, month] = row.month.split("-");
-      return `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
+      if (!row.month) return row.month;
+      let [year, month] = row.month.split("-");
+      month = Number(month); // force to number
+      return !isNaN(month)
+        ? getMonthLabel(year, month)
+        : row.month;
     }),
     ...actualMonthly.map(row => row.label)
-  ]));
+  ])).sort((a, b) => {
+    const parse = str => {
+      const [mon, year] = str.split(" ");
+      return new Date(`${mon} 1, ${year}`);
+    };
+    return parse(a) - parse(b);
+  });
 
-  // Map predicted data to the correct label
   const predictedMonthlyData = allMonthlyLabels.map(label => {
-    // Find the prediction whose formatted label matches
     const found = predMonthly.find(row => {
-      const [year, month] = row.month.split("-");
-      const predLabel = `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
+      if (!row.month) return false;
+      let [year, month] = row.month.split("-");
+      month = Number(month); // force to number
+      const predLabel = !isNaN(month)
+        ? getMonthLabel(year, month)
+        : row.month;
       return predLabel === label;
     });
     return found ? Number(found.predicted_average) : null;
@@ -240,6 +261,14 @@ const UsageTracking = () => {
   const actualMonthlyData = allMonthlyLabels.map(label => {
     const found = actualMonthly.find(row => row.label === label);
     return found ? Number(found.avg.toFixed(2)) : null;
+  });
+
+  // Highlight points where both actual and predicted exist for the same month
+  const matchMonthlyData = allMonthlyLabels.map((label, idx) => {
+    const actual = actualMonthlyData[idx];
+    const predicted = predictedMonthlyData[idx];
+    // Only mark if both are numbers (not null)
+    return (actual !== null && predicted !== null) ? (actual + predicted) / 2 : null;
   });
 
   const predDailyChart = {
@@ -267,6 +296,17 @@ const UsageTracking = () => {
     ],
   };
 
+  const mergedMonthlyData = allMonthlyLabels.map((label, idx) => {
+    const actual = actualMonthlyData[idx];
+    const predicted = predictedMonthlyData[idx];
+    if (actual !== null && predicted !== null) {
+      // If both exist, merge (average) them
+      return Number(((actual + predicted) / 2).toFixed(2));
+    }
+    // If only one exists, use that one
+    return actual !== null ? actual : predicted !== null ? predicted : null;
+  });
+
   const predMonthlyChart = {
     labels: allMonthlyLabels,
     datasets: [
@@ -274,20 +314,20 @@ const UsageTracking = () => {
         label: "Actual Monthly Avg (kWh)",
         data: actualMonthlyData,
         fill: false,
-        borderColor: "rgba(255, 159, 64, 1)",
+        borderColor: "rgba(255, 159, 64, 1)", // orange
         backgroundColor: "rgba(255, 159, 64, 0.5)",
         tension: 0.3,
-        pointRadius: 2,
+        pointRadius: 4,
       },
       {
         label: "Predicted Monthly Avg (kWh)",
         data: predictedMonthlyData,
         fill: false,
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
+        borderColor: "rgba(54, 162, 235, 1)", // blue
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
         borderDash: [5, 5],
         tension: 0.3,
-        pointRadius: 2,
+        pointRadius: 4,
       }
     ],
   };
