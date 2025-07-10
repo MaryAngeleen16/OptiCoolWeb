@@ -12,22 +12,19 @@ import GroupedConsumption from "./GroupedConsumption";
 const Dashb = () => {
   return (
     <div style={styles.dashboardContainer}>
-      
-     <Sidebar /> 
+      <Sidebar />
       <div style={styles.content}>
-         <div style={{ display: "flex", justifyContent: "flex-end", marginRight: "20px" }}>
-           <UsagePDF />
+        <div style={{ display: "flex", justifyContent: "flex-end", marginRight: "20px" }}>
+          <UsagePDF />
         </div>
         <div style={styles.chartContainer}>
-            <h1 >Usage Dashboard</h1>
-
+          <h1 >Usage Dashboard</h1>
           <HumidityUsage />
           <TemperatureUsage />
           <UsageTracking />
           <GroupedConsumption />
         </div>
       </div>
-    
     </div>
   );
 };

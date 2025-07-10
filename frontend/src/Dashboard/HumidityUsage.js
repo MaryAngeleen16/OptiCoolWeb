@@ -9,12 +9,11 @@ function sortByTimestamp(data) {
   return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
-// Helper to group by day and calculate average
 function groupByDayAverage(data) {
   const daily = {};
   data.forEach(row => {
     const date = new Date(row.timestamp);
-    const key = date.toISOString().slice(0, 10); // YYYY-MM-DD
+    const key = date.toISOString().slice(0, 10);
     if (!daily[key]) daily[key] = [];
     daily[key].push(Number(row.humidity));
   });
@@ -27,7 +26,6 @@ function groupByDayAverage(data) {
     });
 }
 
-// Helper to group by month and calculate average
 function groupByMonthAverage(data) {
   const monthly = {};
   data.forEach(row => {
@@ -45,7 +43,6 @@ function groupByMonthAverage(data) {
     });
 }
 
-// Helper to align two grouped arrays by key
 function alignGroupedData(grouped1, grouped2) {
   const allKeys = Array.from(new Set([...grouped1.map(d => d.key), ...grouped2.map(d => d.key)])).sort();
   const map1 = Object.fromEntries(grouped1.map(d => [d.key, d]));
@@ -62,16 +59,13 @@ const HumidityUsage = () => {
   const [insideHumidity, setInsideHumidity] = useState([]);
   const [outsideHumidity, setOutsideHumidity] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState("daily"); // "daily" or "monthly"
+  const [viewMode, setViewMode] = useState("daily");
 
   useEffect(() => {
     const fetchHumidities = async () => {
       try {
-        // Fetch insidehumidities
         const insidePromise = axios.get(`${process.env.REACT_APP_API}/insidehumidities`);
-        // Fetch outsidehumidities
         const outsidePromise = axios.get(`${process.env.REACT_APP_API}/outsidehumidities`);
-        // Fetch gethumidity
         const getHumidityPromise = axios.get(`${process.env.REACT_APP_API}/gethumidity`);
 
         Promise.all([insidePromise, outsidePromise, getHumidityPromise])
@@ -80,21 +74,22 @@ const HumidityUsage = () => {
             const outsideData = Array.isArray(outsideRes.data) ? outsideRes.data : [];
             const getHumidityData = Array.isArray(getHumidityRes.data) ? getHumidityRes.data : [];
 
-            // Split getHumidityData into inside/outside by humidity value
             const sorted = [...getHumidityData].sort((a, b) => a.humidity - b.humidity);
             const mid = Math.floor(sorted.length / 2);
             const getHumidityInside = sorted.slice(0, mid);
             const getHumidityOutside = sorted.slice(mid);
 
-            // Merge
             setInsideHumidity([...insideData, ...getHumidityInside]);
             setOutsideHumidity([...outsideData, ...getHumidityOutside]);
+            setLoading(false);
           })
-          .catch(error => console.error('Error fetching humidity data:', error));
+          .catch(error => {
+            setLoading(false);
+            console.error('Error fetching humidity data:', error);
+          });
       } catch (err) {
-        console.error("Error fetching humidity data:", err);
-      } finally {
         setLoading(false);
+        console.error("Error fetching humidity data:", err);
       }
     };
     fetchHumidities();
@@ -102,7 +97,6 @@ const HumidityUsage = () => {
 
   if (loading) return <CircularProgress />;
 
-  // Group data based on view mode
   const groupedOutside =
     viewMode === "daily"
       ? groupByDayAverage(outsideHumidity)
@@ -113,9 +107,7 @@ const HumidityUsage = () => {
       ? groupByDayAverage(insideHumidity)
       : groupByMonthAverage(insideHumidity);
 
-  // Align by key (date or month)
   const aligned = alignGroupedData(groupedOutside, groupedInside);
-
   const labels = aligned.map(row => row.label);
 
   const chartData = {

@@ -207,14 +207,27 @@ export default function UsagePDFButton() {
   const handleSavePDF = async () => {
     const pdf = new jsPDF('p', 'mm', 'a4');
     pdf.setFontSize(12);
+    const now = new Date();
+    const dateStr = now.toLocaleString();
+    // Helper to add header to each page
+    const addHeader = (doc, text) => {
+      doc.setFontSize(10);
+      doc.text(`Generated: ${text}`, 200, 10, { align: 'right' });
+      doc.setFontSize(12);
+    };
     pdf.text('Usage Data Table', 10, 10);
+    addHeader(pdf, dateStr);
+    pdf.setFontSize(12);
 
     autoTable(pdf, {
       head: [tableHeaders],
       body: tableRows,
       startY: 16,
       styles: { fontSize: 10, cellPadding: 2 },
-      headStyles: { fillColor: [33, 150, 243] }
+      headStyles: { fillColor: [33, 150, 243] },
+      didDrawPage: (data) => {
+        addHeader(pdf, dateStr);
+      }
     });
 
     // --- CHARTS ---
@@ -222,6 +235,7 @@ export default function UsagePDFButton() {
     if (selectedUsages.tempHum) {
       pdf.addPage();
       pdf.text('Temperature & Humidity Usage Chart', 10, 10);
+      addHeader(pdf, dateStr);
       const chartCanvas = await html2canvas(chartRefs.tempHum.current);
       const chartImgData = chartCanvas.toDataURL('image/png');
       pdf.addImage(chartImgData, 'PNG', 10, 20, 190, 80);
@@ -230,6 +244,7 @@ export default function UsagePDFButton() {
     if (selectedUsages.power) {
       pdf.addPage();
       pdf.text('Power Consumption Usage Chart', 10, 10);
+      addHeader(pdf, dateStr);
       const chartCanvas = await html2canvas(chartRefs.power.current);
       const chartImgData = chartCanvas.toDataURL('image/png');
       pdf.addImage(chartImgData, 'PNG', 10, 20, 190, 80);

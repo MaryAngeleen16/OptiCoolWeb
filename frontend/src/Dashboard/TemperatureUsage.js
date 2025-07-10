@@ -9,12 +9,11 @@ function sortByTimestamp(data) {
   return [...data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 }
 
-// Helper to group by day and calculate average
 function groupByDayAverage(data) {
   const daily = {};
   data.forEach(row => {
     const date = new Date(row.timestamp);
-    const key = date.toISOString().slice(0, 10); // YYYY-MM-DD
+    const key = date.toISOString().slice(0, 10);
     if (!daily[key]) daily[key] = [];
     daily[key].push(Number(row.temperature));
   });
@@ -27,12 +26,11 @@ function groupByDayAverage(data) {
     });
 }
 
-// Helper to group by month and calculate average
 function groupByMonthAverage(data) {
   const monthly = {};
   data.forEach(row => {
     const date = new Date(row.timestamp);
-    const key = `${date.getFullYear()}-${date.getMonth() + 1}`; // e.g. "2025-6"
+    const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
     if (!monthly[key]) monthly[key] = [];
     monthly[key].push(Number(row.temperature));
   });
@@ -45,7 +43,6 @@ function groupByMonthAverage(data) {
     });
 }
 
-// Helper to align two grouped arrays by key
 function alignGroupedData(grouped1, grouped2) {
   const allKeys = Array.from(new Set([...grouped1.map(d => d.key), ...grouped2.map(d => d.key)])).sort();
   const map1 = Object.fromEntries(grouped1.map(d => [d.key, d]));
@@ -62,16 +59,13 @@ const TemperatureUsage = () => {
   const [insideTemperature, setInsideTemperature] = useState([]);
   const [outsideTemperature, setOutsideTemperature] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewMode, setViewMode] = useState("daily"); // "daily" or "monthly"
+  const [viewMode, setViewMode] = useState("daily");
 
   useEffect(() => {
     const fetchTemperatures = async () => {
       try {
-        // Fetch inside temperatures
         const insidePromise = axios.get(`${process.env.REACT_APP_API}/insidetemperatures`);
-        // Fetch outside temperatures
         const outsidePromise = axios.get(`${process.env.REACT_APP_API}/outsidetemperatures`);
-        // Fetch gettemperature
         const getTemperaturePromise = axios.get(`${process.env.REACT_APP_API}/gettemperature`);
 
         Promise.all([insidePromise, outsidePromise, getTemperaturePromise])
@@ -80,21 +74,22 @@ const TemperatureUsage = () => {
             const outsideData = Array.isArray(outsideRes.data) ? outsideRes.data : [];
             const getTemperatureData = Array.isArray(getTemperatureRes.data) ? getTemperatureRes.data : [];
 
-            // Split getTemperatureData into inside/outside by temperature value
             const sorted = [...getTemperatureData].sort((a, b) => a.temperature - b.temperature);
             const mid = Math.floor(sorted.length / 2);
             const getTemperatureInside = sorted.slice(0, mid);
             const getTemperatureOutside = sorted.slice(mid);
 
-            // Merge
             setInsideTemperature([...insideData, ...getTemperatureInside]);
             setOutsideTemperature([...outsideData, ...getTemperatureOutside]);
+            setLoading(false);
           })
-          .catch(error => console.error('Error fetching temperature data:', error));
+          .catch(error => {
+            setLoading(false);
+            console.error('Error fetching temperature data:', error);
+          });
       } catch (err) {
-        console.error("Error fetching temperature data:", err);
-      } finally {
         setLoading(false);
+        console.error("Error fetching temperature data:", err);
       }
     };
     fetchTemperatures();
@@ -102,7 +97,6 @@ const TemperatureUsage = () => {
 
   if (loading) return <CircularProgress />;
 
-  // Group data based on view mode
   const groupedOutside =
     viewMode === "daily"
       ? groupByDayAverage(outsideTemperature)
@@ -113,9 +107,7 @@ const TemperatureUsage = () => {
       ? groupByDayAverage(insideTemperature)
       : groupByMonthAverage(insideTemperature);
 
-  // Align by key (date or month)
   const aligned = alignGroupedData(groupedOutside, groupedInside);
-
   const labels = aligned.map(row => row.label);
 
   const chartData = {

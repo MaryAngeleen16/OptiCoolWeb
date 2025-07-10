@@ -75,7 +75,6 @@ const UsageTracking = () => {
   const [prediction, setPrediction] = useState(null);
   const [predictionLoading, setPredictionLoading] = useState(false);
 
-  // Fetch power data only
   useEffect(() => {
     setLoading(true);
     axios.get(`${process.env.REACT_APP_API}/powerconsumptions`)
