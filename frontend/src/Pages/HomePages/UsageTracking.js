@@ -16,7 +16,7 @@ import {
   DialogContent,
   IconButton
 } from "@mui/material";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 import CloseIcon from '@mui/icons-material/Close';
 import "chart.js/auto";
 import "./UsageTracking.css";
@@ -165,28 +165,129 @@ const UsageTracking = () => {
   const predDaily = prediction?.daily_forecast || [];
   const predMonthly = prediction?.monthly_forecast || [];
 
+  // Prepare actual daily data (align with prediction labels)
+  const actualDailyMap = {};
+  powerData.forEach(row => {
+    const date = new Date(row.timestamp).toISOString().slice(0, 10);
+    if (!actualDailyMap[date]) actualDailyMap[date] = [];
+    actualDailyMap[date].push(Number(row.consumption));
+  });
+  const actualDaily = Object.entries(actualDailyMap).map(([key, vals]) => ({
+    key,
+    avg: vals.reduce((a, b) => a + b, 0) / vals.length
+  }));
+
+  // For daily chart, show only today + next 3 days (excluding Sundays)
+  function getNextNDates(n) {
+    const dates = [];
+    let d = new Date();
+    while (dates.length < n + 1) { // today + n days
+      if (d.getDay() !== 0) { // 0 = Sunday
+        dates.push(new Date(d));
+      }
+      d.setDate(d.getDate() + 1);
+    }
+    return dates;
+  }
+  const next3Days = getNextNDates(3).map(d => d.toISOString().slice(0, 10));
+
+  const allDailyLabels = next3Days;
+
+  const actualDailyData = allDailyLabels.map(label => {
+    const found = actualDaily.find(row => row.key === label);
+    return found ? Number(found.avg.toFixed(2)) : null;
+  });
+  const predictedDailyData = allDailyLabels.map(label => {
+    const found = predDaily.find(row => row.timestamp === label);
+    return found ? Number(found.predicted) : null;
+  });
+
+  // Prepare actual monthly data (align with prediction labels)
+  const actualMonthlyMap = {};
+  powerData.forEach(row => {
+    const date = new Date(row.timestamp);
+    const key = `${date.getFullYear()}-${date.getMonth() + 1}`;
+    if (!actualMonthlyMap[key]) actualMonthlyMap[key] = [];
+    actualMonthlyMap[key].push(Number(row.consumption));
+  });
+  const actualMonthly = Object.entries(actualMonthlyMap).map(([key, vals]) => {
+    const [year, month] = key.split("-");
+    const label = `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
+    return { key, label, avg: vals.reduce((a, b) => a + b, 0) / vals.length };
+  });
+
+  const allMonthlyLabels = Array.from(new Set([
+    ...predMonthly.map(row => {
+      // Format prediction month to match actual label (e.g., "Jul 2025")
+      const [year, month] = row.month.split("-");
+      return `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
+    }),
+    ...actualMonthly.map(row => row.label)
+  ]));
+
+  // Map predicted data to the correct label
+  const predictedMonthlyData = allMonthlyLabels.map(label => {
+    // Find the prediction whose formatted label matches
+    const found = predMonthly.find(row => {
+      const [year, month] = row.month.split("-");
+      const predLabel = `${new Date(year, month - 1).toLocaleString("default", { month: "short" })} ${year}`;
+      return predLabel === label;
+    });
+    return found ? Number(found.predicted_average) : null;
+  });
+
+  // Map actual data to the correct label for monthly chart
+  const actualMonthlyData = allMonthlyLabels.map(label => {
+    const found = actualMonthly.find(row => row.label === label);
+    return found ? Number(found.avg.toFixed(2)) : null;
+  });
+
   const predDailyChart = {
-    labels: predDaily.map(row => row.timestamp),
+    labels: allDailyLabels,
     datasets: [
       {
+        label: "Actual Daily Consumption (kWh)",
+        data: actualDailyData,
+        fill: false,
+        borderColor: "rgba(255, 99, 132, 1)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
+        tension: 0.3,
+        pointRadius: 2,
+      },
+      {
         label: "Predicted Daily Consumption (kWh)",
-        data: predDaily.map(row => row.predicted),
-        backgroundColor: "rgba(54, 162, 235, 0.7)",
+        data: predictedDailyData,
+        fill: false,
         borderColor: "rgba(54, 162, 235, 1)",
-        borderWidth: 2,
+        backgroundColor: "rgba(54, 162, 235, 0.5)",
+        borderDash: [5, 5],
+        tension: 0.3,
+        pointRadius: 2,
       }
     ],
   };
 
   const predMonthlyChart = {
-    labels: predMonthly.map(row => row.month),
+    labels: allMonthlyLabels,
     datasets: [
       {
+        label: "Actual Monthly Avg (kWh)",
+        data: actualMonthlyData,
+        fill: false,
+        borderColor: "rgba(255, 159, 64, 1)",
+        backgroundColor: "rgba(255, 159, 64, 0.5)",
+        tension: 0.3,
+        pointRadius: 2,
+      },
+      {
         label: "Predicted Monthly Avg (kWh)",
-        data: predMonthly.map(row => row.predicted_average),
-        backgroundColor: "rgba(75, 192, 192, 0.7)",
+        data: predictedMonthlyData,
+        fill: false,
         borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 2,
+        backgroundColor: "rgba(75, 192, 192, 0.5)",
+        borderDash: [5, 5],
+        tension: 0.3,
+        pointRadius: 2,
       }
     ],
   };
@@ -212,10 +313,10 @@ const UsageTracking = () => {
             <CircularProgress />
           ) : prediction ? (
             <>
-              <Typography variant="h6" gutterBottom>Daily Forecast</Typography>
-              <Bar data={predDailyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
-              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>Monthly Forecast</Typography>
-              <Bar data={predMonthlyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
+              <Typography variant="h6" gutterBottom>Daily Forecast (Actual vs Predicted)</Typography>
+              <Line data={predDailyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
+              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>Monthly Forecast (Actual vs Predicted)</Typography>
+              <Line data={predMonthlyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
             </>
           ) : (
             <Typography color="error">Failed to load prediction.</Typography>
