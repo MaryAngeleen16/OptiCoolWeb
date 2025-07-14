@@ -73,6 +73,13 @@ const DashboardContainer = () => {
     fetchUsers();
     fetchActivityLogs();
     fetchACTemp();
+
+    // --- POLLING FOR REAL-TIME LOGS ---
+    const interval = setInterval(() => {
+      fetchActivityLogs();
+    }, 5000); // every 5 seconds
+
+    return () => clearInterval(interval);
   }, [token]);
 
   const fetchACTemp = async () => {
