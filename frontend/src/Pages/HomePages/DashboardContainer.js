@@ -55,6 +55,7 @@ const DashboardContainer = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      toast.success(`Activity logged: ${action}`);
     } catch (error) {
       toast.error("Error logging user action");
     }
@@ -86,20 +87,6 @@ const DashboardContainer = () => {
       );
     } finally {
       logUserAction(`Turned Off System - ${success ? "Success" : "Failed"}`);
-      // Log to activity log
-      try {
-        await axios.post(
-          `${process.env.REACT_APP_API}/activity-log`,
-          {
-            userId: user?._id ?? "Unknown",
-            action: `Turned Off System - ${success ? "Success" : "Failed"}`,
-            timestamp: new Date().toISOString(),
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } catch (error) {
-        // Optionally handle error
-      }
     }
   };
 
@@ -117,20 +104,6 @@ const DashboardContainer = () => {
       );
     } finally {
       logUserAction(`Turned On System - ${success ? "Success" : "Failed"}`);
-      // Log to activity log
-      try {
-        await axios.post(
-          `${process.env.REACT_APP_API}/activity-log`,
-          {
-            userId: user?._id ?? "Unknown",
-            action: `Turned On System - ${success ? "Success" : "Failed"}`,
-            timestamp: new Date().toISOString(),
-          },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-      } catch (error) {
-        // Optionally handle error
-      }
     }
   };
 
@@ -325,7 +298,6 @@ const DashboardContainer = () => {
           ))}
         </div>
       </div>
-
 
       <ToastContainer />
     </div>

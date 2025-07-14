@@ -162,43 +162,7 @@ const UsageTracking = () => {
   };
 
   // Prediction chart data
-  const predDaily = prediction?.daily_forecast || [];
   const predMonthly = prediction?.monthly_forecast || [];
-
-  // Prepare actual daily data (align with prediction labels)
-  const actualDailyMap = {};
-  powerData.forEach(row => {
-    const date = new Date(row.timestamp).toISOString().slice(0, 10);
-    if (!actualDailyMap[date]) actualDailyMap[date] = [];
-    actualDailyMap[date].push(Number(row.consumption));
-  });
-  const actualDaily = Object.entries(actualDailyMap).map(([key, vals]) => ({
-    key,
-    avg: vals.reduce((a, b) => a + b, 0) / vals.length
-  }));
-
-  function getNextNDates(n) {
-    const dates = [];
-    let d = new Date();
-    while (dates.length < n + 1) {
-      if (d.getDay() !== 0) {
-        dates.push(new Date(d));
-      }
-      d.setDate(d.getDate() + 1);
-    }
-    return dates;
-  }
-  const next7Days = getNextNDates(7).map(d => d.toISOString().slice(0, 10));
-  const allDailyLabels = next7Days;
-
-  const actualDailyData = allDailyLabels.map(label => {
-    const found = actualDaily.find(row => row.key === label);
-    return found ? Number(found.avg.toFixed(2)) : null;
-  });
-  const predictedDailyData = allDailyLabels.map(label => {
-    const found = predDaily.find(row => row.timestamp === label);
-    return found ? Number(found.predicted) : null;
-  });
 
   // Prepare actual monthly data (align with prediction labels)
   const actualMonthlyMap = {};
@@ -238,31 +202,6 @@ const UsageTracking = () => {
     return found ? Number(found.predicted_average) : null;
   });
 
-  const predDailyChart = {
-    labels: allDailyLabels,
-    datasets: [
-      {
-        label: "Actual Daily Consumption (kWh)",
-        data: actualDailyData,
-        fill: false,
-        borderColor: "rgba(255, 99, 132, 1)",
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-        tension: 0.3,
-        pointRadius: 2,
-      },
-      {
-        label: "Predicted Daily Consumption (kWh)",
-        data: predictedDailyData,
-        fill: false,
-        borderColor: "rgba(54, 162, 235, 1)",
-        backgroundColor: "rgba(54, 162, 235, 0.5)",
-        borderDash: [5, 5],
-        tension: 0.3,
-        pointRadius: 2,
-      }
-    ],
-  };
-
   const predMonthlyChart = {
     labels: allMonthlyLabels,
     datasets: [
@@ -289,8 +228,13 @@ const UsageTracking = () => {
   };
 
   return (
-    <Container className="usage-tracking-container">
-
+    <Container className="usage-tracking-container" maxWidth="md" style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      minHeight: "100vh"
+    }}>
 
       {/* Prediction Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
@@ -308,19 +252,19 @@ const UsageTracking = () => {
           {predictionLoading ? (
             <CircularProgress />
           ) : prediction ? (
-            <>
-              <Typography variant="h6" gutterBottom>Daily Forecast (Actual vs Predicted)</Typography>
-              <Line data={predDailyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
-              <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>Monthly Forecast (Actual vs Predicted)</Typography>
-              <Line data={predMonthlyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
-            </>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+              <div style={{ maxWidth: 600, width: '100%' }}>
+                <Typography variant="h6" gutterBottom>Monthly Forecast (Actual vs Predicted)</Typography>
+                <Line data={predMonthlyChart} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, title: { display: false } } }} />
+              </div>
+            </div>
           ) : (
             <Typography color="error">Failed to load prediction.</Typography>
           )}
         </DialogContent>
       </Dialog>
 
-      <Card>
+      <Card style={{ width: "100%", maxWidth: 800 }}>
         <CardContent>
           <Typography className="title" gutterBottom>
             {viewMode === "daily"
@@ -349,7 +293,16 @@ const UsageTracking = () => {
               Show Prediction
             </Button>
           </div>
-          <div className="chart-container tempusage-chart-scroll">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              minHeight: 350,
+            }}
+            className="chart-container tempusage-chart-scroll"
+          >
             <Bar data={chartData} options={chartOptions} />
           </div>
         </CardContent>
