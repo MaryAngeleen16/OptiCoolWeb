@@ -5,6 +5,7 @@ const ReportFormPage = () => {
   return (
     <div className="page-container">
       <h1 style={{ marginBottom: 16 }}>Submit Report</h1>
+
       <ReportForm />
     </div>
   );

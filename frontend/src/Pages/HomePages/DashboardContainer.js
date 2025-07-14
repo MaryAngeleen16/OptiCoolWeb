@@ -21,14 +21,50 @@ const DashboardContainer = () => {
   const [cooldown, setCooldown] = useState({});
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
-        const { data } = await axios.get(`${process.env.REACT_APP_API}/users/all`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserList(data.users);
+        // Fetch users and logs in parallel
+        const [usersRes, logsRes] = await Promise.all([
+          axios.get(`${process.env.REACT_APP_API}/users/all`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get(`${process.env.REACT_APP_API}/activity-log`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+        setUserList(usersRes.data.users);
+
+        const allowedActions = [
+          "Turned On System",
+          "Turned Off System",
+          "Toggled Aircon On",
+          "Toggled Aircon Off",
+          "Toggled Fan On",
+          "Toggled Fan Off",
+          "Toggled Exhaust On",
+          "Toggled Exhaust Off",
+          "Toggled Blower On",
+          "Toggled Blower Off",
+          "Toggled All Devices On",
+          "Toggled All Devices Off",
+          "Changed Aircon Temperature"
+        ];
+
+        const logsWithUsernames = logsRes.data.logs
+          .filter(log =>
+            allowedActions.some(action =>
+              log.action.startsWith(action)
+            )
+          )
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // newest first
+          .slice(0, 5) // limit to 5
+          .map(log => ({
+            ...log,
+            username: log.userId?.username || "Unknown",
+          }));
+        setActivityLogs(logsWithUsernames);
       } catch (err) {
-        console.error("Failed to fetch users:", err);
+        console.error("Failed to fetch users or activity logs:", err);
       }
     };
 
@@ -41,21 +77,8 @@ const DashboardContainer = () => {
       }
     };
 
-    const fetchActivityLogs = async () => {
-      try {
-        const { data } = await axios.get(`${process.env.REACT_APP_API}/activity-log`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        // Limit logs to the 5 most recent entries
-        setActivityLogs(data.logs.slice(0, 5));
-      } catch (err) {
-        console.error("Failed to fetch activity logs:", err);
-      }
-    };
-
-    fetchUsers();
     fetchACTemp();
-    fetchActivityLogs(); // Fetch activity logs on component mount
+    fetchData();
   }, [token]);
 
   const logUserAction = async (action) => {
@@ -64,6 +87,7 @@ const DashboardContainer = () => {
         `${process.env.REACT_APP_API}/activity-log`,
         {
           userId: user?._id ?? "Unknown",
+          username: user?.username ?? "Unknown User", // Include username in the log
           action,
           timestamp: new Date().toISOString(),
         },
@@ -74,7 +98,7 @@ const DashboardContainer = () => {
       const { data } = await axios.get(`${process.env.REACT_APP_API}/activity-log`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setActivityLogs(data.logs);
+      setActivityLogs(data.logs.slice(0, 5)); // Limit to 5 recent logs
     } catch (error) {
       toast.error("Error logging user action");
     }
@@ -192,11 +216,29 @@ const DashboardContainer = () => {
       <div className="card">
         <h2 className="section-title">Activity Logs</h2>
         <div className="activity-logs">
-          {activityLogs.map((log, index) => (
-            <div key={index} className="log-item">
-              <span>{log.timestamp}</span> - <span>{log.action}</span>
-            </div>
-          ))}
+          <div style={{ display: "flex", fontWeight: "bold", marginBottom: 8 }}>
+            <div style={{ flex: 2 }}>Date</div>
+            <div style={{ flex: 3 }}>Actions</div>
+          </div>
+          {activityLogs.map((log, index) => {
+            // Format date: "July 14 2025 12:34pm"
+            const dateObj = new Date(log.timestamp);
+            const options = { month: "long", day: "numeric", year: "numeric" };
+            const dateStr = dateObj.toLocaleDateString("en-US", options);
+            let hours = dateObj.getHours();
+            const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+            const ampm = hours >= 12 ? "pm" : "am";
+            hours = hours % 12 || 12;
+            const timeStr = `${hours}:${minutes}${ampm}`;
+            return (
+              <div key={index} style={{ display: "flex", marginBottom: 6 }}>
+                <div style={{ flex: 2 }}>{`${dateStr} ${timeStr}`}</div>
+                <div style={{ flex: 3 }}>
+                  <span style={{ fontWeight: 500 }}>{log.username}</span>: {log.action}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

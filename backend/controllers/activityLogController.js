@@ -27,17 +27,11 @@ exports.createActivityLog = async (req, res) => {
 
 exports.getActivityLogs = async (req, res) => {
   try {
-    const { userId } = req.query;
-
-    const filter = userId ? { userId } : {};
-
-    const logs = await ActivityLog.find(filter)
-      .populate("userId", "username email")
+    const logs = await ActivityLog.find()
+      .populate("userId", "username") // <-- This line is important
       .sort({ timestamp: -1 });
-
-    res.status(200).json({ success: true, logs });
+    res.json({ success: true, logs });
   } catch (err) {
-    console.error("Fetch Logs Error:", err);
     res.status(500).json({ success: false, message: "Failed to fetch logs" });
   }
 };
