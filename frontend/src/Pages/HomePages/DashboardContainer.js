@@ -13,6 +13,7 @@ const DashboardContainer = () => {
   const [userList, setUserList] = useState([]);
   const [deviceStatus, setDeviceStatus] = useState({});
   const [currentACTemp, setCurrentACTemp] = useState("--");
+  const [activityLogs, setActivityLogs] = useState([]); // New state for activity logs
   const { user, token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
@@ -40,8 +41,21 @@ const DashboardContainer = () => {
       }
     };
 
+    const fetchActivityLogs = async () => {
+      try {
+        const { data } = await axios.get(`${process.env.REACT_APP_API}/activity-log`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        // Limit logs to the 5 most recent entries
+        setActivityLogs(data.logs.slice(0, 5));
+      } catch (err) {
+        console.error("Failed to fetch activity logs:", err);
+      }
+    };
+
     fetchUsers();
     fetchACTemp();
+    fetchActivityLogs(); // Fetch activity logs on component mount
   }, [token]);
 
   const logUserAction = async (action) => {
@@ -56,6 +70,11 @@ const DashboardContainer = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(`Activity logged: ${action}`);
+      // Refresh activity logs after logging a new action
+      const { data } = await axios.get(`${process.env.REACT_APP_API}/activity-log`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setActivityLogs(data.logs);
     } catch (error) {
       toast.error("Error logging user action");
     }
@@ -170,7 +189,18 @@ const DashboardContainer = () => {
         </div>
       </div>
 
-            <button
+      <div className="card">
+        <h2 className="section-title">Activity Logs</h2>
+        <div className="activity-logs">
+          {activityLogs.map((log, index) => (
+            <div key={index} className="log-item">
+              <span>{log.timestamp}</span> - <span>{log.action}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <button
         onClick={() => navigate("/reportpage")}
         style={{
           background: "#1976d2",
