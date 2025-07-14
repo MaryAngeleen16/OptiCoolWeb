@@ -13,73 +13,76 @@ const DashboardContainer = () => {
   const [userList, setUserList] = useState([]);
   const [deviceStatus, setDeviceStatus] = useState({});
   const [currentACTemp, setCurrentACTemp] = useState("--");
-  const [activityLogs, setActivityLogs] = useState([]); // New state for activity logs
+  const [activityLogs, setActivityLogs] = useState([]);
   const { user, token } = useSelector((state) => state.auth);
   const navigate = useNavigate();
 
   // Cooldown state for device buttons
   const [cooldown, setCooldown] = useState({});
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch users and logs in parallel
-        const [usersRes, logsRes] = await Promise.all([
-          axios.get(`${process.env.REACT_APP_API}/users/all`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get(`${process.env.REACT_APP_API}/activity-log`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-        setUserList(usersRes.data.users);
-
-        const allowedActions = [
-          "Turned On System",
-          "Turned Off System",
-          "Toggled Aircon On",
-          "Toggled Aircon Off",
-          "Toggled Fan On",
-          "Toggled Fan Off",
-          "Toggled Exhaust On",
-          "Toggled Exhaust Off",
-          "Toggled Blower On",
-          "Toggled Blower Off",
-          "Toggled All Devices On",
-          "Toggled All Devices Off",
-          "Changed Aircon Temperature"
-        ];
-
-        const logsWithUsernames = logsRes.data.logs
-          .filter(log =>
-            allowedActions.some(action =>
-              log.action.startsWith(action)
-            )
+  // Fetch logs (separated for reusability)
+  const fetchActivityLogs = async () => {
+    try {
+      const { data } = await axios.get(`${process.env.REACT_APP_API}/activity-log`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const allowedActions = [
+        "Turned On System",
+        "Turned Off System",
+        "Toggled Aircon On",
+        "Toggled Aircon Off",
+        "Toggled Fan On",
+        "Toggled Fan Off",
+        "Toggled Exhaust On",
+        "Toggled Exhaust Off",
+        "Toggled Blower On",
+        "Toggled Blower Off",
+        "Toggled All Devices On",
+        "Toggled All Devices Off",
+        "Changed Aircon Temperature"
+      ];
+      const logsWithUsernames = data.logs
+        .filter(log =>
+          allowedActions.some(action =>
+            log.action.startsWith(action)
           )
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // newest first
-          .slice(0, 5) // limit to 5
-          .map(log => ({
-            ...log,
-            username: log.userId?.username || "Unknown",
-          }));
-        setActivityLogs(logsWithUsernames);
-      } catch (err) {
-        console.error("Failed to fetch users or activity logs:", err);
-      }
-    };
+        )
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 5)
+        .map(log => ({
+          ...log,
+          username: log.userId?.username || "Unknown",
+        }));
+      setActivityLogs(logsWithUsernames);
+    } catch (err) {
+      console.error("Failed to fetch activity logs:", err);
+    }
+  };
 
-    const fetchACTemp = async () => {
+  useEffect(() => {
+    const fetchUsers = async () => {
       try {
-        const temp = await dmtAPI.getCurrentACTempAPI();
-        setCurrentACTemp(temp);
+        const { data } = await axios.get(`${process.env.REACT_APP_API}/users/all`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserList(data.users);
       } catch (err) {
-        setCurrentACTemp("--");
+        console.error("Failed to fetch users:", err);
       }
     };
-
+    fetchUsers();
+    fetchActivityLogs();
     fetchACTemp();
-    fetchData();
   }, [token]);
+
+  const fetchACTemp = async () => {
+    try {
+      const temp = await dmtAPI.getCurrentACTempAPI();
+      setCurrentACTemp(temp);
+    } catch (err) {
+      setCurrentACTemp("--");
+    }
+  };
 
   const logUserAction = async (action) => {
     try {
@@ -87,18 +90,14 @@ const DashboardContainer = () => {
         `${process.env.REACT_APP_API}/activity-log`,
         {
           userId: user?._id ?? "Unknown",
-          username: user?.username ?? "Unknown User", // Include username in the log
+          username: user?.username ?? "Unknown User",
           action,
           timestamp: new Date().toISOString(),
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(`Activity logged: ${action}`);
-      // Refresh activity logs after logging a new action
-      const { data } = await axios.get(`${process.env.REACT_APP_API}/activity-log`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setActivityLogs(data.logs.slice(0, 5)); // Limit to 5 recent logs
+      fetchActivityLogs(); // Refresh logs after posting
     } catch (error) {
       toast.error("Error logging user action");
     }
