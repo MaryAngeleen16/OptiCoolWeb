@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import "./DashboardContainer.css";
 import { FaUserCircle } from "react-icons/fa";
@@ -8,6 +8,8 @@ import "react-toastify/dist/ReactToastify.css";
 import { useSelector } from "react-redux";
 import TemperatureControl from "./TemperatureControl";
 import { useNavigate } from "react-router-dom";
+
+
 
 const DashboardContainer = () => {
   const [userList, setUserList] = useState([]);
@@ -19,6 +21,9 @@ const DashboardContainer = () => {
 
   // Cooldown state for device buttons
   const [cooldown, setCooldown] = useState({});
+
+  // Track last seen log for admin notifications
+  const lastLogTimestamp = useRef(null);
 
   // Fetch logs (separated for reusability)
   const fetchActivityLogs = async () => {
@@ -53,6 +58,24 @@ const DashboardContainer = () => {
           ...log,
           username: log.userId?.username || "Unknown",
         }));
+
+      // --- Show notifications for new logs (admin only) ---
+      if (user?.role === "admin" && logsWithUsernames.length > 0) {
+        const latestTimestamp = logsWithUsernames[0].timestamp;
+        if (lastLogTimestamp.current && latestTimestamp !== lastLogTimestamp.current) {
+          // Find new logs since last seen
+          const newLogs = logsWithUsernames.filter(
+            log => new Date(log.timestamp) > new Date(lastLogTimestamp.current)
+          );
+          newLogs.reverse().forEach(log => {
+            toast.info(
+              `${log.username}: ${log.action}`,
+              { position: "top-right", autoClose: 4000 }
+            );
+          });
+        }
+        lastLogTimestamp.current = latestTimestamp;
+      }
       setActivityLogs(logsWithUsernames);
     } catch (err) {
       console.error("Failed to fetch activity logs:", err);
@@ -221,31 +244,33 @@ const DashboardContainer = () => {
 
       <div className="card">
         <h2 className="section-title">Activity Logs</h2>
-        <div className="activity-logs">
-          <div style={{ display: "flex", fontWeight: "bold", marginBottom: 8 }}>
-            <div style={{ flex: 2 }}>Date</div>
-            <div style={{ flex: 3 }}>Actions</div>
-          </div>
-          {activityLogs.map((log, index) => {
-            // Format date: "July 14 2025 12:34pm"
-            const dateObj = new Date(log.timestamp);
-            const options = { month: "long", day: "numeric", year: "numeric" };
-            const dateStr = dateObj.toLocaleDateString("en-US", options);
-            let hours = dateObj.getHours();
-            const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-            const ampm = hours >= 12 ? "pm" : "am";
-            hours = hours % 12 || 12;
-            const timeStr = `${hours}:${minutes}${ampm}`;
-            return (
-              <div key={index} style={{ display: "flex", marginBottom: 6 }}>
-                <div style={{ flex: 2 }}>{`${dateStr} ${timeStr}`}</div>
-                <div style={{ flex: 3 }}>
-                  <span style={{ fontWeight: 500 }}>{log.username}</span>: {log.action}
+        {user?.role !== "admin" && (
+          <div className="activity-logs">
+            <div style={{ display: "flex", fontWeight: "bold", marginBottom: 8 }}>
+              <div style={{ flex: 2 }}>Date</div>
+              <div style={{ flex: 3 }}>Actions</div>
+            </div>
+            {activityLogs.map((log, index) => {
+              // Format date: "July 14 2025 12:34pm"
+              const dateObj = new Date(log.timestamp);
+              const options = { month: "long", day: "numeric", year: "numeric" };
+              const dateStr = dateObj.toLocaleDateString("en-US", options);
+              let hours = dateObj.getHours();
+              const minutes = dateObj.getMinutes().toString().padStart(2, "0");
+              const ampm = hours >= 12 ? "pm" : "am";
+              hours = hours % 12 || 12;
+              const timeStr = `${hours}:${minutes}${ampm}`;
+              return (
+                <div key={index} style={{ display: "flex", marginBottom: 6 }}>
+                  <div style={{ flex: 2 }}>{`${dateStr} ${timeStr}`}</div>
+                  <div style={{ flex: 3 }}>
+                    <span style={{ fontWeight: 500 }}>{log.username}</span>: {log.action}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       <button
