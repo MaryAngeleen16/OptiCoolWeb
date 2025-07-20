@@ -45,9 +45,11 @@ exports.login = async function(req, res, next) {
             return res.status(403).json({ message: 'Looks like you are not approved by the admin yet' });
         }
         user = await User.findOne(user._id);
-        await user.setActive();
+        user.isActive = true;
+        await user.save();
         sendToken(user, 200, res, 'Successfully Login');
     } catch (err) {
+        console.error("LOGIN ERROR:", err);
         return res.status(400).json({
             message: 'Please try again later',
             success: false,

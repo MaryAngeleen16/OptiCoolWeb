@@ -21,12 +21,16 @@ export default function ViewProfile() {
 
   const validationSchema = Yup.object().shape({
     username: Yup.string()
-      .min(3, 'Username must be at least 3 characters')
+      .min(6, 'Username must be at least 6 characters')
       .max(15, 'Username cannot exceed 15 characters')
       .required('Username is required'),
     email: Yup.string()
       .email('Invalid email address')
       .required('Email is required'),
+    password: Yup.string()
+      .min(8, 'Password must be at least 8 characters')
+      .max(30, 'Password cannot exceed 30 characters')
+      .notRequired(), // Only required if you add a password field
   });
 
   const initialValues = {
@@ -92,7 +96,7 @@ export default function ViewProfile() {
             setFieldValue,
             setFieldTouched,
           }) => (
-            <div style={{ display: 'flex', justifyContent: 'center' }}>
+            <form onSubmit={handleSubmit} style={{ display: 'flex', justifyContent: 'center' }}>
               <div style={{ width: '50%', display: 'flex', gap: 20, flexDirection: 'column' }}>
                 <div>
                   <Avatar
@@ -169,7 +173,7 @@ export default function ViewProfile() {
                     />
                   </div>
 
-                  <Button variant="contained" onClick={handleSubmit}>
+                  <Button variant="contained" type="submit">
                     Save
                   </Button>
                   <Button variant="contained" color="error">
@@ -177,7 +181,7 @@ export default function ViewProfile() {
                   </Button>
                 </div>
               </div>
-            </div>
+            </form>
           )}
         </Formik>
       </div>

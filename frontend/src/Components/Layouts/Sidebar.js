@@ -40,11 +40,10 @@ function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      // Call backend to set isActive to false
       await axios.get(`${process.env.REACT_APP_API}/users/logout/${user._id}`);
-      // Remove token and user info from localStorage
       localStorage.removeItem("token");
-      localStorage.removeItem("persist:root"); // If using redux-persist
+      localStorage.removeItem("persist:root");
+      localStorage.clear(); // <-- Add this to clear all localStorage
       dispatch(removeAuth());
       navigate("/");
     } catch (error) {
