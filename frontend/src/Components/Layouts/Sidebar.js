@@ -40,12 +40,13 @@ function Sidebar() {
 
   const handleLogout = async () => {
     try {
-      const { data } = await axios.get(`${process.env.REACT_APP_API}/users/logout/${user._id}`);
-      if (data.success === true) {
-        dispatch(removeAuth());
-        navigate("/");
-        // Removed setDrawerOpen since it is not defined in this component
-      }
+      // Call backend to set isActive to false
+      await axios.get(`${process.env.REACT_APP_API}/users/logout/${user._id}`);
+      // Remove token and user info from localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("persist:root"); // If using redux-persist
+      dispatch(removeAuth());
+      navigate("/");
     } catch (error) {
       console.error("Logout failed:", error);
     }
