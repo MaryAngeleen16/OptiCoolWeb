@@ -164,7 +164,7 @@ const DashboardContainer = () => {
   const handleTurnOnSystem = async () => {
     let success = false;
     try {
-      await axios.post('https://opticoolweb-backend.onrender.com/api/v1/proxy/start');
+      await axios.post(`${process.env.REACT_APP_API}/proxy/start`);
       toast.success("System turned on successfully");
       success = true;
     } catch (err) {
