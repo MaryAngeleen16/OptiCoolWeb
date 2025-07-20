@@ -88,7 +88,7 @@ const DashboardContainer = () => {
         const { data } = await axios.get(`${process.env.REACT_APP_API}/users/all`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        setUserList(data.users);
+        setUserList(data.users.filter(user => user.isApproved === true));
       } catch (err) {
         console.error("Failed to fetch users:", err);
       }
@@ -97,10 +97,9 @@ const DashboardContainer = () => {
     fetchActivityLogs();
     fetchACTemp();
 
-    // --- POLLING FOR REAL-TIME LOGS ---
     const interval = setInterval(() => {
       fetchActivityLogs();
-    }, 5000); // every 5 seconds
+    }, 5000); 
 
     return () => clearInterval(interval);
   }, [token]);
@@ -127,7 +126,7 @@ const DashboardContainer = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(`Activity logged: ${action}`);
-      fetchActivityLogs(); // Refresh logs after posting
+      fetchActivityLogs(); 
     } catch (error) {
       toast.error("Error logging user action");
     }
@@ -240,37 +239,6 @@ const DashboardContainer = () => {
             </div>
           ))}
         </div>
-      </div>
-
-      <div className="card">
-        <h2 className="section-title">Activity Logs</h2>
-        {user?.role !== "admin" && (
-          <div className="activity-logs">
-            <div style={{ display: "flex", fontWeight: "bold", marginBottom: 8 }}>
-              <div style={{ flex: 2 }}>Date</div>
-              <div style={{ flex: 3 }}>Actions</div>
-            </div>
-            {activityLogs.map((log, index) => {
-              // Format date: "July 14 2025 12:34pm"
-              const dateObj = new Date(log.timestamp);
-              const options = { month: "long", day: "numeric", year: "numeric" };
-              const dateStr = dateObj.toLocaleDateString("en-US", options);
-              let hours = dateObj.getHours();
-              const minutes = dateObj.getMinutes().toString().padStart(2, "0");
-              const ampm = hours >= 12 ? "pm" : "am";
-              hours = hours % 12 || 12;
-              const timeStr = `${hours}:${minutes}${ampm}`;
-              return (
-                <div key={index} style={{ display: "flex", marginBottom: 6 }}>
-                  <div style={{ flex: 2 }}>{`${dateStr} ${timeStr}`}</div>
-                  <div style={{ flex: 3 }}>
-                    <span style={{ fontWeight: 500 }}>{log.username}</span>: {log.action}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       <button
