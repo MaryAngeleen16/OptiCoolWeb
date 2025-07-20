@@ -234,7 +234,23 @@ const DashboardContainer = () => {
         <div className="members-list">
           {userList.map((user, index) => (
             <div key={index} className="member">
-              <FaUserCircle className="icon blue" />
+              {/* Show avatar if available, else fallback to icon */}
+              {user.avatar?.url ? (
+                <img
+                  src={user.avatar.url}
+                  alt={user.username}
+                  className="avatar-img"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    marginRight: 8,
+                  }}
+                />
+              ) : (
+                <FaUserCircle className="icon blue" />
+              )}
               <span className={`member-name ${user.color || "default"}`}>{user.username}</span>
             </div>
           ))}
@@ -261,17 +277,23 @@ const DashboardContainer = () => {
         <div className="section-title-container">
           <h2 className="section-title">My Devices</h2>
           <button onClick={handleTurnOnSystem} className="green-button">
-            TURN ON SYSTEM
+            Turn On System
           </button>
           <button onClick={handleTurnOffSystem} className="red-button" style={{ marginLeft: 10 }}>
-            TURN OFF SYSTEM
+            Turn Off System
           </button>
         </div>
 
         <div className="temp-control">
-          <span>
-            Current AC Temp: <span className="temp-value">{currentACTemp}°C</span>
-          </span>
+              <span
+                style={{
+                  paddingTop: "12px",
+                  fontWeight: "bold",
+                  display: "inline-block"
+                }}
+              >
+  Current AC Temperature: <span className="temp-value">{currentACTemp}°C</span>
+</span>
           <TemperatureControl
             initialTemp={Number(currentACTemp)}
             minTemp={16}
@@ -309,7 +331,7 @@ const DashboardContainer = () => {
               }
             }}
           >
-            Turn All On
+            Quick On: All Appliances
           </button>
 
           <button
@@ -330,7 +352,7 @@ const DashboardContainer = () => {
               }
             }}
           >
-            Turn All Off
+            Quick Off: All Appliances
           </button>
         </div>
 

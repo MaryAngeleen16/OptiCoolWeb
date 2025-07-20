@@ -3,6 +3,8 @@ import dmtAPI from '../../dmtAPI';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import './TemperatureControl.css';
+
 
 export default function TemperatureControl({ minTemp = 19, maxTemp = 25 }) {
   const [acTemp, setAcTemp] = useState(maxTemp);
@@ -77,9 +79,9 @@ export default function TemperatureControl({ minTemp = 19, maxTemp = 25 }) {
 
   return (
     <div>
-      <button onClick={handleDecrease} disabled={loading || acTemp <= minTemp}>-</button>
-      <span style={{ margin: '0 10px' }}>{acTemp}°C</span>
-      <button onClick={handleIncrease} disabled={loading || acTemp >= maxTemp}>+</button>
+      <button className="button-cont" onClick={handleDecrease} disabled={loading || acTemp <= minTemp}>-</button>
+      <span className="ac-temp-display">{acTemp}°C</span>
+      <button className="button-cont" onClick={handleIncrease} disabled={loading || acTemp >= maxTemp}>+</button>
       {loading && <span style={{ marginLeft: 10 }}>Updating...</span>}
     </div>
   );

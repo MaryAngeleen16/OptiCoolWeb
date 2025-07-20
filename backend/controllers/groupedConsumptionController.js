@@ -3,9 +3,9 @@ const axios = require("axios");
 exports.getGroupedConsumptionRawData = async (req, res) => {
   try {
     const [power, reports, logs] = await Promise.all([
-      axios.get("https://opticoolweb-backend.onrender.com/api/v1/powerconsumptions"),
-      axios.get("https://opticoolweb-backend.onrender.com/api/v1/getreport"),
-      axios.get("https://opticoolweb-backend.onrender.com/api/v1/appliances"),
+      axios.get(`${process.env.REACT_APP_API}/powerconsumptions`),
+      axios.get(`${process.env.REACT_APP_API}/getreport`),
+      axios.get(`${process.env.REACT_APP_API}/appliances`),
     ]);
 
     res.json({

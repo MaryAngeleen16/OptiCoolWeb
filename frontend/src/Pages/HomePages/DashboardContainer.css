@@ -130,3 +130,17 @@
     background-color: gray;
     border-radius: 50%;
 }
+
+.avatar-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+}
+
+.temp-value
+{
+    font-size: 30px;
+    color:#339b4b;
+}
